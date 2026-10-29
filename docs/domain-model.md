@@ -15,8 +15,7 @@ Week
 ├── start           "YYYY-MM-DD" (a Monday)
 ├── repeat          1 | 2 | …   (number of consecutive weeks the plan covers)
 └── days[7]         Day (Monday first)
-Day
-└── meals{mealId}   { personId: dishHtml }
+Day               { mealId: { personId: dishHtml } }
 ```
 
 Rules:

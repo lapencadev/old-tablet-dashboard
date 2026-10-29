@@ -25,12 +25,16 @@
     "depends_on": [
       "quality-gate"
     ],
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "Unit test: the example validates.",
       "Unit test: a week with 6 days is rejected with a message naming the week."
     ],
-    "evidence": [],
+    "evidence": [
+      "2026-10-30: validate-menu on panel/data/menu.example.js → 'valid · 2 people · 5 meals · 1 week(s): autumn1'.",
+      "2026-10-30: broken copy (start 2026-11-03) → '1 problem(s) - week `autumn1`: `start` 2026-11-03 is not a Monday', exit 1.",
+      "2026-10-30: tests/test_menu.py 9 tests OK (6-day week rejected naming the week, unknown meal/person, json5 comments, resolve_week inside/after/before/manual)."
+    ],
     "notes": "Format in docs/domain-model.md."
   },
   {
