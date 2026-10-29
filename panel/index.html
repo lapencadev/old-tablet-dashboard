@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1a2416">
+<title>Panel</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="top">
+  <div class="date">
+    <div class="weekday" id="weekday"></div>
+    <div class="daymonth" id="daymonth"></div>
+  </div>
+  <div class="checklist" id="checklist"></div>
+  <div class="weather" id="weather"></div>
+  <div class="mode" id="mode"></div>
+  <div class="clock" id="clock"></div>
+</header>
+
+<div class="alerts" id="alerts"></div>
+
+<main class="grid">
+  <section class="col col-meals" id="colMeals">
+    <div class="card">
+      <div class="col-hd"><h2 id="hToday"></h2><span class="week" id="weekLabel"></span></div>
+      <div id="today"></div>
+    </div>
+    <div class="card">
+      <div class="col-hd"><h2 id="hTomorrow"></h2><span class="week" id="hTomorrowHint"></span></div>
+      <div id="tomorrow"></div>
+    </div>
+  </section>
+
+  <section class="col col-mid" id="colMid">
+    <div class="card card-agenda">
+      <div class="col-hd"><h2 id="hWeek"></h2></div>
+      <div id="agenda" class="agenda-week"></div>
+    </div>
+    <div class="card card-photo" id="photo"><div class="photo-img" id="photoImg"></div><div class="photo-cap" id="photoCap"></div></div>
+  </section>
+
+  <section class="col col-side" id="colSide">
+    <div class="card" id="tasksCard">
+      <div class="col-hd"><h2 id="hTasks"></h2><span class="week" id="tasksCount"></span></div>
+      <div id="tasks"></div>
+    </div>
+    <div class="card" id="shoppingCard">
+      <div class="col-hd"><h2 id="hShopping"></h2><span class="week" id="shoppingCount"></span></div>
+      <div id="shopping"></div>
+    </div>
+    <div class="card card-photo" id="photo2"><div class="photo-img" id="photo2Img"></div><div class="photo-cap" id="photo2Cap"></div></div>
+  </section>
+</main>
+
+<div class="modal" id="modal"></div>
+
+<!-- Example files first; your own config.js / menu.js (git-ignored) override them when they exist. -->
+<script src="config.example.js"></script>
+<script src="config.js"></script>
+<script src="i18n.js"></script>
+<script src="data/menu.example.js"></script>
+<script src="data/menu.js"></script>
+<script src="core.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

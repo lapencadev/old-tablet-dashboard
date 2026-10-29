@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 260">
+  <!-- Original illustration for the example config (MIT, part of this repo). -->
+  <rect width="400" height="260" rx="14" fill="#f4efe4"/>
+  <circle cx="300" cy="80" r="36" fill="#f2c46d"/>
+  <path d="M0 190 C70 140 130 150 190 175 C250 200 320 150 400 160 L400 260 L0 260 Z" fill="#a8b89a"/>
+  <path d="M0 215 C90 185 170 205 240 220 C300 232 350 210 400 205 L400 260 L0 260 Z" fill="#7a8c6e"/>
+  <g fill="#4a5c3e">
+    <path d="M70 200 l14 -48 l14 48 z"/><rect x="82" y="198" width="4" height="10"/>
+    <path d="M100 205 l11 -38 l11 38 z"/><rect x="109" y="203" width="4" height="9"/>
+    <path d="M330 196 l12 -42 l12 42 z"/><rect x="340" y="194" width="4" height="10"/>
+  </g>
+  <g fill="#2d3d26">
+    <circle cx="205" cy="196" r="5"/><rect x="202" y="200" width="6" height="16" rx="2"/>
+    <circle cx="222" cy="200" r="4"/><rect x="219.5" y="203" width="5" height="13" rx="2"/>
+  </g>
+</svg>
