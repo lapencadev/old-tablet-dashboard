@@ -1,0 +1,39 @@
+# Apps to disable on the tablet (one package per line). Disabled, not deleted:
+# `python tools/panel.py tablet-debloat --restore` brings them back.
+# Check what your tablet has with: adb shell pm list packages
+# Google apps
+com.google.android.youtube
+com.google.android.apps.magazines
+com.google.android.apps.plus
+com.google.android.play.games
+com.google.android.gm
+com.google.android.talk
+com.google.android.music
+com.google.android.videos
+com.google.android.apps.books
+com.google.android.apps.maps
+com.google.android.apps.docs
+com.google.android.keep
+com.google.android.googlequicksearchbox
+com.google.android.apps.cloudprint
+com.google.android.feedback
+com.google.android.tag
+com.quickoffice.android
+# AOSP extras
+com.android.email
+com.android.exchange
+com.android.gallery3d
+com.android.musicvis
+com.android.noisefield
+com.android.galaxy4
+com.android.magicsmoke
+com.android.phasebeam
+com.android.wallpaper.holospiral
+com.android.protips
+com.android.soundrecorder
+com.android.dreams.phototable
+com.android.facelock
+com.hp.android.printservice
+# Manufacturer apps: add yours here (examples from a 2014 MediaTek tablet)
+# com.mediatek.FMRadio
+# com.mediatek.mtklogger

@@ -470,11 +470,13 @@
     "depends_on": [
       "quality-gate"
     ],
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "Unit test with a fake adb: commands issued in the right order."
     ],
-    "evidence": [],
+    "evidence": [
+      "2026-10-30: tests/test_tablet_tools.py with a fake adb — debloat issues disable-user then block for refused packages, restore runs enable+unblock, screenshot pulls a PNG and removes the temp file; default list parses. 4 tests OK."
+    ],
     "notes": "pm disable-user fails on some old ROMs; fall back to pm block."
   },
   {

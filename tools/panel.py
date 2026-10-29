@@ -317,6 +317,79 @@ def cmd_ha_check(args):
     return 0
 
 
+# ───────── tablet helpers (adb) ─────────
+def adb(*args):
+    exe = shutil.which("adb")
+    if not exe:
+        raise SystemExit("adb not found. Install Android platform-tools and enable USB debugging on the tablet (see the guide).")
+    r = subprocess.run([exe] + list(args), capture_output=True, text=True)
+    return r.returncode, (r.stdout + r.stderr).replace("\r", "").strip()
+
+
+def require_device():
+    code, out = adb("get-state")
+    if code or "device" not in out:
+        raise SystemExit("No tablet detected. Check the cable (data, not charge-only), USB debugging and `adb devices`.")
+
+
+def cmd_tablet_shot(args):
+    """Save a screenshot of the tablet screen."""
+    import datetime
+    require_device()
+    out_dir = Path(args.out) if args.out else (Path.home() / "Desktop" if (Path.home() / "Desktop").is_dir() else Path.cwd())
+    dest = out_dir / ("panel-%s.png" % datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
+    adb("shell", "screencap", "-p", "/sdcard/panel.png")
+    code, out = adb("pull", "/sdcard/panel.png", str(dest))
+    adb("shell", "rm", "/sdcard/panel.png")
+    if code:
+        print(out)
+        return 1
+    print("Screenshot saved to %s" % dest)
+    return 0
+
+
+def read_package_list(path):
+    lines = Path(path).read_text(encoding="utf-8").splitlines()
+    return [l.strip() for l in lines if l.strip() and not l.strip().startswith("#")]
+
+
+def cmd_tablet_debloat(args):
+    """Disable (not delete) the apps listed in config/debloat.txt. --restore enables them again."""
+    require_device()
+    pkgs = read_package_list(args.list)
+    ok = failed = 0
+    for p in pkgs:
+        if args.restore:
+            adb("shell", "pm", "enable", p)
+            adb("shell", "pm", "unblock", p)
+            ok += 1
+            continue
+        if args.dry_run:
+            print("  would disable %s" % p)
+            continue
+        # Android 4.4 refuses `disable-user` for system apps over adb; `pm block` (4.4 only) hides them instead.
+        code, out = adb("shell", "pm", "disable-user", p)
+        if "disabled" in out:
+            ok += 1
+            continue
+        code, out = adb("shell", "pm", "block", p)
+        if "true" in out:
+            ok += 1
+        else:
+            failed += 1
+            print("  could not disable %s (%s)" % (p, out.splitlines()[0] if out else "no answer"))
+    print("%s: %d · failed: %d" % ("Restored" if args.restore else "Disabled", ok, failed))
+    return 0
+
+
+def cmd_tablet_open(args):
+    """Open the panel URL in the tablet's browser."""
+    require_device()
+    code, out = adb("shell", "am", "start", "-a", "android.intent.action.VIEW", "-d", args.url)
+    print(out)
+    return code
+
+
 def build_parser():
     p = argparse.ArgumentParser(prog="panel.py", description=__doc__.strip().splitlines()[0])
     sub = p.add_subparsers(dest="command", metavar="<command>")
@@ -345,6 +418,17 @@ def build_parser():
     c.set_defaults(func=cmd_deploy_ha)
     c = sub.add_parser("ha-check", help="list the HA entities you can use in panel/config.js")
     c.set_defaults(func=cmd_ha_check)
+    c = sub.add_parser("tablet-shot", help="save a screenshot of the tablet (adb)")
+    c.add_argument("--out", help="folder (default: Desktop)")
+    c.set_defaults(func=cmd_tablet_shot)
+    c = sub.add_parser("tablet-debloat", help="disable unneeded apps on the tablet (adb), --restore to undo")
+    c.add_argument("--list", default=str(ROOT / "config" / "debloat.txt"))
+    c.add_argument("--restore", action="store_true")
+    c.add_argument("--dry-run", action="store_true")
+    c.set_defaults(func=cmd_tablet_debloat)
+    c = sub.add_parser("tablet-open", help="open a URL in the tablet's browser (adb)")
+    c.add_argument("url", help="e.g. http://<HA_IP>:8000")
+    c.set_defaults(func=cmd_tablet_open)
     c = sub.add_parser("serve", help="run the server against your Home Assistant (settings in .env)")
     c.set_defaults(func=cmd_serve)
     return p, sub
