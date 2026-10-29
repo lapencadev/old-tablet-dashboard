@@ -1,0 +1,363 @@
+[
+  {
+    "id": "quality-gate",
+    "area": "platform",
+    "title": "One command runs every automated check",
+    "user_visible_behavior": "`./init.sh` (or `python tools/panel.py check` on Windows) runs the Python unit tests, the JavaScript logic tests and the ES5 syntax check of the panel, and exits non-zero if any fails.",
+    "depends_on": [],
+    "status": "not_started",
+    "verification": [
+      "`./init.sh` exits 0 on a clean checkout.",
+      "Adding `let x = 1;` to panel/app.js makes the check fail with the file and line."
+    ],
+    "evidence": [],
+    "notes": "Node is optional for end users; when missing, JS checks are skipped with a clear message. CI runs everything."
+  },
+  {
+    "id": "menu-format-example",
+    "area": "menu",
+    "title": "The generic menu format is documented and has a valid example",
+    "user_visible_behavior": "`panel/data/menu.example.js` contains two people, five meals and one dated week; `python tools/panel.py validate-menu` reports it valid and explains the first error in a broken copy.",
+    "depends_on": ["quality-gate"],
+    "status": "not_started",
+    "verification": [
+      "Unit test: the example validates.",
+      "Unit test: a week with 6 days is rejected with a message naming the week."
+    ],
+    "evidence": [],
+    "notes": "Format in docs/domain-model.md."
+  },
+  {
+    "id": "panel-today-meals",
+    "area": "panel",
+    "title": "The panel shows today's meals with the current one highlighted",
+    "user_visible_behavior": "Opening panel/index.html with the example menu shows the weekday, date, clock and today's meals; meals already over are faded and the current one is highlighted.",
+    "depends_on": ["menu-format-example"],
+    "status": "not_started",
+    "verification": [
+      "JS test: week resolution picks the right week/day for a date inside, before and after the menu.",
+      "Screenshot of the demo at 12:30 shows lunch highlighted."
+    ],
+    "evidence": [],
+    "notes": "ES5 only. Main dish = <strong> text."
+  },
+  {
+    "id": "panel-tomorrow-meals",
+    "area": "panel",
+    "title": "The panel shows tomorrow's lunch and dinner",
+    "user_visible_behavior": "A 'Tomorrow' card lists the meals marked `tomorrow: true` for the next day, including when tomorrow falls in another week.",
+    "depends_on": ["panel-today-meals"],
+    "status": "not_started",
+    "verification": ["Screenshot with fake date on a Sunday shows Monday of the next week."],
+    "evidence": [],
+    "notes": ""
+  },
+  {
+    "id": "panel-meal-detail",
+    "area": "panel",
+    "title": "Tapping a meal opens its full detail",
+    "user_visible_behavior": "Tapping a meal row opens a modal with every person's full dish text; tapping outside or 'Close' closes it.",
+    "depends_on": ["panel-today-meals"],
+    "status": "not_started",
+    "verification": ["Playwright: click a meal, modal shows both people's text, click outside closes it."],
+    "evidence": [],
+    "notes": "Recipe section is added by recipe-lookup."
+  },
+  {
+    "id": "panel-i18n",
+    "area": "panel",
+    "title": "The panel speaks English or Spanish",
+    "user_visible_behavior": "With `LANG: 'es'` in config every fixed text, weekday, month and weather condition is Spanish; with `'en'` English.",
+    "depends_on": ["panel-today-meals"],
+    "status": "not_started",
+    "verification": ["JS test: every key in the English table exists in the Spanish table.", "Screenshots in both languages."],
+    "evidence": [],
+    "notes": ""
+  },
+  {
+    "id": "server-static-proxy",
+    "area": "server",
+    "title": "The server serves the panel and proxies Home Assistant",
+    "user_visible_behavior": "`python server/serve.py` serves panel/ and forwards /ha/* to HA_URL adding the token; the browser never receives the token.",
+    "depends_on": ["quality-gate"],
+    "status": "not_started",
+    "verification": ["Unit test with the mock HA: GET /ha/api/states returns states and the mock saw the Authorization header.", "Responses carry Cache-Control: no-store."],
+    "evidence": [],
+    "notes": "Inside HA OS use SUPERVISOR_TOKEN and http://supervisor/core."
+  },
+  {
+    "id": "demo-mode",
+    "area": "platform",
+    "title": "A demo runs without Home Assistant",
+    "user_visible_behavior": "`python tools/panel.py demo` starts a mock HA with example calendars, lists and weather plus the server, and prints the URL to open.",
+    "depends_on": ["server-static-proxy", "panel-today-meals"],
+    "status": "not_started",
+    "verification": ["Playwright screenshot of the demo URL shows meals, agenda, tasks and shopping."],
+    "evidence": [],
+    "notes": "Also used by tests and to produce README screenshots."
+  },
+  {
+    "id": "panel-agenda",
+    "area": "panel",
+    "title": "The panel shows the next seven days of calendar events",
+    "user_visible_behavior": "Events from all HA calendars (or a configured list) appear grouped by day for 7 days; non-main calendars get a chip; multi-day events repeat on each day.",
+    "depends_on": ["demo-mode"],
+    "status": "not_started",
+    "verification": ["Demo screenshot shows an all-day event, a timed event and a second-calendar chip."],
+    "evidence": [],
+    "notes": ""
+  },
+  {
+    "id": "panel-todo-lists",
+    "area": "panel",
+    "title": "The panel shows tasks and shopping and ticks them on tap",
+    "user_visible_behavior": "Pending items of two HA to-do lists are shown with due chips; tapping one marks it completed in HA and it disappears.",
+    "depends_on": ["demo-mode"],
+    "status": "not_started",
+    "verification": ["Playwright on demo: click a shopping item, the mock HA receives todo.update_item with status completed."],
+    "evidence": [],
+    "notes": ""
+  },
+  {
+    "id": "panel-weather",
+    "area": "panel",
+    "title": "The header shows current weather and today's range",
+    "user_visible_behavior": "Temperature, condition text and max/min (plus rain mm when > 0) from an HA weather entity.",
+    "depends_on": ["demo-mode", "panel-i18n"],
+    "status": "not_started",
+    "verification": ["Demo screenshot shows the weather block."],
+    "evidence": [],
+    "notes": ""
+  },
+  {
+    "id": "panel-fit",
+    "area": "panel",
+    "title": "Everything fits one screen without scrolling",
+    "user_visible_behavior": "With long lists the panel shows '+N more · see all' (opening the full list) before shrinking text; nothing is clipped at 1280×672.",
+    "depends_on": ["panel-agenda", "panel-todo-lists"],
+    "status": "not_started",
+    "verification": ["Playwright with 15 shopping items at 1280×672: last card bottom ≤ viewport height and a '+N more' row exists."],
+    "evidence": [],
+    "notes": ""
+  },
+  {
+    "id": "panel-alerts",
+    "area": "panel",
+    "title": "Configured alerts appear as banners",
+    "user_visible_behavior": "Toggle alerts show while their input_boolean is on (button turns it off); date alerts show N days before an input_datetime.",
+    "depends_on": ["demo-mode", "panel-i18n"],
+    "status": "not_started",
+    "verification": ["Playwright on demo: banner visible, button press makes mock HA receive input_boolean.turn_off."],
+    "evidence": [],
+    "notes": ""
+  },
+  {
+    "id": "panel-checklist",
+    "area": "panel",
+    "title": "A daily checklist is shared between screens",
+    "user_visible_behavior": "Configured items show as chips in the header (due, late, done); tapping toggles and the state is stored on the server for that date.",
+    "depends_on": ["server-static-proxy", "panel-today-meals"],
+    "status": "not_started",
+    "verification": ["Unit test: POST /panel/checklist then GET returns the tick for that date only."],
+    "evidence": [],
+    "notes": "Generalises the original 'supplements' chips."
+  },
+  {
+    "id": "panel-photos",
+    "area": "panel",
+    "title": "Photos fill the free space",
+    "user_visible_behavior": "Configured photos rotate every N minutes in the free space under the agenda and the lists; they hide instead of becoming tiny.",
+    "depends_on": ["panel-fit"],
+    "status": "not_started",
+    "verification": ["Demo screenshot shows the example photo; with no photos configured the cards are hidden."],
+    "evidence": [],
+    "notes": "Example photo must be license-free (generated)."
+  },
+  {
+    "id": "panel-night-mode",
+    "area": "panel",
+    "title": "Night mode dims the panel",
+    "user_visible_behavior": "Dark theme from 23:00 to 07:00 in Auto; the header button cycles Auto → Day → Night and is remembered by the tablet.",
+    "depends_on": ["panel-today-meals"],
+    "status": "not_started",
+    "verification": ["Screenshot with fake time 23:30 shows the dark theme."],
+    "evidence": [],
+    "notes": ""
+  },
+  {
+    "id": "week-picker",
+    "area": "panel",
+    "title": "A week can be chosen by hand and is shared",
+    "user_visible_behavior": "Tapping the week label opens a list of weeks plus 'Automatic'; the choice is stored on the server so every screen and /menu use it.",
+    "depends_on": ["server-static-proxy", "panel-today-meals"],
+    "status": "not_started",
+    "verification": ["Unit test: POST /panel/week then GET returns it; JS test: planFor honours the choice."],
+    "evidence": [],
+    "notes": ""
+  },
+  {
+    "id": "recipe-lookup",
+    "area": "menu",
+    "title": "The meal detail shows the matching recipe",
+    "user_visible_behavior": "When the main dish matches a recipe in panel/data/recipes.json the modal shows ingredients, steps and tip; otherwise it says there is no recipe.",
+    "depends_on": ["panel-meal-detail", "server-static-proxy"],
+    "status": "not_started",
+    "verification": ["Unit tests: accent/plural-insensitive match, threshold rejects unrelated dishes."],
+    "evidence": [],
+    "notes": ""
+  },
+  {
+    "id": "menu-sync-adapter",
+    "area": "menu",
+    "title": "The menu can be synced from the author's site through an adapter",
+    "user_visible_behavior": "With MENU_URL set and adapter 'static-site', the server downloads the the author's site data every hour and writes panel/data/menu.js (and recipes.json) in the generic format.",
+    "depends_on": ["menu-format-example", "server-static-proxy"],
+    "status": "not_started",
+    "verification": ["Unit test with a the author's site-shaped fixture: converted menu validates; recipes parsed."],
+    "evidence": [],
+    "notes": "the author's site is the author's private app; the adapter is an example of how to plug any source."
+  },
+  {
+    "id": "ha-app-package",
+    "area": "deploy",
+    "title": "The server installs as a Home Assistant OS local app",
+    "user_visible_behavior": "`python tools/panel.py deploy-app` uploads ha-app/ to /local_apps over SSH, installs or updates the app and restarts it; works from macOS and Windows.",
+    "depends_on": ["server-static-proxy"],
+    "status": "not_started",
+    "verification": ["Unit test: the build directory contains config.yaml, Dockerfile, server and panel; no ._ files.", "Manual on a real HA OS: app runs and serves the panel on :8000."],
+    "evidence": [],
+    "notes": "HA 2026: /local_apps, `ha store reload` may time out; retry loop."
+  },
+  {
+    "id": "telegram-shopping",
+    "area": "telegram",
+    "title": "The group manages the shopping list from Telegram",
+    "user_visible_behavior": "'+ milk, eggs' adds (sorted by section, no duplicates), '- eggs' removes, /shopping (or /compra) lists with tap-to-tick buttons.",
+    "depends_on": ["ha-config-deploy"],
+    "status": "not_started",
+    "verification": ["Unit test: rendered YAML has no unresolved placeholders and parses; manual in a real group."],
+    "evidence": [],
+    "notes": "Sections from config/shopping-sections.<lang>.json."
+  },
+  {
+    "id": "ha-config-deploy",
+    "area": "deploy",
+    "title": "HA automations are rendered from templates and deployed",
+    "user_visible_behavior": "`python tools/panel.py deploy-ha` fills ha/templates with values from .env and creates or updates the automations and scripts through the HA REST API.",
+    "depends_on": ["quality-gate"],
+    "status": "not_started",
+    "verification": ["Unit test against the mock HA: every automation and script id is POSTed once."],
+    "evidence": [],
+    "notes": ""
+  },
+  {
+    "id": "telegram-tasks",
+    "area": "telegram",
+    "title": "The group manages tasks from Telegram",
+    "user_visible_behavior": "'! call plumber @friday' adds a task with a due date; /tasks lists them with buttons to complete.",
+    "depends_on": ["ha-config-deploy"],
+    "status": "not_started",
+    "verification": ["Unit test: rendered YAML parses; manual in a real group."],
+    "evidence": [],
+    "notes": "Date words in EN and ES."
+  },
+  {
+    "id": "telegram-menu-bot",
+    "area": "telegram",
+    "title": "/menu suggests the week's shopping as checkboxes",
+    "user_visible_behavior": "/menu answers with the week's shopping suggestions as toggle buttons (All, None, Add, Close); Add sends the selection to the shopping script.",
+    "depends_on": ["menu-format-example", "telegram-shopping", "ha-app-package"],
+    "status": "not_started",
+    "verification": ["Unit test: session toggling and keyboard layout; multi-product lines split correctly."],
+    "evidence": [],
+    "notes": ""
+  },
+  {
+    "id": "telegram-help",
+    "area": "telegram",
+    "title": "/help explains every command",
+    "user_visible_behavior": "/help (also /ayuda and /start) replies with every command and an example, in the configured language.",
+    "depends_on": ["telegram-menu-bot"],
+    "status": "not_started",
+    "verification": ["Unit test: help text lists every command registered by the packages."],
+    "evidence": [],
+    "notes": ""
+  },
+  {
+    "id": "calendar-refresh",
+    "area": "ha",
+    "title": "Remote calendars refresh every 15 minutes",
+    "user_visible_behavior": "An automation updates every calendar entity every 15 minutes so iCal changes show up quickly.",
+    "depends_on": ["ha-config-deploy"],
+    "status": "not_started",
+    "verification": ["Unit test: rendered automation parses."],
+    "evidence": [],
+    "notes": "Remote Calendar polls once a day by default."
+  },
+  {
+    "id": "tablet-tools",
+    "area": "tablet",
+    "title": "Tablet helpers work from any OS",
+    "user_visible_behavior": "`python tools/panel.py tablet-shot` saves a screenshot from the tablet; `tablet-debloat` disables listed packages (with --restore).",
+    "depends_on": ["quality-gate"],
+    "status": "not_started",
+    "verification": ["Unit test with a fake adb: commands issued in the right order."],
+    "evidence": [],
+    "notes": "pm disable-user fails on some old ROMs; fall back to pm block."
+  },
+  {
+    "id": "docs-readme",
+    "area": "docs",
+    "title": "The README explains the project in five minutes",
+    "user_visible_behavior": "README with screenshots, feature list, architecture diagram, quick demo, install summary, credits and future ideas.",
+    "depends_on": ["demo-mode"],
+    "status": "not_started",
+    "verification": ["All links resolve to files in the repo; screenshots exist."],
+    "evidence": [],
+    "notes": "Credits: Antonio Leiva's post, harness-starter, Home Assistant, Telegram, Tailscale."
+  },
+  {
+    "id": "docs-guide-en",
+    "area": "docs",
+    "title": "A step-by-step guide in English",
+    "user_visible_behavior": "docs/guide.md walks from an old tablet and HA OS to a working panel and Telegram bot, with macOS and Windows commands side by side.",
+    "depends_on": ["docs-readme"],
+    "status": "not_started",
+    "verification": ["Every command in the guide exists in tools/panel.py --help."],
+    "evidence": [],
+    "notes": ""
+  },
+  {
+    "id": "docs-guide-es",
+    "area": "docs",
+    "title": "La misma guía en español",
+    "user_visible_behavior": "docs/es/guia.md mirrors docs/guide.md with the Spanish Home Assistant UI names (Configuración, Aplicaciones, Instalar aplicación…).",
+    "depends_on": ["docs-guide-en"],
+    "status": "not_started",
+    "verification": ["Same sections as the English guide."],
+    "evidence": [],
+    "notes": ""
+  },
+  {
+    "id": "docs-troubleshooting",
+    "area": "docs",
+    "title": "Known problems and fixes are documented",
+    "user_visible_behavior": "docs/troubleshooting.md (and docs/es/problemas.md) list every problem met while building the original setup with cause and fix.",
+    "depends_on": ["docs-guide-en"],
+    "status": "not_started",
+    "verification": ["No personal data (test greps the docs)."],
+    "evidence": [],
+    "notes": ""
+  },
+  {
+    "id": "no-personal-data",
+    "area": "platform",
+    "title": "The repository contains no personal data",
+    "user_visible_behavior": "A test scans tracked files for private IP:port pairs, Telegram group ids, emails and a configurable deny-list, and fails if any is found.",
+    "depends_on": ["quality-gate"],
+    "status": "not_started",
+    "verification": ["Unit test passes on the tree; fails when a fake chat id is added."],
+    "evidence": [],
+    "notes": "Deny-list kept outside the repo (env var) so the private words are not published."
+  }
+]
