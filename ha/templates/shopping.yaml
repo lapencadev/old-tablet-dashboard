@@ -1,0 +1,251 @@
+# Shopping list from Telegram, on the to-do list @@SHOPPING@@.
+# Rendered and deployed by `python tools/panel.py deploy-ha` (values from .env and config/ha.<lang>.json).
+#   + milk, eggs and bread   → adds (sorted by supermarket section, no duplicates)
+#   - eggs                   → removes
+#   @@CMD:shopping@@                → list by section with buttons to tick off
+# Requirement: BotFather → /setprivacy → Disable, so the bot reads plain messages in the group.
+
+scripts:
+  otd_shopping_add:
+    alias: "Shopping · add"
+    mode: queued
+    fields:
+      texto: {description: "Products separated by commas or 'and'/'y'"}
+      lista: {description: "Optional: products already split (used by /menu)"}
+      quien: {description: "Who adds them"}
+      chat_id: {description: "Chat to answer in"}
+    sequence:
+      - action: todo.get_items
+        target: {entity_id: @@SHOPPING@@}
+        data: {status: needs_action}
+        response_variable: actual
+      - variables:
+          rules: @@J:section_rules@@
+          other: @@J:other_section@@
+          existing: "{{ actual['@@SHOPPING@@']['items'] | map(attribute='summary') | map('lower') | list }}"
+          wanted: >-
+            {% set ns = namespace(out=[]) %}
+            {% set parts = lista if lista is defined and lista else (texto | default('') | regex_replace('\\s+(y|and)\\s+|\\n|;', ',')).split(',') %}
+            {% for p in parts %}
+              {% set p = p | trim %}
+              {% if p %}{% set ns.out = ns.out + [p[0] | upper ~ p[1:]] %}{% endif %}
+            {% endfor %}
+            {{ ns.out | unique(case_sensitive=false) | list }}
+      - variables:
+          new_items: >-
+            {% set ns = namespace(out=[]) %}
+            {% for p in wanted %}{% if p | lower not in existing %}{% set ns.out = ns.out + [p] %}{% endif %}{% endfor %}
+            {{ ns.out }}
+          repeated: >-
+            {% set ns = namespace(out=[]) %}
+            {% for p in wanted %}{% if p | lower in existing %}{% set ns.out = ns.out + [p] %}{% endif %}{% endfor %}
+            {{ ns.out }}
+      - repeat:
+          for_each: "{{ new_items }}"
+          sequence:
+            - action: todo.add_item
+              target: {entity_id: @@SHOPPING@@}
+              data:
+                item: "{{ repeat.item }}"
+                description: >-
+                  {% set ns = namespace(sec=other) %}
+                  {% for r in rules %}
+                    {% if ns.sec == other and (repeat.item | lower) is search('\\b(' ~ r[0] ~ ')') %}{% set ns.sec = r[1] %}{% endif %}
+                  {% endfor %}
+                  {{ ns.sec }}
+      - action: telegram_bot.send_message
+        data:
+          chat_id: "{{ chat_id }}"
+          parse_mode: html
+          disable_notification: true
+          message: >-
+            {%- set esc = (new_items | join(', ')) | replace('&','&amp;') | replace('<','&lt;') -%}
+            {%- set rep = (repeated | join(', ')) | replace('&','&amp;') | replace('<','&lt;') -%}
+            {%- if new_items | count %}{{ @@J:msg.added@@ | replace('{who}', quien) | replace('{items}', esc) }}{% endif %}
+            {%- if new_items | count and repeated | count %}{{ '\n' }}{% endif %}
+            {%- if repeated | count %}{{ @@J:msg.already@@ | replace('{items}', rep) }}{% endif %}
+
+  otd_shopping_list:
+    alias: "Shopping · show list"
+    mode: queued
+    fields:
+      chat_id: {description: "Chat"}
+      message_id: {description: "If present, edit that message instead of sending a new one"}
+    sequence:
+      - action: todo.get_items
+        target: {entity_id: @@SHOPPING@@}
+        data: {status: needs_action}
+        response_variable: actual
+      - variables:
+          order: @@J:section_order@@
+          other: @@J:other_section@@
+          items: "{{ actual['@@SHOPPING@@']['items'] }}"
+          sorted_items: >-
+            {% set ns = namespace(out=[]) %}
+            {% for sec in order %}
+              {% for it in items %}
+                {% if (it.description | default(other, true)) == sec or (sec == other and (it.description | default('', true)) not in order) %}
+                  {% set ns.out = ns.out + [{'uid': it.uid, 'name': it.summary, 'sec': sec}] %}
+                {% endif %}
+              {% endfor %}
+            {% endfor %}
+            {{ ns.out }}
+          text: |-
+            {%- if not sorted_items -%}
+            {{ @@J:msg.shopping_empty@@ }}
+            {%- else -%}
+            {{ @@J:msg.shopping_title@@ | replace('{n}', sorted_items | count | string) }}
+            {%- set ns = namespace(sec='') %}
+            {%- for it in sorted_items %}
+            {%- if it.sec != ns.sec %}{% set ns.sec = it.sec %}
+
+            <b>{{ it.sec }}</b>
+            {%- endif %}
+            • {{ it.name | replace('&','&amp;') | replace('<','&lt;') }}
+            {%- endfor %}
+
+            {{ @@J:msg.shopping_hint@@ }}
+            {%- endif %}
+          keyboard: >-
+            {% set ns = namespace(rows=[], row=[]) %}
+            {% for it in sorted_items %}
+              {% set ns.row = ns.row + [['✓ ' ~ it.name[:28], '/c_ok ' ~ it.uid]] %}
+              {% if ns.row | count == 2 %}{% set ns.rows = ns.rows + [ns.row] %}{% set ns.row = [] %}{% endif %}
+            {% endfor %}
+            {% if ns.row %}{% set ns.rows = ns.rows + [ns.row] %}{% endif %}
+            {% set ns.rows = ns.rows + [[[@@J:msg.refresh@@, '/c_ref']]] %}
+            {{ ns.rows }}
+      - if:
+          - condition: template
+            value_template: "{{ message_id is defined and message_id not in [none, ''] }}"
+        then:
+          - action: telegram_bot.edit_message
+            continue_on_error: true
+            data:
+              chat_id: "{{ chat_id }}"
+              message_id: "{{ message_id }}"
+              parse_mode: html
+              message: "{{ text }}"
+              inline_keyboard: "{{ keyboard }}"
+        else:
+          - action: telegram_bot.send_message
+            data:
+              chat_id: "{{ chat_id }}"
+              parse_mode: html
+              disable_notification: true
+              message: "{{ text }}"
+              inline_keyboard: "{{ keyboard }}"
+
+automations:
+  otd_shopping_add:
+    alias: "Shopping · + from Telegram"
+    mode: queued
+    triggers:
+      - trigger: event
+        event_type: telegram_text
+    conditions:
+      - condition: template
+        value_template: "{{ trigger.event.data.chat_id | int == @@CHAT_ID@@ and trigger.event.data.text is match('\\s*\\+') }}"
+    actions:
+      - action: script.otd_shopping_add
+        data:
+          texto: "{{ trigger.event.data.text | regex_replace('^\\s*\\+\\s*', '') }}"
+          quien: "{{ trigger.event.data.from_first }}"
+          chat_id: "{{ trigger.event.data.chat_id }}"
+
+  otd_shopping_remove:
+    alias: "Shopping · - from Telegram"
+    mode: queued
+    triggers:
+      - trigger: event
+        event_type: telegram_text
+    conditions:
+      - condition: template
+        value_template: "{{ trigger.event.data.chat_id | int == @@CHAT_ID@@ and trigger.event.data.text is match('\\s*-\\s*\\S') }}"
+    actions:
+      - action: todo.get_items
+        target: {entity_id: @@SHOPPING@@}
+        data: {status: needs_action}
+        response_variable: actual
+      - variables:
+          wanted: "{{ trigger.event.data.text | regex_replace('^\\s*-\\s*', '') | trim | lower }}"
+          found: >-
+            {% set ns = namespace(it=none) %}
+            {% for it in actual['@@SHOPPING@@']['items'] %}
+              {% if ns.it is none and (it.summary | lower == wanted or (it.summary | lower).startswith(wanted)) %}{% set ns.it = it %}{% endif %}
+            {% endfor %}
+            {{ ns.it }}
+      - if:
+          - condition: template
+            value_template: "{{ found not in [none, '', 'None'] }}"
+        then:
+          - action: todo.remove_item
+            target: {entity_id: @@SHOPPING@@}
+            data: {item: "{{ found.uid }}"}
+          - action: telegram_bot.send_message
+            data:
+              chat_id: "{{ trigger.event.data.chat_id }}"
+              disable_notification: true
+              parse_mode: html
+              message: >-
+                {{ @@J:msg.removed@@ | replace('{who}', trigger.event.data.from_first) | replace('{item}', found.summary | replace('&','&amp;') | replace('<','&lt;')) }}
+        else:
+          - action: telegram_bot.send_message
+            data:
+              chat_id: "{{ trigger.event.data.chat_id }}"
+              disable_notification: true
+              parse_mode: html
+              message: >-
+                {{ @@J:msg.not_found@@ | replace('{item}', wanted | replace('&','&amp;') | replace('<','&lt;')) }}
+
+  otd_shopping_show:
+    alias: "Shopping · @@CMD:shopping@@"
+    mode: queued
+    triggers:
+      - trigger: event
+        event_type: telegram_command
+        event_data: {command: @@J:commands.shopping@@}
+    conditions:
+      - condition: template
+        value_template: "{{ trigger.event.data.chat_id | int == @@CHAT_ID@@ }}"
+    actions:
+      - action: script.otd_shopping_list
+        data:
+          chat_id: "{{ trigger.event.data.chat_id }}"
+
+  otd_shopping_buttons:
+    alias: "Shopping · list buttons"
+    mode: queued
+    triggers:
+      - trigger: event
+        event_type: telegram_callback
+        event_data: {command: /c_ok}
+        id: tick
+      - trigger: event
+        event_type: telegram_callback
+        event_data: {command: /c_ref}
+        id: refresh
+    conditions:
+      - condition: template
+        value_template: "{{ trigger.event.data.chat_id | int == @@CHAT_ID@@ }}"
+    actions:
+      - if:
+          - condition: trigger
+            id: tick
+        then:
+          - action: todo.update_item
+            continue_on_error: true
+            target: {entity_id: @@SHOPPING@@}
+            data:
+              item: "{{ trigger.event.data.args[0] }}"
+              status: completed
+      - action: telegram_bot.answer_callback_query
+        continue_on_error: true
+        data:
+          callback_query_id: "{{ trigger.event.data.id }}"
+          message: >-
+            {{ @@J:msg.ticked@@ if trigger.id == 'tick' else @@J:msg.refreshed@@ }}
+      - action: script.otd_shopping_list
+        data:
+          chat_id: "{{ trigger.event.data.chat_id }}"
+          message_id: "{{ trigger.event.data.message.message_id }}"

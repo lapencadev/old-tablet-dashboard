@@ -1,0 +1,152 @@
+{
+ "commands": {
+  "shopping": "/shopping",
+  "tasks": "/tasks"
+ },
+ "other_section": "📦 Other",
+ "section_order": [
+  "🥬 Fruit & veg",
+  "🥖 Bakery",
+  "🧀 Deli & cheese",
+  "🥩 Meat",
+  "🐟 Fish",
+  "🥛 Dairy & eggs",
+  "🥫 Pantry",
+  "❄️ Frozen",
+  "🥤 Drinks",
+  "🧽 Cleaning & home",
+  "🧴 Personal care",
+  "🐾 Pets",
+  "📦 Other"
+ ],
+ "section_rules": [
+  [
+   "tinned|canned|jar|soup|passata|crushed tomato|evaporated milk",
+   "🥫 Pantry"
+  ],
+  [
+   "salmon|cod|hake|sea ?bass|sea ?bream|prawn|shrimp|mussel|squid|octopus|fish|sardine|tuna steak|surimi",
+   "🐟 Fish"
+  ],
+  [
+   "ham|bacon|salami|chorizo|sausage|cheese|mozzarella|ricotta|feta|cheddar",
+   "🧀 Deli & cheese"
+  ],
+  [
+   "chicken|turkey|beef|pork|mince|burger|steak|lamb|liver|loin",
+   "🥩 Meat"
+  ],
+  [
+   "milk|yogh?urt|kefir|cream|butter|eggs?\\b|skyr",
+   "🥛 Dairy & eggs"
+  ],
+  [
+   "frozen|ice cream|peas",
+   "❄️ Frozen"
+  ],
+  [
+   "tomato|lettuce|rocket|spinach|onion|garlic|potato|carrot|pepper|cucumber|courgette|zucchini|aubergine|eggplant|broccoli|cauliflower|mushroom|avocado|lemon|lime|orange|mandarin|apple|pear|banana|strawberr|blueberr|grape|kiwi|melon|mango|fruit|parsley|coriander|basil|ginger|leek|celery|pumpkin|sweet potato|asparagus|beetroot|salad",
+   "🥬 Fruit & veg"
+  ],
+  [
+   "bread|baguette|tortilla|wrap|croissant|bagel",
+   "🥖 Bakery"
+  ],
+  [
+   "cat|dog|litter|pet food",
+   "🐾 Pets"
+  ],
+  [
+   "shampoo|shower gel|deodorant|toothpaste|toothbrush|tampon|pads|sun ?cream|cotton|wipes|soap|razor",
+   "🧴 Personal care"
+  ],
+  [
+   "bleach|detergent|softener|dishwasher|paper|napkin|bin bags|bags|sponge|cleaner|batteries|foil|cling|light ?bulb",
+   "🧽 Cleaning & home"
+  ],
+  [
+   "water|beer|wine|soda|juice|tonic|kombucha",
+   "🥤 Drinks"
+  ],
+  [
+   "rice|pasta|noodle|lentil|chickpea|beans|quinoa|flour|sugar|salt|oil|vinegar|tuna|mackerel|spice|oregano|cumin|cinnamon|curry|stock|nuts|walnut|almond|peanut|seeds|oats|cereal|biscuit|coffee|tea\\b|cocoa|chocolate|jam|honey|protein",
+   "🥫 Pantry"
+  ]
+ ],
+ "msg": {
+  "added": "🛒 {who} added: {items}",
+  "already": "👌 Already on the list: {items}",
+  "removed": "🗑 {who} removed: {item}",
+  "not_found": "🤷 I can't find “{item}” on the list.",
+  "shopping_empty": "🛒 The shopping list is empty.",
+  "shopping_title": "🛒 <b>Shopping list</b> ({n})",
+  "shopping_hint": "<i>Tap a product to tick it off.</i>",
+  "ticked": "✓ Ticked off",
+  "refreshed": "Refreshed",
+  "refresh": "🔄 Refresh",
+  "tasks_empty": "📝 No pending tasks. 🎉",
+  "tasks_title": "📝 <b>Pending tasks</b> ({n})",
+  "tasks_hint": "<i>Tap a task to mark it done.</i>",
+  "task_done": "✓ Done",
+  "task_added": "📝 {who} added a task: {item}",
+  "task_due": " (due {date})",
+  "task_bad_date": " (I don't understand the date “@{word}”, saved without date)",
+  "today": "today"
+ },
+ "weekdays": [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday"
+ ],
+ "weekdays_short": [
+  "Mon",
+  "Tue",
+  "Wed",
+  "Thu",
+  "Fri",
+  "Sat",
+  "Sun"
+ ],
+ "date_words": {
+  "today": [
+   "today"
+  ],
+  "tomorrow": [
+   "tomorrow"
+  ],
+  "weekdays": [
+   [
+    "monday",
+    "mon"
+   ],
+   [
+    "tuesday",
+    "tue"
+   ],
+   [
+    "wednesday",
+    "wed"
+   ],
+   [
+    "thursday",
+    "thu"
+   ],
+   [
+    "friday",
+    "fri"
+   ],
+   [
+    "saturday",
+    "sat"
+   ],
+   [
+    "sunday",
+    "sun"
+   ]
+  ]
+ }
+}

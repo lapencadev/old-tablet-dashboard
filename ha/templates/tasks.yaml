@@ -1,0 +1,172 @@
+# Tasks from Telegram, on the to-do list @@TASKS@@.
+#   ! call the plumber            → adds a task
+#   ! call the plumber @friday    → with a due date (@today, @tomorrow, a weekday, @30/10)
+#   @@CMD:tasks@@                        → list with buttons to mark tasks done
+
+scripts:
+  otd_tasks_list:
+    alias: "Tasks · show list"
+    mode: queued
+    fields:
+      chat_id: {description: "Chat"}
+      message_id: {description: "If present, edit that message"}
+    sequence:
+      - action: todo.get_items
+        target: {entity_id: @@TASKS@@}
+        data: {status: needs_action}
+        response_variable: actual
+      - variables:
+          days: @@J:weekdays_short@@
+          today: "{{ now().date() | string }}"
+          sorted_items: >-
+            {% set items = actual['@@TASKS@@']['items'] %}
+            {% set dated = items | selectattr('due', 'defined') | sort(attribute='due') | list %}
+            {% set undated = items | rejectattr('due', 'defined') | list %}
+            {{ dated + undated }}
+          text: |-
+            {%- if not sorted_items -%}
+            {{ @@J:msg.tasks_empty@@ }}
+            {%- else -%}
+            {{ @@J:msg.tasks_title@@ | replace('{n}', sorted_items | count | string) }}
+            {% for it in sorted_items %}
+            {%- set d = it.due[:10] if it.due is defined else '' %}
+            {%- if d %}{% set f = strptime(d, '%Y-%m-%d') %}{% endif %}
+            • {{ it.summary | replace('&','&amp;') | replace('<','&lt;') }}{% if d %} — {{ '⚠️ ' if d < today else '' }}{{ @@J:msg.today@@ if d == today else days[f.weekday()] ~ ' ' ~ f.strftime('%d/%m') }}{% endif %}
+            {%- endfor %}
+
+            {{ @@J:msg.tasks_hint@@ }}
+            {%- endif %}
+          keyboard: >-
+            {% set ns = namespace(rows=[]) %}
+            {% for it in sorted_items %}
+              {% set ns.rows = ns.rows + [[['✓ ' ~ it.summary[:40], '/t_ok ' ~ it.uid]]] %}
+            {% endfor %}
+            {% set ns.rows = ns.rows + [[[@@J:msg.refresh@@, '/t_ref']]] %}
+            {{ ns.rows }}
+      - if:
+          - condition: template
+            value_template: "{{ message_id is defined and message_id not in [none, ''] }}"
+        then:
+          - action: telegram_bot.edit_message
+            continue_on_error: true
+            data:
+              chat_id: "{{ chat_id }}"
+              message_id: "{{ message_id }}"
+              parse_mode: html
+              message: "{{ text }}"
+              inline_keyboard: "{{ keyboard }}"
+        else:
+          - action: telegram_bot.send_message
+            data:
+              chat_id: "{{ chat_id }}"
+              parse_mode: html
+              disable_notification: true
+              message: "{{ text }}"
+              inline_keyboard: "{{ keyboard }}"
+
+automations:
+  otd_tasks_add:
+    alias: "Tasks · ! from Telegram"
+    mode: queued
+    triggers:
+      - trigger: event
+        event_type: telegram_text
+    conditions:
+      - condition: template
+        value_template: "{{ trigger.event.data.chat_id | int == @@CHAT_ID@@ and trigger.event.data.text is match('\\s*!\\s*\\S') }}"
+    actions:
+      - variables:
+          words: @@J:date_words@@
+          raw: "{{ trigger.event.data.text | regex_replace('^\\s*!\\s*', '') | trim }}"
+          mark: "{{ (raw | regex_findall('@(\\S+)') | first | default('')) | lower }}"
+          title: >-
+            {% set t = raw | regex_replace('\\s*@\\S+', '') | trim %}{{ t[0] | upper ~ t[1:] if t else '' }}
+          due: >-
+            {% set today = now().date() %}
+            {% set ns = namespace(wd=-1) %}
+            {% for names in words.weekdays %}{% if mark in names %}{% set ns.wd = loop.index0 %}{% endif %}{% endfor %}
+            {% if mark in words.today %}{{ today }}
+            {% elif mark in words.tomorrow %}{{ today + timedelta(days=1) }}
+            {% elif ns.wd >= 0 %}{% set n = (ns.wd - today.weekday()) % 7 %}{{ today + timedelta(days=(n if n > 0 else 7)) }}
+            {% elif mark is match('^\\d{1,2}/\\d{1,2}$') %}
+              {% set p = mark.split('/') %}{% set d = strptime(today.year ~ '-' ~ p[1] ~ '-' ~ p[0], '%Y-%m-%d', none) %}
+              {% if d %}{% set d = d.date() %}{{ d if d >= today else d.replace(year=today.year + 1) }}{% endif %}
+            {% endif %}
+      - condition: template
+        value_template: "{{ title != '' }}"
+      - if:
+          - condition: template
+            value_template: "{{ due | trim != '' }}"
+        then:
+          - action: todo.add_item
+            target: {entity_id: @@TASKS@@}
+            data:
+              item: "{{ title }}"
+              due_date: "{{ due | trim }}"
+        else:
+          - action: todo.add_item
+            target: {entity_id: @@TASKS@@}
+            data:
+              item: "{{ title }}"
+      - action: telegram_bot.send_message
+        data:
+          chat_id: "{{ trigger.event.data.chat_id }}"
+          parse_mode: html
+          disable_notification: true
+          message: >-
+            {%- set names = @@J:weekdays@@ -%}
+            {{ @@J:msg.task_added@@ | replace('{who}', trigger.event.data.from_first) | replace('{item}', title | replace('&','&amp;') | replace('<','&lt;')) }}
+            {%- if due | trim %}{% set f = strptime(due | trim, '%Y-%m-%d') %}{{ @@J:msg.task_due@@ | replace('{date}', names[f.weekday()] ~ ' ' ~ f.strftime('%d/%m')) }}
+            {%- elif mark %}{{ @@J:msg.task_bad_date@@ | replace('{word}', mark) }}{% endif %}
+
+  otd_tasks_show:
+    alias: "Tasks · @@CMD:tasks@@"
+    mode: queued
+    triggers:
+      - trigger: event
+        event_type: telegram_command
+        event_data: {command: @@J:commands.tasks@@}
+    conditions:
+      - condition: template
+        value_template: "{{ trigger.event.data.chat_id | int == @@CHAT_ID@@ }}"
+    actions:
+      - action: script.otd_tasks_list
+        data:
+          chat_id: "{{ trigger.event.data.chat_id }}"
+
+  otd_tasks_buttons:
+    alias: "Tasks · list buttons"
+    mode: queued
+    triggers:
+      - trigger: event
+        event_type: telegram_callback
+        event_data: {command: /t_ok}
+        id: done
+      - trigger: event
+        event_type: telegram_callback
+        event_data: {command: /t_ref}
+        id: refresh
+    conditions:
+      - condition: template
+        value_template: "{{ trigger.event.data.chat_id | int == @@CHAT_ID@@ }}"
+    actions:
+      - if:
+          - condition: trigger
+            id: done
+        then:
+          - action: todo.update_item
+            continue_on_error: true
+            target: {entity_id: @@TASKS@@}
+            data:
+              item: "{{ trigger.event.data.args[0] }}"
+              status: completed
+      - action: telegram_bot.answer_callback_query
+        continue_on_error: true
+        data:
+          callback_query_id: "{{ trigger.event.data.id }}"
+          message: >-
+            {{ @@J:msg.task_done@@ if trigger.id == 'done' else @@J:msg.refreshed@@ }}
+      - action: script.otd_tasks_list
+        data:
+          chat_id: "{{ trigger.event.data.chat_id }}"
+          message_id: "{{ trigger.event.data.message.message_id }}"
