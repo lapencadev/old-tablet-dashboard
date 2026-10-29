@@ -73,6 +73,17 @@ async function scenario(name, fn) {
     assert.ok((await p.textContent('#daymonth')).startsWith('4 de noviembre'));
     assert.ok((await p.textContent('#agenda')).includes('Mañana'));
     assert.ok((await p.textContent('#weather')).includes('Algo nublado'));
+  });
+
+  await scenario('demo --lang es: Spanish menu, recipes and texts', async () => {
+    const p = await page(browser, { base: process.env.BASE_ES });
+    assert.strictEqual(await p.textContent('#hToday'), 'Hoy se come');
+    assert.ok((await p.textContent('#today')).includes('Boloñesa de ternera y calabacín'));
+    assert.ok((await p.textContent('#alerts')).includes('Veterinario en 3 días'));
+    await p.click('#today .ms.now');
+    await p.waitForTimeout(600);
+    assert.strictEqual(await p.textContent('#modal .md-rt'), 'Macarrones integrales con boloñesa de ternera y calabacín');
+    await p.mouse.click(20, 20);
     if (SHOTS) await p.screenshot({ path: SHOTS + '/panel-es.png' });
   });
 

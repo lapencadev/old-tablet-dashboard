@@ -50,8 +50,12 @@ def best_match(recipes, dish):
 class RecipeBook:
     """Reloads the JSON file when it changes."""
 
-    def __init__(self, panel_dir):
-        self.paths = [Path(panel_dir) / "data" / "recipes.json", Path(panel_dir) / "data" / "recipes.example.json"]
+    def __init__(self, panel_dir, example_lang=None):
+        data = Path(panel_dir) / "data"
+        self.paths = [data / "recipes.json"]
+        if example_lang and example_lang != "en":
+            self.paths.append(data / ("recipes.example.%s.json" % example_lang))
+        self.paths.append(data / "recipes.example.json")
         self.cache = (None, None, [])
 
     def recipes(self):

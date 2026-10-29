@@ -82,11 +82,11 @@ h2 { font-family: Georgia, serif; font-weight: normal; font-size: 21px; color: #
 .ag-day span { font-weight: 300; color: #b8b8a8; letter-spacing: 0; text-transform: none; }
 .ag-today .ag-day { color: #4a5c3e; }
 .ag-item { display: -webkit-flex; display: flex; font-size: 15px; line-height: 1.35; padding: 3px 0; }
-.ag-time { width: 70px; -webkit-flex-shrink: 0; flex-shrink: 0; color: #4a5c3e; font-weight: 500; font-size: 13px; padding-top: 1px; }
+.ag-time { width: 84px; -webkit-flex-shrink: 0; flex-shrink: 0; color: #4a5c3e; font-weight: 500; font-size: 13px; padding-top: 1px; }
 .ag-title { -webkit-flex: 1; flex: 1; min-width: 0; color: #1e1e18; }
 .ag-none { font-size: 14px; color: #d2ddc8; padding: 2px 0; }
 .ag-cal { display: inline-block; font-size: 11px; color: #4a5c3e; background: #e8ede4; border-radius: 6px; padding: 0 6px; margin-left: 4px; vertical-align: 1px; }
-.ag-more { padding: 1px 0 0 70px; font-size: 12px; color: #4a5c3e; font-weight: 500; }
+.ag-more { padding: 1px 0 0 84px; font-size: 12px; color: #4a5c3e; font-weight: 500; }
 
 /* ───────── Tasks and shopping ───────── */
 .td { display: -webkit-flex; display: flex; -webkit-align-items: flex-start; align-items: flex-start; padding: 7px 0; border-bottom: 1px solid #f4f7f1; font-size: 15px; line-height: 1.35; color: #1e1e18; }
