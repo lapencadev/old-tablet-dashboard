@@ -1,0 +1,17 @@
+# Local configuration and data (personal)
+.env
+panel/config.js
+panel/data/menu.js
+panel/data/recipes.json
+panel/img/*
+!panel/img/example-*
+state/
+build/
+*.tmp
+# Python / tooling
+__pycache__/
+*.pyc
+node_modules/
+.DS_Store
+._*
+screenshots/
