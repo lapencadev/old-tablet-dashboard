@@ -45,12 +45,15 @@
     "depends_on": [
       "menu-format-example"
     ],
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "JS test: week resolution picks the right week/day for a date inside, before and after the menu.",
       "Screenshot of the demo at 12:30 shows lunch highlighted."
     ],
-    "evidence": [],
+    "evidence": [
+      "2026-10-30: python tools/panel.py e2e (Playwright, Chromium) → 'PASS panel-today-meals: lunch highlighted at 12:30, earlier meals faded'.",
+      "2026-10-30: tests/js/core.test.js planFor/currentMeal/mainDish tests pass."
+    ],
     "notes": "ES5 only. Main dish = <strong> text."
   },
   {
@@ -61,11 +64,13 @@
     "depends_on": [
       "panel-today-meals"
     ],
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "Screenshot with fake date on a Sunday shows Monday of the next week."
     ],
-    "evidence": [],
+    "evidence": [
+      "2026-10-30: python tools/panel.py e2e (Playwright, Chromium) → 'PASS panel-tomorrow-meals: on Sunday shows Monday of the next week'."
+    ],
     "notes": ""
   },
   {
@@ -76,11 +81,13 @@
     "depends_on": [
       "panel-today-meals"
     ],
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "Playwright: click a meal, modal shows both people's text, click outside closes it."
     ],
-    "evidence": [],
+    "evidence": [
+      "2026-10-30: python tools/panel.py e2e (Playwright, Chromium) → 'PASS panel-meal-detail + recipe-lookup: modal with both people and the recipe' (closes on outside tap). Screenshot screenshots/meal-detail.png."
+    ],
     "notes": "Recipe section is added by recipe-lookup."
   },
   {
@@ -91,12 +98,15 @@
     "depends_on": [
       "panel-today-meals"
     ],
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "JS test: every key in the English table exists in the Spanish table.",
       "Screenshots in both languages."
     ],
-    "evidence": [],
+    "evidence": [
+      "2026-10-30: python tools/panel.py e2e (Playwright, Chromium) → 'PASS panel-i18n: Spanish config translates every fixed text'.",
+      "2026-10-30: JS test 'i18n: every English key exists in every language, with the same placeholders' passes."
+    ],
     "notes": ""
   },
   {
@@ -107,12 +117,14 @@
     "depends_on": [
       "quality-gate"
     ],
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "Unit test with the mock HA: GET /ha/api/states returns states and the mock saw the Authorization header.",
       "Responses carry Cache-Control: no-store."
     ],
-    "evidence": [],
+    "evidence": [
+      "2026-10-30: tests/test_server.py — proxy adds 'Bearer test-token' (seen by mock HA), token absent from responses and page; no-store header; empty script for missing config.js; POST service with return_response. 8 tests OK."
+    ],
     "notes": "Inside HA OS use SUPERVISOR_TOKEN and http://supervisor/core."
   },
   {
@@ -124,11 +136,13 @@
       "server-static-proxy",
       "panel-today-meals"
     ],
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "Playwright screenshot of the demo URL shows meals, agenda, tasks and shopping."
     ],
-    "evidence": [],
+    "evidence": [
+      "2026-10-30: python tools/panel.py demo --date 2026-11-04 → prints URL; screenshot screenshots/en-1230.png shows meals, agenda, tasks, shopping, weather, alerts, checklist, photo; layout bottoms [687,780,720] ≤ 800, no JS errors."
+    ],
     "notes": "Also used by tests and to produce README screenshots."
   },
   {
@@ -139,11 +153,13 @@
     "depends_on": [
       "demo-mode"
     ],
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "Demo screenshot shows an all-day event, a timed event and a second-calendar chip."
     ],
-    "evidence": [],
+    "evidence": [
+      "2026-10-30: python tools/panel.py e2e (Playwright, Chromium) → 'PASS panel-agenda: all-day, timed and second-calendar chip' (7 day blocks)."
+    ],
     "notes": ""
   },
   {
@@ -154,11 +170,13 @@
     "depends_on": [
       "demo-mode"
     ],
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "Playwright on demo: click a shopping item, the mock HA receives todo.update_item with status completed."
     ],
-    "evidence": [],
+    "evidence": [
+      "2026-10-30: python tools/panel.py e2e (Playwright, Chromium) → 'PASS panel-todo-lists: tapping an item completes it in HA' (mock HA logged todo.update_item status=completed for todo.shopping; item gone after refresh)."
+    ],
     "notes": ""
   },
   {
@@ -170,11 +188,13 @@
       "demo-mode",
       "panel-i18n"
     ],
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "Demo screenshot shows the weather block."
     ],
-    "evidence": [],
+    "evidence": [
+      "2026-10-30: python tools/panel.py e2e (Playwright, Chromium) → 'PASS panel-weather: temperature, condition and range' (17°, Partly cloudy, max 21°, 1.2 mm)."
+    ],
     "notes": ""
   },
   {
@@ -186,11 +206,13 @@
       "panel-agenda",
       "panel-todo-lists"
     ],
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "Playwright with 15 shopping items at 1280×672: last card bottom ≤ viewport height and a '+N more' row exists."
     ],
-    "evidence": [],
+    "evidence": [
+      "2026-10-30: python tools/panel.py e2e (Playwright, Chromium) → 'PASS panel-fit: 22 shopping items fit 1280x672 with \"+N more\"' (all columns inside viewport; full list modal ≥ 20 rows). Screenshot screenshots/long-lists-672.png."
+    ],
     "notes": ""
   },
   {
@@ -202,11 +224,13 @@
       "demo-mode",
       "panel-i18n"
     ],
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "Playwright on demo: banner visible, button press makes mock HA receive input_boolean.turn_off."
     ],
-    "evidence": [],
+    "evidence": [
+      "2026-10-30: python tools/panel.py e2e (Playwright, Chromium) → 'PASS panel-alerts: toggle banner button turns the helper off; date banner shown'."
+    ],
     "notes": ""
   },
   {
@@ -218,11 +242,14 @@
       "server-static-proxy",
       "panel-today-meals"
     ],
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "Unit test: POST /panel/checklist then GET returns the tick for that date only."
     ],
-    "evidence": [],
+    "evidence": [
+      "2026-10-30: python tools/panel.py e2e (Playwright, Chromium) → 'PASS panel-checklist: tap ticks and the server stores it for the date'.",
+      "2026-10-30: tests/test_server.py test_checklist_is_per_date OK."
+    ],
     "notes": "Generalises the original 'supplements' chips."
   },
   {
@@ -233,11 +260,13 @@
     "depends_on": [
       "panel-fit"
     ],
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "Demo screenshot shows the example photo; with no photos configured the cards are hidden."
     ],
-    "evidence": [],
+    "evidence": [
+      "2026-10-30: python tools/panel.py e2e (Playwright, Chromium) → 'PASS panel-photos: example photo shown; no photos → cards hidden'."
+    ],
     "notes": "Example photo must be license-free (generated)."
   },
   {
@@ -248,11 +277,14 @@
     "depends_on": [
       "panel-today-meals"
     ],
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "Screenshot with fake time 23:30 shows the dark theme."
     ],
-    "evidence": [],
+    "evidence": [
+      "2026-10-30: python tools/panel.py e2e (Playwright, Chromium) → 'PASS panel-night-mode: dark at 23:30, button cycles modes'. Screenshot screenshots/night.png.",
+      "2026-10-30: JS test 'isNight wraps around midnight' passes."
+    ],
     "notes": ""
   },
   {
@@ -264,11 +296,14 @@
       "server-static-proxy",
       "panel-today-meals"
     ],
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "Unit test: POST /panel/week then GET returns it; JS test: planFor honours the choice."
     ],
-    "evidence": [],
+    "evidence": [
+      "2026-10-30: python tools/panel.py e2e (Playwright, Chromium) → 'PASS week-picker: choose a week, it is shared through the server'.",
+      "2026-10-30: tests/test_server.py test_week_choice_round_trip OK (rejects '../etc' with 400)."
+    ],
     "notes": ""
   },
   {
@@ -280,11 +315,14 @@
       "panel-meal-detail",
       "server-static-proxy"
     ],
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "Unit tests: accent/plural-insensitive match, threshold rejects unrelated dishes."
     ],
-    "evidence": [],
+    "evidence": [
+      "2026-10-30: python tools/panel.py e2e (Playwright, Chromium) → meal-detail scenario shows 'Wholewheat pasta with beef and courgette ragù'.",
+      "2026-10-30: tests/test_server.py test_recipe_endpoint + test_accents_plurals_and_threshold OK; all 9 example dishes marked 'see recipe book' match their recipe."
+    ],
     "notes": ""
   },
   {

@@ -73,6 +73,73 @@ def cmd_validate_menu(args):
     return 0
 
 
+# ───────── demo / serve ─────────
+def cmd_demo(args):
+    """Fake Home Assistant + server with the example data. No configuration needed."""
+    import time
+    from tools import mock_ha
+    from server import settings as settings_mod
+    from server.serve import make_server
+    import datetime
+    today = datetime.date.fromisoformat(args.date) if args.date else None
+    ha_srv, _ = mock_ha.start(0, lang=args.lang, token="demo-token", extra_shopping=args.extra, today=today)
+    cfg = settings_mod.load(environ={}, env_file=os.devnull, options_file=os.devnull)
+    cfg.update(HA_URL="http://127.0.0.1:%d" % ha_srv.server_address[1], HA_TOKEN="demo-token",
+               STATE_DIR=str(ROOT / "state" / "demo"), PANEL_DIR=str(ROOT / "panel"))
+    srv = make_server(cfg, port=args.port)
+    import threading
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    url = "http://localhost:%d/" % srv.server_address[1]
+    print("Demo running: open %s  (Ctrl+C to stop)" % url)
+    print("Fake Home Assistant on %s" % cfg["HA_URL"])
+    if args.lang != "en":
+        print("Tip: the panel language comes from panel/config.js (LANG). Example data is in English.")
+    try:
+        while True:
+            time.sleep(3600)
+    except KeyboardInterrupt:
+        return 0
+
+
+def cmd_serve(args):
+    """Run the server against your real Home Assistant (reads .env)."""
+    from server import serve
+    serve.main()
+
+
+# ───────── e2e ─────────
+def _demo_stack(port=0, **mock_kw):
+    import threading
+    import tempfile
+    from tools import mock_ha
+    from server import settings as settings_mod
+    from server.serve import make_server
+    ha_srv, ha = mock_ha.start(0, token="demo-token", **mock_kw)
+    cfg = settings_mod.load(environ={}, env_file=os.devnull, options_file=os.devnull)
+    cfg.update(HA_URL="http://127.0.0.1:%d" % ha_srv.server_address[1], HA_TOKEN="demo-token",
+               STATE_DIR=tempfile.mkdtemp(), PANEL_DIR=str(ROOT / "panel"))
+    srv = make_server(cfg, port=port)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    return "http://127.0.0.1:%d" % srv.server_address[1], cfg["HA_URL"]
+
+
+def cmd_e2e(args):
+    """Browser scenarios with Playwright against two demo stacks (needs `npm i -D playwright`)."""
+    import datetime
+    node = shutil.which("node")
+    if not node:
+        print("Node.js is required for the browser tests.")
+        return 1
+    day = datetime.date(2026, 11, 4)
+    base, ha_url = _demo_stack(today=day)
+    base_long, _ = _demo_stack(today=day, extra_shopping=15)
+    env = dict(os.environ, BASE=base, BASE_LONG=base_long, HA=ha_url)
+    if args.shots:
+        Path(args.shots).mkdir(parents=True, exist_ok=True)
+        env["SHOTS"] = str(Path(args.shots).resolve())
+    return run([node, "tests/e2e/panel.e2e.js"], env=env)
+
+
 def build_parser():
     p = argparse.ArgumentParser(prog="panel.py", description=__doc__.strip().splitlines()[0])
     sub = p.add_subparsers(dest="command", metavar="<command>")
@@ -82,6 +149,17 @@ def build_parser():
     c = sub.add_parser("validate-menu", help="check a menu file (default: panel/data/menu.js or the example)")
     c.add_argument("path", nargs="?")
     c.set_defaults(func=cmd_validate_menu)
+    c = sub.add_parser("demo", help="run the panel with a fake Home Assistant and example data")
+    c.add_argument("--port", type=int, default=8000)
+    c.add_argument("--lang", default="en", choices=["en", "es"], help="language of the fake calendar and lists")
+    c.add_argument("--extra", type=int, default=0, help="add N extra shopping items (to test long lists)")
+    c.add_argument("--date", help="pretend today is YYYY-MM-DD for the fake calendar (screenshots)")
+    c.set_defaults(func=cmd_demo)
+    c = sub.add_parser("e2e", help="browser scenarios with Playwright (development)")
+    c.add_argument("--shots", help="also save screenshots to this folder")
+    c.set_defaults(func=cmd_e2e)
+    c = sub.add_parser("serve", help="run the server against your Home Assistant (settings in .env)")
+    c.set_defaults(func=cmd_serve)
     return p, sub
 
 
