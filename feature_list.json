@@ -532,11 +532,14 @@
     "depends_on": [
       "quality-gate"
     ],
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "Unit test passes on the tree; fails when a fake chat id is added."
     ],
-    "evidence": [],
+    "evidence": [
+      "2026-10-30: python -m unittest tests.test_no_personal_data with PRIVATE_WORDS set to the owner's names/places/hosts → OK (2 tests).",
+      "2026-10-30: untracked leak.txt containing a -100… group id → 'leak.txt:1 Telegram group id', FAILED; file removed afterwards."
+    ],
     "notes": "Deny-list kept outside the repo (env var) so the private words are not published."
   }
 ]
