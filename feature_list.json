@@ -487,11 +487,13 @@
     "depends_on": [
       "demo-mode"
     ],
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "All links resolve to files in the repo; screenshots exist."
     ],
-    "evidence": [],
+    "evidence": [
+      "2026-10-30: tests/test_docs.py — every relative link and image in README exists; mermaid diagram renders with mmdc; screenshots docs/img/{panel-en,panel-es,meal-detail,long-lists-672,night}.png from the e2e run."
+    ],
     "notes": "Credits: Antonio Leiva's post, harness-starter, Home Assistant, Telegram, Tailscale."
   },
   {
@@ -502,11 +504,13 @@
     "depends_on": [
       "docs-readme"
     ],
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "Every command in the guide exists in tools/panel.py --help."
     ],
-    "evidence": [],
+    "evidence": [
+      "2026-10-30: tests/test_docs.py — all 'tools/panel.py <command>' mentions in docs/guide.md exist in the CLI; links resolve."
+    ],
     "notes": ""
   },
   {
@@ -517,11 +521,13 @@
     "depends_on": [
       "docs-guide-en"
     ],
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "Same sections as the English guide."
     ],
-    "evidence": [],
+    "evidence": [
+      "2026-10-30: tests/test_docs.py — docs/es/guia.md has exactly the same heading structure as docs/guide.md; commands and links checked."
+    ],
     "notes": ""
   },
   {
@@ -532,11 +538,13 @@
     "depends_on": [
       "docs-guide-en"
     ],
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "No personal data (test greps the docs)."
     ],
-    "evidence": [],
+    "evidence": [
+      "2026-10-30: same number of table rows in docs/troubleshooting.md and docs/es/problemas.md (tested); PRIVATE_WORDS scan clean."
+    ],
     "notes": ""
   },
   {

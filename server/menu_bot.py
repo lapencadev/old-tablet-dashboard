@@ -73,7 +73,7 @@ class MenuBot:
     def __init__(self, cfg, state, log, today=None):
         self.cfg, self.state, self.log = cfg, state, log
         self.chat_id = int(cfg["TELEGRAM_CHAT_ID"])
-        self.lang = cfg.get("LANG") or "en"
+        self.lang = (cfg.get("PANEL_LANG") or "en")[:2]
         self.today = today or datetime.date.today
         self.ids = itertools.count(1)
         self.sessions = {}

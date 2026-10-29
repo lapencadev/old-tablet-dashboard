@@ -19,12 +19,12 @@ DEFAULTS = {
     "MENU_PEOPLE": "",
     "RECIPES_URL": "",
     "TELEGRAM_CHAT_ID": "",
-    "LANG": "en",
+    "PANEL_LANG": "en",   # not LANG: that one is the system locale
 }
 
 # options.json keys (HA app) → setting names
 OPTION_KEYS = {"menu_url": "MENU_URL", "menu_adapter": "MENU_ADAPTER", "menu_people": "MENU_PEOPLE",
-               "recipes_url": "RECIPES_URL", "telegram_chat_id": "TELEGRAM_CHAT_ID", "lang": "LANG"}
+               "recipes_url": "RECIPES_URL", "telegram_chat_id": "TELEGRAM_CHAT_ID", "lang": "PANEL_LANG"}
 
 
 def read_env_file(path):
@@ -45,6 +45,7 @@ def load(environ=None, env_file=None, options_file="/data/options.json"):
     s = dict(DEFAULTS)
     s.update({k: v for k, v in read_env_file(env_file or ROOT / ".env").items() if k in DEFAULTS})
     s.update({k: v for k, v in environ.items() if k in DEFAULTS})
+
     try:
         opts = json.loads(Path(options_file).read_text(encoding="utf-8"))
         for k, name in OPTION_KEYS.items():

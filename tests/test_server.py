@@ -74,3 +74,24 @@ class RecipeMatchTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SettingsTest(unittest.TestCase):
+    def test_priority_and_system_locale_is_ignored(self):
+        import json as _json
+        import os
+        import tempfile
+        from server import settings
+        env_file = tempfile.mktemp()
+        open(env_file, "w").write("HA_URL=http://from-file:8123/\nPANEL_LANG=es\n")
+        opts = tempfile.mktemp()
+        open(opts, "w").write(_json.dumps({"menu_url": "https://m.example.org", "lang": "", "telegram_chat_id": "-42"}))
+        cfg = settings.load(environ={"LANG": "en_US.UTF-8", "PORT": "9000"}, env_file=env_file, options_file=opts)
+        self.assertEqual(cfg["HA_URL"], "http://from-file:8123")
+        self.assertEqual(cfg["PANEL_LANG"], "es")
+        self.assertEqual(cfg["PORT"], 9000)
+        self.assertEqual(cfg["MENU_URL"], "https://m.example.org")
+        self.assertEqual(cfg["TELEGRAM_CHAT_ID"], "-42")
+        self.assertEqual(cfg["HA_WS_URL"], "ws://from-file:8123/api/websocket")
+        sup = settings.load(environ={"SUPERVISOR_TOKEN": "abc"}, env_file=os.devnull, options_file=os.devnull)
+        self.assertEqual((sup["HA_URL"], sup["HA_TOKEN"], sup["HA_WS_URL"]), ("http://supervisor/core", "abc", "ws://supervisor/core/websocket"))
