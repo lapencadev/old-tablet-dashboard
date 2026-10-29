@@ -16,12 +16,15 @@ DEFAULTS = {
     "MENU_URL": "",
     "MENU_ADAPTER": "generic",
     "MENU_SYNC_MINUTES": "60",
+    "MENU_PEOPLE": "",
+    "RECIPES_URL": "",
     "TELEGRAM_CHAT_ID": "",
     "LANG": "en",
 }
 
 # options.json keys (HA app) → setting names
-OPTION_KEYS = {"menu_url": "MENU_URL", "menu_adapter": "MENU_ADAPTER", "telegram_chat_id": "TELEGRAM_CHAT_ID", "lang": "LANG"}
+OPTION_KEYS = {"menu_url": "MENU_URL", "menu_adapter": "MENU_ADAPTER", "menu_people": "MENU_PEOPLE",
+               "recipes_url": "RECIPES_URL", "telegram_chat_id": "TELEGRAM_CHAT_ID", "lang": "LANG"}
 
 
 def read_env_file(path):
