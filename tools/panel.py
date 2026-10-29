@@ -140,6 +140,108 @@ def cmd_e2e(args):
     return run([node, "tests/e2e/panel.e2e.js"], env=env)
 
 
+# ───────── deploy-app ─────────
+APP_SLUG = "tablet_panel"
+REMOTE_DIR = "/local_apps/" + APP_SLUG
+SKIP_NAMES = {"__pycache__", ".DS_Store", "node_modules"}
+
+
+def load_env():
+    from server.settings import read_env_file
+    env = read_env_file(ROOT / ".env")
+    env.update({k: v for k, v in os.environ.items() if k.startswith(("HA_", "TELEGRAM_", "PANEL_", "LANG_"))})
+    return env
+
+
+def build_app(dest, version=None):
+    """Copy ha-app/, server/ and panel/ into `dest` with a fresh version so HA sees an update."""
+    import datetime
+    dest = Path(dest)
+    if dest.exists():
+        shutil.rmtree(dest)
+    ignore = lambda d, names: [n for n in names if n in SKIP_NAMES or n.startswith("._") or n.endswith((".pyc", ".tmp"))]
+    shutil.copytree(ROOT / "ha-app", dest, ignore=ignore)
+    shutil.copytree(ROOT / "server", dest / "server", ignore=ignore)
+    shutil.copytree(ROOT / "panel", dest / "panel", ignore=ignore)
+    version = version or "1.0." + datetime.datetime.now().strftime("%Y%m%d%H%M")
+    cfg = (dest / "config.yaml").read_text(encoding="utf-8")
+    import re
+    (dest / "config.yaml").write_text(re.sub(r'(?m)^version: .*$', 'version: "%s"' % version, cfg), encoding="utf-8")
+    return version
+
+
+def tar_bytes(folder):
+    import io
+    import tarfile
+    buf = io.BytesIO()
+    with tarfile.open(fileobj=buf, mode="w:gz") as tar:
+        for path in sorted(Path(folder).rglob("*")):
+            if path.name.startswith("._"):
+                continue
+            info = tar.gettarinfo(str(path), arcname=path.relative_to(folder).as_posix())
+            info.uid = info.gid = 0
+            info.uname = info.gname = "root"
+            info.mode = 0o755 if path.is_dir() else 0o644  # readable by the HA builder
+            if path.is_dir():
+                tar.addfile(info)
+            else:
+                with open(path, "rb") as f:
+                    tar.addfile(info, f)
+    return buf.getvalue()
+
+
+REMOTE_INSTALL = r"""
+S=apps; ha apps --help >/dev/null 2>&1 || S=addons
+for i in 1 2 3 4 5 6; do
+  ha store reload >/dev/null 2>&1 && break
+  echo "  waiting for the app store ($i)…"; sleep 10
+done
+if ha $S install local_%(slug)s >/dev/null 2>&1; then
+  echo "Installed."
+else
+  ha $S update local_%(slug)s >/dev/null 2>&1 || ha $S rebuild local_%(slug)s
+  echo "Updated."
+fi
+for i in $(seq 1 30); do
+  ha $S info local_%(slug)s 2>/dev/null | grep -q '^version: %(version)s' && break; sleep 5
+done
+ha $S restart local_%(slug)s >/dev/null 2>&1 || ha $S start local_%(slug)s
+sleep 3; ha $S info local_%(slug)s | grep -E '^(state|version):'
+"""
+
+
+def ssh_base(env):
+    host = env.get("HA_SSH")
+    if not host:
+        raise SystemExit("Set HA_SSH=root@<HA_IP> in .env (and HA_SSH_KEY if your key is not the default one).")
+    cmd = ["ssh", "-o", "StrictHostKeyChecking=accept-new"]
+    if env.get("HA_SSH_PORT"):
+        cmd += ["-p", env["HA_SSH_PORT"]]
+    if env.get("HA_SSH_KEY"):
+        cmd += ["-i", os.path.expanduser(env["HA_SSH_KEY"])]
+    return cmd + [host]
+
+
+def cmd_deploy_app(args):
+    """Install or update the server as a Home Assistant OS local app over SSH."""
+    env = load_env()
+    build = ROOT / "build" / "ha-app"
+    version = build_app(build)
+    print("Built version %s in %s" % (version, build.relative_to(ROOT)))
+    if args.build_only:
+        return 0
+    if not shutil.which("ssh"):
+        raise SystemExit("ssh not found. On Windows 10/11 enable 'OpenSSH Client' in Optional features.")
+    base = ssh_base(env)
+    print("Uploading to %s:%s …" % (base[-1], REMOTE_DIR))
+    up = subprocess.run(base + ["rm -rf %s && mkdir -p %s && tar xzf - -C %s" % (REMOTE_DIR, REMOTE_DIR, REMOTE_DIR)],
+                        input=tar_bytes(build))
+    if up.returncode:
+        return up.returncode
+    print("Installing (the first build can take a few minutes on a Raspberry Pi)…")
+    return subprocess.call(base + [REMOTE_INSTALL % {"slug": APP_SLUG, "version": version}])
+
+
 def build_parser():
     p = argparse.ArgumentParser(prog="panel.py", description=__doc__.strip().splitlines()[0])
     sub = p.add_subparsers(dest="command", metavar="<command>")
@@ -158,6 +260,9 @@ def build_parser():
     c = sub.add_parser("e2e", help="browser scenarios with Playwright (development)")
     c.add_argument("--shots", help="also save screenshots to this folder")
     c.set_defaults(func=cmd_e2e)
+    c = sub.add_parser("deploy-app", help="install/update the server as a Home Assistant OS local app (SSH)")
+    c.add_argument("--build-only", action="store_true", help="only build ./build/ha-app, do not upload")
+    c.set_defaults(func=cmd_deploy_app)
     c = sub.add_parser("serve", help="run the server against your Home Assistant (settings in .env)")
     c.set_defaults(func=cmd_serve)
     return p, sub
