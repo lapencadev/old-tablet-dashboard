@@ -1,0 +1,30 @@
+# Home Assistant OS local app ("add-on" before 2026). `python tools/panel.py deploy-app` copies this
+# folder plus server/ and panel/ to /local_apps/tablet_panel and installs it.
+name: Old Tablet Dashboard
+version: "1.0.0"
+slug: tablet_panel
+description: Always-on family panel for an old tablet (meals, agenda, tasks, shopping) + Telegram /menu
+url: https://github.com/lapencadev/old-tablet-dashboard
+arch: [aarch64, amd64, armv7]
+startup: application
+boot: auto
+init: false
+homeassistant_api: true
+ports:
+  8000/tcp: 8000
+ports_description:
+  8000/tcp: Panel (open it on the tablet)
+options:
+  lang: en
+  menu_url: ""
+  menu_adapter: generic
+  menu_people: ""
+  recipes_url: ""
+  telegram_chat_id: ""
+schema:
+  lang: list(en|es)
+  menu_url: str?
+  menu_adapter: list(generic|static-site)
+  menu_people: str?
+  recipes_url: str?
+  telegram_chat_id: str?

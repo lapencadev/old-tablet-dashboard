@@ -352,13 +352,13 @@
     "depends_on": [
       "server-static-proxy"
     ],
-    "status": "not_started",
+    "status": "blocked",
     "verification": [
       "Unit test: the build directory contains config.yaml, Dockerfile, server and panel; no ._ files.",
       "Manual on a real HA OS: app runs and serves the panel on :8000."
     ],
     "evidence": [],
-    "notes": "HA 2026: /local_apps, `ha store reload` may time out; retry loop."
+    "notes": "HA 2026: /local_apps, `ha store reload` may time out; retry loop. | 2026-10-30 partial evidence: tests/test_deploy.py OK (build has config.yaml, Dockerfile, server, panel; no ._ files; 0644 modes; options match settings); deploy-app with a fake ssh uploaded a 26-entry tar to /local_apps/tablet_panel and sent the install script. BLOCKED until the owner runs it once on the real HA OS (verification step 2)."
   },
   {
     "id": "telegram-shopping",
