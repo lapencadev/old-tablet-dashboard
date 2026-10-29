@@ -1,0 +1,8 @@
+{
+  "name": "old-tablet-dashboard-dev",
+  "private": true,
+  "description": "Development tooling only (ES5 check, browser screenshots). The panel and server do not need Node.",
+  "devDependencies": {
+    "acorn": "8.12.1"
+  }
+}
