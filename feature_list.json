@@ -368,12 +368,12 @@
     "depends_on": [
       "ha-config-deploy"
     ],
-    "status": "not_started",
+    "status": "blocked",
     "verification": [
       "Unit test: rendered YAML has no unresolved placeholders and parses; manual in a real group."
     ],
     "evidence": [],
-    "notes": "Sections from config/shopping-sections.<lang>.json."
+    "notes": "Sections from config/shopping-sections.<lang>.json. | 2026-10-30 partial evidence: rendered YAML parses in en/es; Jinja stand-in (tests/ha_jinja.py) checks sections (Carne, Despensa, Panadería, Otros; Cleaning & home, Dairy & eggs), split/dedupe ('leche, huevos y pan; Leche' → 3) and the confirmation message. BLOCKED until tried in a real Telegram group."
   },
   {
     "id": "ha-config-deploy",
@@ -383,11 +383,14 @@
     "depends_on": [
       "quality-gate"
     ],
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "Unit test against the mock HA: every automation and script id is POSTed once."
     ],
-    "evidence": [],
+    "evidence": [
+      "2026-10-30: tests/test_deploy.py DeployHATest — deploy-ha against the mock HA POSTed exactly the 11 expected /api/config/... ids, with Bearer token; Spanish command '/compra' in the rendered trigger.",
+      "2026-10-30: deploy-ha --dry-run lists packages without HA; bad chat id / entity rejected (tests/test_ha_templates.py)."
+    ],
     "notes": ""
   },
   {
@@ -398,12 +401,12 @@
     "depends_on": [
       "ha-config-deploy"
     ],
-    "status": "not_started",
+    "status": "blocked",
     "verification": [
       "Unit test: rendered YAML parses; manual in a real group."
     ],
     "evidence": [],
-    "notes": "Date words in EN and ES."
+    "notes": "Date words in EN and ES. | 2026-10-30 partial evidence: Jinja stand-in checks due dates (hoy, mañana, viernes, same weekday → next week, fri, 30/10 → next year, nonsense → none) and title parsing. BLOCKED until tried in a real Telegram group."
   },
   {
     "id": "telegram-menu-bot",
@@ -445,11 +448,13 @@
     "depends_on": [
       "ha-config-deploy"
     ],
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "Unit test: rendered automation parses."
     ],
-    "evidence": [],
+    "evidence": [
+      "2026-10-30: tests/test_ha_templates.py renders calendar.yaml in en/es with no unresolved placeholders; parsed automation otd_calendar_refresh (time_pattern /15) is POSTed by deploy-ha in the mock test."
+    ],
     "notes": "Remote Calendar polls once a day by default."
   },
   {

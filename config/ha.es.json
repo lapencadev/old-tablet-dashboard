@@ -1,0 +1,148 @@
+{
+ "commands": {
+  "shopping": "/compra",
+  "tasks": "/tareas"
+ },
+ "other_section": "📦 Otros",
+ "section_order": [
+  "🥬 Fruta y verdura",
+  "🥖 Panadería",
+  "🧀 Charcutería y quesos",
+  "🥩 Carne",
+  "🐟 Pescado",
+  "🥛 Lácteos y huevos",
+  "🥫 Despensa",
+  "❄️ Congelados",
+  "🥤 Bebidas",
+  "🧽 Limpieza y hogar",
+  "🧴 Higiene",
+  "🐾 Mascotas",
+  "📦 Otros"
+ ],
+ "section_rules": [
+  [
+   "tomate (frito|triturado)|crema de verdura|crema de calabaza|gazpacho|salmorejo|en lata|de bote|leche evaporada",
+   "🥫 Despensa"
+  ],
+  [
+   "at[uú]n fresco|salm[oó]n|merluza|bacalao|lubina|dorada|gamba|langostino|mejill[oó]n|calamar|sepia|pulpo|pescado|sardina|boquer[oó]n|rape|gulas|surimi|bocas de mar",
+   "🐟 Pescado"
+  ],
+  [
+   "lonchas|fiambre|panceta|bacon|beicon|jam[oó]n|chorizo|salchich|queso|mozzarella|ricota|burgos",
+   "🧀 Charcutería y quesos"
+  ],
+  [
+   "pollo|pechuga|pavo|ternera|cerdo|carne|picada|hamburguesa|lomo|solomillo|costilla|cordero|conejo|h[ií]gado|muslo|alitas",
+   "🥩 Carne"
+  ],
+  [
+   "leche|yogur|k[eé]fir|nata|mantequilla|huevo|bebida de|cuajada|natillas|skyr|batido",
+   "🥛 Lácteos y huevos"
+  ],
+  [
+   "congelad|helado|guisantes",
+   "❄️ Congelados"
+  ],
+  [
+   "tomate|lechuga|can[oó]nigo|r[uú]cula|espinaca|cebolla|ajo|patata|zanahoria|pimiento|pepino|calabac|berenjena|br[oó]coli|coliflor|champi|seta|aguacate|lim[oó]n|lima|naranja|mandarina|manzana|pera|pl[aá]tano|banana|fresa|ar[aá]ndano|uva|kiwi|mel[oó]n|sand[ií]a|mango|fruta|verdura|perejil|cilantro|albahaca|jengibre|puerro|apio|calabaza|boniato|esp[aá]rrago|remolacha|ensalada",
+   "🥬 Fruta y verdura"
+  ],
+  [
+   "pan\\b|baguette|picos|fajita|wrap|croissant|boller[ií]a",
+   "🥖 Panadería"
+  ],
+  [
+   "gato|perro|arena|pienso|mascota",
+   "🐾 Mascotas"
+  ],
+  [
+   "champ[uú]|gel|desodorante|pasta de dientes|cepillo|compresa|tamp[oó]n|crema (hidratante|solar|de manos)|algod[oó]n|toallitas|jab[oó]n|maquinilla|colonia",
+   "🧴 Higiene"
+  ],
+  [
+   "lej[ií]a|friegasuelos|detergente|suavizante|lavavajillas|papel|servilleta|bolsas|estropajo|bayeta|limpia|ambientador|pilas|film|aluminio|bombilla",
+   "🧽 Limpieza y hogar"
+  ],
+  [
+   "agua|cerveza|vino|refresco|zumo|t[oó]nica|kombucha|cava",
+   "🥤 Bebidas"
+  ],
+  [
+   "arroz|pasta|macarr|espagueti|fideo|lenteja|garbanzo|alubia|quinoa|harina|az[uú]car|sal|aceite|aove|vinagre|at[uú]n|caballa|conserva|especia|pimienta|or[eé]gano|comino|canela|curry|caldo|frutos secos|nuez|nueces|almendra|cacahuete|pistacho|avellana|semillas|ch[ií]a|avena|cereal|galleta|caf[eé]|t[eé]|infusi[oó]n|cacao|chocolate|mermelada|miel|prote[ií]na|tortitas|soja",
+   "🥫 Despensa"
+  ]
+ ],
+ "msg": {
+  "added": "🛒 {who} ha añadido: {items}",
+  "already": "👌 Ya estaba en la lista: {items}",
+  "removed": "🗑 {who} ha quitado: {item}",
+  "not_found": "🤷 No encuentro «{item}» en la lista.",
+  "shopping_empty": "🛒 La lista de la compra está vacía.",
+  "shopping_title": "🛒 <b>Lista de la compra</b> ({n})",
+  "shopping_hint": "<i>Toca un producto para tacharlo.</i>",
+  "ticked": "✓ Tachado",
+  "refreshed": "Actualizado",
+  "refresh": "🔄 Actualizar",
+  "tasks_empty": "📝 No hay tareas pendientes. 🎉",
+  "tasks_title": "📝 <b>Tareas pendientes</b> ({n})",
+  "tasks_hint": "<i>Toca una tarea para marcarla hecha.</i>",
+  "task_done": "✓ Hecha",
+  "task_added": "📝 {who} ha apuntado: {item}",
+  "task_due": " (para el {date})",
+  "task_bad_date": " (no entiendo la fecha «@{word}», la apunto sin fecha)",
+  "today": "hoy"
+ },
+ "weekdays": [
+  "lunes",
+  "martes",
+  "miércoles",
+  "jueves",
+  "viernes",
+  "sábado",
+  "domingo"
+ ],
+ "weekdays_short": [
+  "lun",
+  "mar",
+  "mié",
+  "jue",
+  "vie",
+  "sáb",
+  "dom"
+ ],
+ "date_words": {
+  "today": [
+   "hoy"
+  ],
+  "tomorrow": [
+   "mañana",
+   "manana"
+  ],
+  "weekdays": [
+   [
+    "lunes"
+   ],
+   [
+    "martes"
+   ],
+   [
+    "miercoles",
+    "miércoles"
+   ],
+   [
+    "jueves"
+   ],
+   [
+    "viernes"
+   ],
+   [
+    "sabado",
+    "sábado"
+   ],
+   [
+    "domingo"
+   ]
+  ]
+ }
+}

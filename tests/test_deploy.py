@@ -37,3 +37,33 @@ class BuildAppTest(unittest.TestCase):
         self.assertEqual(set(cfg["options"]), set(OPTION_KEYS))
         self.assertEqual(set(cfg["schema"]), set(OPTION_KEYS))
         self.assertTrue(cfg["homeassistant_api"])
+
+
+class DeployHATest(unittest.TestCase):
+    def test_every_script_and_automation_is_posted_once(self):
+        import os
+        from tools import mock_ha
+        srv, ha = mock_ha.start(0, token="t0k")
+        url = "http://127.0.0.1:%d" % srv.server_address[1]
+        env = {"HA_URL": url, "HA_TOKEN": "t0k", "TELEGRAM_CHAT_ID": "-42", "PANEL_LANG": "es"}
+        old = dict(os.environ)
+        os.environ.update(env)
+        try:
+            from argparse import Namespace
+            rc = panel.cmd_deploy_ha(Namespace(lang=None, only=None, dry_run=False))
+        finally:
+            os.environ.clear()
+            os.environ.update(old)
+            srv.shutdown()
+        self.assertEqual(rc, 0)
+        paths = [r["path"] for r in ha.log if r["path"].startswith("/api/config/")]
+        expected = {"/api/config/script/config/otd_shopping_add", "/api/config/script/config/otd_shopping_list",
+                    "/api/config/script/config/otd_tasks_list", "/api/config/automation/config/otd_shopping_add",
+                    "/api/config/automation/config/otd_shopping_remove", "/api/config/automation/config/otd_shopping_show",
+                    "/api/config/automation/config/otd_shopping_buttons", "/api/config/automation/config/otd_tasks_add",
+                    "/api/config/automation/config/otd_tasks_show", "/api/config/automation/config/otd_tasks_buttons",
+                    "/api/config/automation/config/otd_calendar_refresh"}
+        self.assertEqual(sorted(paths), sorted(expected))
+        show = next(r for r in ha.log if r["path"].endswith("otd_shopping_show"))
+        self.assertEqual(show["body"]["triggers"][0]["event_data"]["command"], "/compra")
+        self.assertEqual(show["auth"], "Bearer t0k")

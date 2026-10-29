@@ -242,6 +242,81 @@ def cmd_deploy_app(args):
     return subprocess.call(base + [REMOTE_INSTALL % {"slug": APP_SLUG, "version": version}])
 
 
+# ───────── Home Assistant REST helpers ─────────
+def ha_call(url, token, method, path, body=None):
+    import json
+    import urllib.error
+    import urllib.request
+    req = urllib.request.Request(url.rstrip("/") + path, method=method,
+                                 data=json.dumps(body).encode() if body is not None else None,
+                                 headers={"Authorization": "Bearer " + token, "Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=20) as r:
+            return r.status, r.read().decode()
+    except urllib.error.HTTPError as e:
+        return e.code, e.read().decode()
+    except OSError as e:
+        return 0, str(e)
+
+
+def ha_target(env):
+    url, token = env.get("HA_URL", ""), env.get("HA_TOKEN", "")
+    if not url or not token:
+        raise SystemExit("Set HA_URL=http://<HA_IP>:8123 and HA_TOKEN=<long-lived token> in .env")
+    return url, token
+
+
+def cmd_deploy_ha(args):
+    """Render ha/templates with .env values and create/update the automations and scripts in HA."""
+    from server.ha_templates import render_all
+    env = load_env()
+    values = {"CHAT_ID": env.get("TELEGRAM_CHAT_ID", ""), "SHOPPING": env.get("HA_SHOPPING", "todo.shopping"),
+              "TASKS": env.get("HA_TASKS", "todo.tasks")}
+    lang = args.lang or env.get("LANG_PANEL") or env.get("PANEL_LANG") or "en"
+    try:
+        packs = render_all(values, lang, args.only)
+    except ValueError as e:
+        raise SystemExit(str(e))
+    url = token = None
+    if not args.dry_run:
+        url, token = ha_target(env)
+    ok = True
+    for name, pack in packs.items():
+        print("== %s (%s)" % (name, lang))
+        for sid, body in (pack.get("scripts") or {}).items():
+            ok &= _push(url, token, "script", sid, body, args.dry_run)
+        for aid, body in (pack.get("automations") or {}).items():
+            ok &= _push(url, token, "automation", aid, dict(body, id=aid), args.dry_run)
+    return 0 if ok else 1
+
+
+def _push(url, token, kind, item_id, body, dry):
+    label = ("script." if kind == "script" else "automation ") + item_id
+    if dry:
+        print("  %s (dry run)" % label)
+        return True
+    status, text = ha_call(url, token, "POST", "/api/config/%s/config/%s" % (kind, item_id), body)
+    print("  %s %s" % (label, "OK" if status == 200 else "ERROR %s %s" % (status, text[:200])))
+    return status == 200
+
+
+def cmd_ha_check(args):
+    """List the HA entities the panel can use, to fill panel/config.js."""
+    import json
+    env = load_env()
+    url, token = ha_target(env)
+    status, text = ha_call(url, token, "GET", "/api/states")
+    if status != 200:
+        print("Home Assistant answered %s: %s" % (status, text[:200]))
+        print("Check HA_URL (with :8123) and that HA_TOKEN is a long-lived token (Profile → Security).")
+        return 1
+    states = json.loads(text)
+    for prefix in ("calendar.", "todo.", "weather.", "input_boolean.", "input_datetime."):
+        ids = sorted(s["entity_id"] for s in states if s["entity_id"].startswith(prefix))
+        print("%-16s %s" % (prefix[:-1], ", ".join(ids) or "—"))
+    return 0
+
+
 def build_parser():
     p = argparse.ArgumentParser(prog="panel.py", description=__doc__.strip().splitlines()[0])
     sub = p.add_subparsers(dest="command", metavar="<command>")
@@ -263,6 +338,13 @@ def build_parser():
     c = sub.add_parser("deploy-app", help="install/update the server as a Home Assistant OS local app (SSH)")
     c.add_argument("--build-only", action="store_true", help="only build ./build/ha-app, do not upload")
     c.set_defaults(func=cmd_deploy_app)
+    c = sub.add_parser("deploy-ha", help="create/update the Telegram automations and scripts in HA (REST)")
+    c.add_argument("--lang", choices=["en", "es"], help="language of the bot messages (default: PANEL_LANG in .env or en)")
+    c.add_argument("--only", nargs="*", choices=["shopping", "tasks", "calendar"], help="deploy only these packages")
+    c.add_argument("--dry-run", action="store_true", help="render and list, do not send")
+    c.set_defaults(func=cmd_deploy_ha)
+    c = sub.add_parser("ha-check", help="list the HA entities you can use in panel/config.js")
+    c.set_defaults(func=cmd_ha_check)
     c = sub.add_parser("serve", help="run the server against your Home Assistant (settings in .env)")
     c.set_defaults(func=cmd_serve)
     return p, sub
