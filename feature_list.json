@@ -334,11 +334,14 @@
       "menu-format-example",
       "server-static-proxy"
     ],
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "Unit test with a the author's site-shaped fixture: converted menu validates; recipes parsed."
     ],
-    "evidence": [],
+    "evidence": [
+      "2026-10-30: tests/test_sync.py 7 tests OK — converted the author's site fixture validates (meals Café/Comida/Merienda/Cena, wB start 2026-11-02 repeat 2, wA start from month-range title), recipes parsed with entities decoded, broken source keeps previous menu.js, generic adapter works.",
+      "2026-10-30: shopping.split_products splits 'Canónigos (~750g), tomate…, limones (3)' into 5 products and keeps 'Crema de calabaza y zanahoria' whole."
+    ],
     "notes": "the author's site is the author's private app; the adapter is an example of how to plug any source."
   },
   {
