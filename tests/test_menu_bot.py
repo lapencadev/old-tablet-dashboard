@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def bot(lang="en", day=datetime.date(2026, 11, 4)):
-    cfg = {"TELEGRAM_CHAT_ID": "-42", "LANG": lang, "PANEL_DIR": str(ROOT / "panel")}
+    cfg = {"TELEGRAM_CHAT_ID": "-42", "PANEL_LANG": lang, "PANEL_DIR": str(ROOT / "panel")}
     return MenuBot(cfg, State(tempfile.mkdtemp()), lambda *_: None, today=lambda: day)
 
 
