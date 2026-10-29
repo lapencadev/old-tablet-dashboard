@@ -50,12 +50,38 @@ def cmd_check(args):
     return 0
 
 
+# ───────── validate-menu ─────────
+def cmd_validate_menu(args):
+    """Check a menu file against the generic format."""
+    from server import menu as menu_mod
+    path = Path(args.path) if args.path else (ROOT / "panel/data/menu.js" if (ROOT / "panel/data/menu.js").exists()
+                                              else ROOT / "panel/data/menu.example.js")
+    try:
+        data = menu_mod.load_menu(path)
+    except Exception as e:  # syntax errors in a hand-written file
+        print("%s: cannot read the menu (%s)" % (path, e))
+        return 1
+    errors = menu_mod.validate(data)
+    if errors:
+        print("%s: %d problem(s)" % (path, len(errors)))
+        for e in errors:
+            print("  - " + e)
+        return 1
+    weeks = data["weeks"]
+    print("%s: valid · %d people · %d meals · %d week(s): %s" % (
+        path, len(data["people"]), len(data["meals"]), len(weeks), ", ".join(weeks)))
+    return 0
+
+
 def build_parser():
     p = argparse.ArgumentParser(prog="panel.py", description=__doc__.strip().splitlines()[0])
     sub = p.add_subparsers(dest="command", metavar="<command>")
     c = sub.add_parser("check", help="run every automated check (tests, ES5 syntax)")
     c.add_argument("-v", "--verbose", action="store_true")
     c.set_defaults(func=cmd_check)
+    c = sub.add_parser("validate-menu", help="check a menu file (default: panel/data/menu.js or the example)")
+    c.add_argument("path", nargs="?")
+    c.set_defaults(func=cmd_validate_menu)
     return p, sub
 
 
