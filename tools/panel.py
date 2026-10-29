@@ -85,15 +85,13 @@ def cmd_demo(args):
     ha_srv, _ = mock_ha.start(0, lang=args.lang, token="demo-token", extra_shopping=args.extra, today=today)
     cfg = settings_mod.load(environ={}, env_file=os.devnull, options_file=os.devnull)
     cfg.update(HA_URL="http://127.0.0.1:%d" % ha_srv.server_address[1], HA_TOKEN="demo-token",
-               STATE_DIR=str(ROOT / "state" / "demo"), PANEL_DIR=str(ROOT / "panel"))
+               STATE_DIR=str(ROOT / "state" / "demo"), PANEL_DIR=str(ROOT / "panel"), DEMO_LANG=args.lang)
     srv = make_server(cfg, port=args.port)
     import threading
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     url = "http://localhost:%d/" % srv.server_address[1]
     print("Demo running: open %s  (Ctrl+C to stop)" % url)
     print("Fake Home Assistant on %s" % cfg["HA_URL"])
-    if args.lang != "en":
-        print("Tip: the panel language comes from panel/config.js (LANG). Example data is in English.")
     try:
         while True:
             time.sleep(3600)
@@ -108,7 +106,7 @@ def cmd_serve(args):
 
 
 # ───────── e2e ─────────
-def _demo_stack(port=0, **mock_kw):
+def _demo_stack(port=0, demo_lang=None, **mock_kw):
     import threading
     import tempfile
     from tools import mock_ha
@@ -117,7 +115,7 @@ def _demo_stack(port=0, **mock_kw):
     ha_srv, ha = mock_ha.start(0, token="demo-token", **mock_kw)
     cfg = settings_mod.load(environ={}, env_file=os.devnull, options_file=os.devnull)
     cfg.update(HA_URL="http://127.0.0.1:%d" % ha_srv.server_address[1], HA_TOKEN="demo-token",
-               STATE_DIR=tempfile.mkdtemp(), PANEL_DIR=str(ROOT / "panel"))
+               STATE_DIR=tempfile.mkdtemp(), PANEL_DIR=str(ROOT / "panel"), DEMO_LANG=demo_lang)
     srv = make_server(cfg, port=port)
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     return "http://127.0.0.1:%d" % srv.server_address[1], cfg["HA_URL"]
@@ -133,7 +131,8 @@ def cmd_e2e(args):
     day = datetime.date(2026, 11, 4)
     base, ha_url = _demo_stack(today=day)
     base_long, _ = _demo_stack(today=day, extra_shopping=15)
-    env = dict(os.environ, BASE=base, BASE_LONG=base_long, HA=ha_url)
+    base_es, _ = _demo_stack(today=day, demo_lang="es", lang="es")
+    env = dict(os.environ, BASE=base, BASE_LONG=base_long, BASE_ES=base_es, HA=ha_url)
     if args.shots:
         Path(args.shots).mkdir(parents=True, exist_ok=True)
         env["SHOTS"] = str(Path(args.shots).resolve())
@@ -401,7 +400,7 @@ def build_parser():
     c.set_defaults(func=cmd_validate_menu)
     c = sub.add_parser("demo", help="run the panel with a fake Home Assistant and example data")
     c.add_argument("--port", type=int, default=8000)
-    c.add_argument("--lang", default="en", choices=["en", "es"], help="language of the fake calendar and lists")
+    c.add_argument("--lang", default="en", choices=["en", "es"], help="language of the panel and the example data")
     c.add_argument("--extra", type=int, default=0, help="add N extra shopping items (to test long lists)")
     c.add_argument("--date", help="pretend today is YYYY-MM-DD for the fake calendar (screenshots)")
     c.set_defaults(func=cmd_demo)

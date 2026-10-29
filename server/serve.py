@@ -36,8 +36,18 @@ def log(msg):
     sys.stderr.flush()
 
 
+DEMO_CONFIG_ES = """PANEL_CONFIG.LANG = 'es';
+PANEL_CONFIG.ALERTS = [{ entity: 'input_boolean.laundry_waiting', text: '🧺 La lavadora ha terminado: ropa por tender', button: 'Ya está' }];
+PANEL_CONFIG.DATE_ALERTS = [{ entity: 'input_datetime.vet_visit', text: '🐱 Veterinario', daysBefore: 7 }];
+PANEL_CONFIG.CHECKLIST = [{ id: 'morning', icon: '☀️', label: 'Vitamina D', sub: 'con el desayuno', from: 7, to: 11 },
+  { id: 'plants', icon: '🪴', label: 'Plantas', sub: 'regar', from: 18, to: 21 }];
+PANEL_CONFIG.PHOTOS = [{ src: 'img/example-photo.svg', caption: 'Paseo del domingo' }];
+"""
+
+
 def make_handler(cfg, state, recipes):
     panel_dir = cfg["PANEL_DIR"]
+    demo_lang = cfg.get("DEMO_LANG")
 
     class Handler(http.server.SimpleHTTPRequestHandler):
         def __init__(self, *a, **kw):
@@ -104,6 +114,14 @@ def make_handler(cfg, state, recipes):
                 except Exception as e:
                     log("Recipes: %s" % e)
                     return self.send_json({"recipe": None})
+            if demo_lang == "es" and url.path in ("/config.js", "/data/menu.js"):
+                data = (DEMO_CONFIG_ES if url.path == "/config.js" else
+                        Path(panel_dir, "data", "menu.example.es.js").read_text(encoding="utf-8")).encode()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/javascript; charset=utf-8")
+                self.send_header("Content-Length", str(len(data)))
+                self.end_headers()
+                return self.wfile.write(data)
             if url.path in ("/config.js", "/data/menu.js") and not Path(panel_dir, url.path[1:]).exists():
                 # Optional personal files: answer with an empty script instead of a 404.
                 data = b"/* not configured: using the example file */\n"
@@ -135,7 +153,7 @@ def make_handler(cfg, state, recipes):
 
 def make_server(cfg, port=None):
     state = State(cfg["STATE_DIR"])
-    recipes = RecipeBook(cfg["PANEL_DIR"])
+    recipes = RecipeBook(cfg["PANEL_DIR"], cfg.get("DEMO_LANG"))
     http.server.ThreadingHTTPServer.allow_reuse_address = True
     srv = http.server.ThreadingHTTPServer(("", cfg["PORT"] if port is None else port), make_handler(cfg, state, recipes))
     srv.state = state
