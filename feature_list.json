@@ -418,11 +418,14 @@
       "telegram-shopping",
       "ha-app-package"
     ],
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "Unit test: session toggling and keyboard layout; multi-product lines split correctly."
     ],
-    "evidence": [],
+    "evidence": [
+      "2026-10-30: tests/test_menu_bot.py — /menu shows >20 product toggles for the example week; ticking 2 + Add calls script.otd_shopping_add with ['Turkey breast', 'Chicken breast']; other chats ignored; expired session message; manual week honoured; keyboard layout test.",
+      "2026-10-30: websocket integration test with a fake HA server: auth with token, subscribes to telegram_command and telegram_callback, answers an event with call_service telegram_bot.send_message."
+    ],
     "notes": ""
   },
   {
@@ -433,11 +436,13 @@
     "depends_on": [
       "telegram-menu-bot"
     ],
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "Unit test: help text lists every command registered by the packages."
     ],
-    "evidence": [],
+    "evidence": [
+      "2026-10-30: HelpTest — help in en/es contains every package command (/shopping, /tasks · /compra, /tareas) plus /menu and the +, -, ! examples; /ayuda, /help and /start all answer in Spanish config."
+    ],
     "notes": ""
   },
   {
