@@ -33,9 +33,13 @@ macOS (Terminal):
 ```bash
 git clone https://github.com/lapencadev/old-tablet-dashboard.git
 cd old-tablet-dashboard
-python3 -m pip install -r requirements.txt
-python3 tools/panel.py demo
+python3 -m venv .venv              # a private Python just for this project
+source .venv/bin/activate          # from now on `python` and `pip` work
+pip install -r requirements.txt
+python tools/panel.py demo
 ```
+
+On macOS `python` and `pip` alone give "command not found": Apple only installs `python3`. The `.venv` above fixes that and keeps the project's libraries away from the rest of your Mac. Each time you open a new Terminal, go to the folder and run `source .venv/bin/activate` again (you will see `(.venv)` at the start of the line).
 
 Windows (PowerShell):
 
@@ -50,7 +54,7 @@ No git? Download the ZIP from GitHub (**Code → Download ZIP**) and unzip it.
 
 Open <http://localhost:8000>: you see the panel with a fake Home Assistant. `--lang es` shows it in Spanish. Stop it with Ctrl+C.
 
-From here on the guide writes `python tools/panel.py`; on macOS type `python3`, on Windows you can type `tools\panel.py` with a backslash.
+From here on the guide writes `python tools/panel.py`. On macOS that works while `(.venv)` is active; on Windows you can type `tools\panel.py` with a backslash.
 
 ## 2. Prepare Home Assistant
 
@@ -202,6 +206,8 @@ Screenshot of the tablet: `python tools/panel.py tablet-shot` (saved to your Des
 ## 7. Telegram: shopping, tasks, /menu
 
 ### 7.1 The bot
+
+![Adding to the shopping list, `/compra` and `/tareas` in a family group (Spanish setup)](img/telegram-es.png)
 
 1. In Telegram, talk to **@BotFather** → `/newbot`, choose a name and a username, copy the **token**.
 2. `/setprivacy` → choose the bot → **Disable**. Without this the bot does not see messages like `+ milk` in groups. If the bot was already in the group, remove it and add it again.

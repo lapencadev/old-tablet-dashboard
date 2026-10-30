@@ -6,6 +6,7 @@ Todo lo que falló al montar el sistema original (una tablet con Android 4.4, Ho
 
 | Qué pasa | Por qué | Arreglo |
 |---|---|---|
+| `zsh: command not found: python` (o `pip`) en macOS | Apple solo instala `python3` | Crea y activa el entorno del proyecto: `python3 -m venv .venv` y luego `source .venv/bin/activate` (paso 1). Repite el segundo comando en cada Terminal nueva. |
 | `adb devices` no muestra nada | Cable que solo carga, o la tablet en modo MTP | Otro cable; modo USB **PTP**; acepta el aviso de depuración USB en la tablet. |
 | No aparece la Wi-Fi de casa | Las tablets viejas solo ven redes de **2,4 GHz** | Conéctate a la red de 2,4 GHz del router (suele tener otro nombre que la de 5 GHz). |
 | `pm disable-user` → *Permission Denial* | Android 4.4 no deja a adb desactivar aplicaciones del sistema | `tablet-debloat` usa `pm block` (solo KitKat) si falla. `--restore` deshace las dos cosas. |

@@ -62,5 +62,5 @@ Everything else (menu bot, recipe detail, adapters, checklist, alerts, photos, n
 
 ## Notes
 
-- Repository name is provisional (`old-tablet-dashboard`).
+- Repository: <https://github.com/lapencadev/old-tablet-dashboard>.
 - Documentation language: English for code, README and harness docs; the step-by-step guide also in Spanish (`docs/es/`).

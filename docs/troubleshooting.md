@@ -6,6 +6,7 @@ Every problem met while building the original setup (an Android 4.4 tablet, Home
 
 | Symptom | Cause | Fix |
 |---|---|---|
+| `zsh: command not found: python` (or `pip`) on macOS | Apple only installs `python3` | Create and activate the project's environment: `python3 -m venv .venv` then `source .venv/bin/activate` (step 1). Repeat the second command in each new Terminal. |
 | `adb devices` shows nothing | Charge-only cable, or the tablet is in MTP mode | Try another cable; set USB mode to **PTP**; accept the "Allow USB debugging" prompt on the tablet. |
 | The home Wi-Fi does not appear | Old tablets only see **2.4 GHz** networks | Connect to the 2.4 GHz network of the router (often a different name from the 5 GHz one). |
 | `pm disable-user` → *Permission Denial* | Android 4.4 does not let adb disable system apps | `tablet-debloat` falls back to `pm block` (KitKat only). `--restore` undoes both. |

@@ -17,6 +17,11 @@ PATTERNS = {
     "Tailscale address": re.compile(r"\b100\.(?:6[4-9]|[7-9]\d|1[01]\d|12[0-7])\.\d{1,3}\.\d{1,3}\b"),
     "Tailscale machine name": re.compile(r"\b[\w-]+\.tail[0-9a-f]{4,}\.ts\.net\b"),
     "Home Assistant token": re.compile(r"eyJ[\w-]{20,}\.[\w-]{20,}\.[\w-]{20,}"),
+    "Telegram bot token": re.compile(r"\b\d{8,10}:AA[\w-]{30,}"),
+    "GitHub token": re.compile(r"\b(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_\w{30,})"),
+    "Private key": re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----"),
+    # a real-looking value; obvious test values (test-, demo-, example…) are fine
+    "Password assignment": re.compile(r"(?i)\b\w*(?:password|passwd|secret|token)\b\s*[:=]\s*['\"](?!(?:test|demo|example|changeme|your|xxx))[^'\"\s<>]{6,}['\"]"),
 }
 SKIP = {"package-lock.json"}
 SKIP_DIRS = ("docs/img/", "panel/img/")
@@ -60,11 +65,14 @@ class NoPersonalDataTest(unittest.TestCase):
         tmp = ROOT / "state" / "leak-sample.txt"
         tmp.parent.mkdir(exist_ok=True)
         # Built by concatenation so this file does not match its own patterns.
-        sample = ["chat -100" + "1234567890", "http://192.168" + ".1.40:8123", "mail someone" + "@gmail.com", "box.tail1a2b3c" + ".ts.net"]
+        sample = ["chat -100" + "1234567890", "http://192.168" + ".1.40:8123", "mail someone" + "@gmail.com", "box.tail1a2b3c" + ".ts.net",
+                  "bot 123456789:" + "AA" + "x" * 33, "gh" + "p_" + "a" * 36, "-----BEGIN " + "OPENSSH PRIVATE KEY-----",
+                  "menu_password: " + "'hunter22'"]
         tmp.write_text("\n".join(sample), encoding="utf-8")
         try:
             found = " ".join(scan([tmp], ["Secretname"]))
-            for label in ("Telegram group id", "LAN address with port", "e-mail address", "Tailscale machine name"):
+            for label in ("Telegram group id", "LAN address with port", "e-mail address", "Tailscale machine name",
+                          "Telegram bot token", "GitHub token", "Private key", "Password assignment"):
                 self.assertIn(label, found)
         finally:
             tmp.unlink()

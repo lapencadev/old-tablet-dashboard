@@ -1,3 +1,4 @@
+.venv/
 # Local configuration and data (personal)
 .env
 panel/config.js
