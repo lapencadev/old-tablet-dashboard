@@ -8,13 +8,15 @@ Inside Home Assistant OS (as a local app) it uses the supervisor token instead.
 
 Endpoints
     /                      static files from panel/
-    /ha/<path>             → HA_URL/<path> with the token (GET/POST)
+    /ha/<path>             → HA_URL/<path> with the token, only for what the panel
+                           needs (see HA_ALLOWED); everything else is 403
     /panel/week            GET/POST the week chosen by hand
     /panel/checklist       GET ?date=YYYY-MM-DD / POST {date, id, done}
     /panel/recipe?q=dish   best matching recipe or null
 """
 import http.server
 import json
+import re
 import signal
 import sys
 import threading
@@ -39,6 +41,41 @@ for _s in (sys.stdout, sys.stderr):
         pass
 
 
+# What the panel may ask Home Assistant for. The server holds an admin-level
+# token, so the proxy must not become an open door to the whole HA API for
+# anyone on the Wi-Fi (or any web page they visit).
+HA_GET_ALLOWED = re.compile(r"^/api/(states|states/[a-z_]+\.[a-z0-9_]+|calendars/calendar\.[a-z0-9_]+)$")
+HA_POST_ALLOWED = {
+    "/api/services/weather/get_forecasts",
+    "/api/services/todo/get_items",
+    "/api/services/todo/update_item",
+    "/api/services/input_boolean/turn_off",
+}
+MAX_BODY = 64 * 1024
+LOCAL_SUFFIXES = (".local", ".lan", ".home", ".home.arpa", ".internal", ".ts.net")
+
+
+def ha_allowed(method, path):
+    if method == "GET":
+        return bool(HA_GET_ALLOWED.match(path))
+    return method == "POST" and path in HA_POST_ALLOWED
+
+
+def host_allowed(host_header, extra=()):
+    """Blocks DNS-rebinding: a page on the internet must not reach the panel
+    through a domain that points to the local IP. IPs, bare names, local
+    domains and ALLOWED_HOSTS are fine."""
+    host = (host_header or "").strip().lower()
+    if host.startswith("["):
+        return True  # IPv6 literal
+    host = host.rsplit(":", 1)[0] if host.count(":") == 1 else host
+    if not host:
+        return False
+    if re.match(r"^\d{1,3}(\.\d{1,3}){3}$", host) or "." not in host:
+        return True
+    return host.endswith(LOCAL_SUFFIXES) or host in extra
+
+
 def log(msg):
     sys.stderr.write(time.strftime("%H:%M:%S ") + msg + "\n")
     sys.stderr.flush()
@@ -56,6 +93,7 @@ PANEL_CONFIG.PHOTOS = [{ src: 'img/example-photo.svg', caption: 'Paseo del domin
 def make_handler(cfg, state, recipes):
     panel_dir = cfg["PANEL_DIR"]
     demo_lang = cfg.get("DEMO_LANG")
+    extra_hosts = tuple(h.strip().lower() for h in (cfg.get("ALLOWED_HOSTS") or "").split(",") if h.strip())
 
     class Handler(http.server.SimpleHTTPRequestHandler):
         def __init__(self, *a, **kw):
@@ -79,13 +117,32 @@ def make_handler(cfg, state, recipes):
             self.wfile.write(data)
 
         def read_json(self):
-            length = int(self.headers.get("Content-Length") or 0)
+            length = min(int(self.headers.get("Content-Length") or 0), MAX_BODY)
             return json.loads(self.rfile.read(length) or b"{}") if length else {}
 
+        def refuse(self, why):
+            log("Refused %s %s (%s)" % (self.command, self.path.split("?")[0], why))
+            return self.send_json({"error": why}, 403)
+
+        def guard(self):
+            """True when the request may go on; otherwise answers 403."""
+            if not host_allowed(self.headers.get("Host"), extra_hosts):
+                self.refuse("host not allowed: add it to allowed_hosts")
+                return False
+            # A JSON body forces browsers to ask first (CORS preflight), which this
+            # server never grants, so other web pages cannot post here.
+            if self.command == "POST" and not (self.headers.get("Content-Type") or "").startswith("application/json"):
+                self.refuse("JSON only")
+                return False
+            return True
+
         def proxy(self):
+            path = urlparse(self.path).path[3:]
+            if not ha_allowed(self.command, path):
+                return self.refuse("not used by the panel")
             if not cfg["HA_URL"] or not cfg["HA_TOKEN"]:
                 return self.send_json({"error": "HA_URL / HA_TOKEN not configured"}, 503)
-            length = int(self.headers.get("Content-Length") or 0)
+            length = min(int(self.headers.get("Content-Length") or 0), MAX_BODY)
             body = self.rfile.read(length) if length else None
             req = urllib.request.Request(cfg["HA_URL"] + self.path[3:], data=body, method=self.command)
             req.add_header("Authorization", "Bearer " + cfg["HA_TOKEN"])
@@ -104,6 +161,8 @@ def make_handler(cfg, state, recipes):
             self.wfile.write(data)
 
         def do_GET(self):
+            if not self.guard():
+                return
             url = urlparse(self.path)
             q = parse_qs(url.query)
             if url.path.startswith("/ha/"):
@@ -141,6 +200,8 @@ def make_handler(cfg, state, recipes):
             return super().do_GET()
 
         def do_POST(self):
+            if not self.guard():
+                return
             url = urlparse(self.path)
             if url.path.startswith("/ha/"):
                 return self.proxy()

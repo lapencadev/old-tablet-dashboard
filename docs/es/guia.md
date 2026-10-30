@@ -158,6 +158,7 @@ Abre `http://<IP_DE_HA>:8000` desde cualquier dispositivo de tu red.
 | `lang` | Idioma del bot de Telegram. |
 | `menu_url`, `menu_adapter`, `menu_people`, `menu_password`, `recipes_url` | Sincronizar el menú (paso 8). Vacío = el menú que subiste con la aplicación. |
 | `telegram_chat_id` | Id del grupo para `/menu` y `/ayuda` (paso 7). |
+| `allowed_hosts` | Solo si abres el panel con un dominio tuyo (no una IP, `homeassistant.local` ni un nombre de Tailscale): añádelo aquí, separado por comas. |
 
 La pestaña **Registro** enseña qué hace el servidor (sincronización del menú, conexión con Telegram, errores de Home Assistant).
 

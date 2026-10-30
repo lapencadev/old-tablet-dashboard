@@ -4,8 +4,8 @@
 
 - Repository root: `old-tablet-dashboard/`
 - Standard startup path: `./init.sh` (Windows: `python tools/panel.py check`)
-- Standard verification path: `./init.sh` (55 Python tests, 11 JS logic tests, ES5 gate) + `python tools/panel.py e2e` (14 Playwright scenarios, needs `npm i -D playwright`)
-- Features: 29 `passing`, 3 `blocked`, 0 `accepted` (no independent validation yet)
+- Standard verification path: `./init.sh` (59 Python tests, 11 JS logic tests, ES5 gate) + `python tools/panel.py e2e` (14 Playwright scenarios, needs `npm i -D playwright`)
+- Features: 30 `passing`, 3 `blocked`, 0 `accepted` (no independent validation yet)
 - Current next step: run `feature-validator` in a fresh session, feature by feature in list order, starting with `quality-gate`
 - Current blockers (need the owner's real setup):
   - `ha-app-package` — one real `deploy-app` against Home Assistant OS.
@@ -40,3 +40,10 @@
 - Completed: adapter renamed to `static-site` (`server/adapters/static_site.py`, feature `menu-sync-adapter`); optional `menu_password` decrypts `private.enc.json` (PBKDF2-SHA256 + AES-256-GCM); recipe aliases (`data-alias`); source formats documented in `docs/menu-sources.md` and `docs/es/fuentes-de-menu.md`; troubleshooting row for a wrong password.
 - Verification run: `./init.sh` green with the private word list; decryption checked against a real build of the site with a test password.
 - Next best step: unchanged — the three blocked checks on the real setup, then `feature-validator` sessions.
+
+### Session 004
+
+- Date: 2026-10-30
+- Goal: First GitHub push failed on Windows CI; owner asked whether the project is secure.
+- Completed: explicit UTF-8 everywhere (Windows code page), LF line endings, CI actions off Node 20 plus a non-UTF-8 locale step; security review → `proxy-hardening` (allowlist, JSON-only POST, host check, body cap) and `docs/security.md`.
+- Verification run: `./init.sh` green (also with `LC_ALL=C PYTHONUTF8=0`), e2e 14/14.

@@ -54,3 +54,5 @@ Todo lo que falló al montar el sistema original (una tablet con Android 4.4, Ho
 |---|---|---|
 | La dirección de Tailscale no abre nada | Falta `:8123` | Usa `http://<dirección-tailscale>:8123` en la Aplicación Companion. |
 | Otra persona necesita acceso sin tu cuenta de Google | Los usuarios de Tailscale van ligados a un proveedor de identidad | Invítala desde la consola de Tailscale (**Users → Invite**) o comparte solo la máquina de Home Assistant. |
+| El panel responde 403 «host not allowed» | Lo abriste con un dominio que el servidor no conoce (protección contra DNS rebinding) | Usa la IP, `homeassistant.local` o el nombre de Tailscale, o añade el dominio a `allowed_hosts`. |
+| El registro dice «Refused … (not used by the panel)» | Algo pidió al servidor una llamada a Home Assistant que el panel no hace | Es lo esperado: el proxy solo deja pasar lo que usa el panel. Si cambiaste el panel para que llame a algo nuevo, añádelo a `HA_GET_ALLOWED` / `HA_POST_ALLOWED` en `server/serve.py`. |
