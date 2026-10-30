@@ -37,9 +37,13 @@ macOS (Terminal):
 ```bash
 git clone https://github.com/lapencadev/old-tablet-dashboard.git
 cd old-tablet-dashboard
-python3 -m pip install -r requirements.txt
-python3 tools/panel.py demo --lang es
+python3 -m venv .venv              # un Python solo para este proyecto
+source .venv/bin/activate          # a partir de aquí funcionan `python` y `pip`
+pip install -r requirements.txt
+python tools/panel.py demo --lang es
 ```
+
+En macOS, `python` y `pip` a secas dan «command not found»: Apple solo instala `python3`. El `.venv` de arriba lo soluciona y además guarda las librerías del proyecto aparte del resto del Mac. Cada vez que abras una Terminal nueva, entra en la carpeta y vuelve a ejecutar `source .venv/bin/activate` (verás `(.venv)` al principio de la línea).
 
 Windows (PowerShell):
 
@@ -54,7 +58,7 @@ python tools\panel.py demo --lang es
 
 Abre <http://localhost:8000>: verás el panel con un Home Assistant de mentira. Para pararlo, Ctrl+C.
 
-A partir de aquí la guía escribe `python tools/panel.py`; en macOS escribe `python3`, y en Windows puedes usar `tools\panel.py` con la barra invertida.
+A partir de aquí la guía escribe `python tools/panel.py`. En macOS funciona mientras veas `(.venv)`; en Windows puedes usar `tools\panel.py` con la barra invertida.
 
 ## 2. Prepara Home Assistant
 
@@ -206,6 +210,8 @@ Captura de la tablet: `python tools/panel.py tablet-shot` (se guarda en el Escri
 ## 7. Telegram: compra, tareas y /menu
 
 ### 7.1 El bot
+
+![Añadir a la compra, `/compra` y `/tareas` en el grupo de casa](../img/telegram-es.png)
 
 1. En Telegram, habla con **@BotFather** → `/newbot`, elige nombre y usuario, y copia el **token**.
 2. `/setprivacy` → elige el bot → **Disable**. Sin esto, el bot no ve mensajes como `+ leche` en los grupos. Si el bot ya estaba en el grupo, sácalo y vuelve a meterlo.

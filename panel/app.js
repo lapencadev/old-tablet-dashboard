@@ -187,7 +187,8 @@
 
   /* ───────── Home Assistant (through the server proxy) ───────── */
   function ha(method, path, body, done) {
-    xhr(method, (CFG.HA_BASE || '') + path, body, done, CFG.HA_TOKEN ? { Authorization: 'Bearer ' + CFG.HA_TOKEN } : null);
+    // Always through the server: a token in config.js would be readable by anyone on the Wi-Fi.
+    xhr(method, (CFG.HA_BASE || '/ha') + path, body, done);
   }
   function service(domain, name, body, done) {
     ha('POST', '/api/services/' + domain + '/' + name + '?return_response', body, function (data, status) {

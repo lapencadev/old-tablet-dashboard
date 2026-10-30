@@ -20,6 +20,8 @@ Turn the tablet that sits in a drawer into an always-on family panel: today's me
 |---|---|---|
 | ![](docs/img/meal-detail.png) | ![](docs/img/long-lists-672.png) | ![](docs/img/night.png) |
 
+<img src="docs/img/telegram-es.png" alt="Shopping and tasks from a Telegram group" width="520">
+
 ## Try it in one minute
 
 You only need Python 3.9+.
@@ -27,11 +29,12 @@ You only need Python 3.9+.
 ```bash
 git clone https://github.com/lapencadev/old-tablet-dashboard.git
 cd old-tablet-dashboard
-python -m pip install -r requirements.txt
+python3 -m venv .venv && source .venv/bin/activate   # Windows: skip this line
+pip install -r requirements.txt
 python tools/panel.py demo            # or: python tools/panel.py demo --lang es
 ```
 
-Open <http://localhost:8000>. The demo runs a fake Home Assistant with example calendars and lists, so nothing has to be configured. (On macOS/Linux use `python3` if `python` is not found.)
+Open <http://localhost:8000>. The demo runs a fake Home Assistant with example calendars and lists, so nothing has to be configured. On macOS, `python` and `pip` only exist inside the `.venv` (Apple ships `python3`); run `source .venv/bin/activate` again in each new Terminal.
 
 ## How it works
 

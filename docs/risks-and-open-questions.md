@@ -15,7 +15,6 @@
 
 | Question | Class | Initial position |
 |---|---|---|
-| Final repository name. | Later | `old-tablet-dashboard` until the owner decides. |
 | Should the HA YAML packages be offered as HA *packages* (`packages/` folder) instead of REST deploy? | Later | REST deploy (works without editing `configuration.yaml`); mention packages as an alternative. |
 | Shopping sections for supermarkets other than Mercadona. | Implementation-time | Ship generic sections in EN and Mercadona-style aisles in ES as data files; users edit JSON. |
 | Bot messages for `+`/`-`/`!` in more languages. | Later | EN and ES only. |
