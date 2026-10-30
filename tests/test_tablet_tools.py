@@ -11,7 +11,7 @@ from tools import panel
 FAKE_ADB = r'''#!%(py)s
 import sys, json
 log = %(log)r
-with open(log, "a") as f:
+with open(log, "a", encoding="utf-8") as f:
     f.write(json.dumps(sys.argv[1:]) + "\n")
 a = sys.argv[1:]
 if a == ["get-state"]:
@@ -33,7 +33,7 @@ class TabletToolsTest(unittest.TestCase):
         self.dir = Path(tempfile.mkdtemp())
         self.log = self.dir / "adb.log"
         adb = self.dir / "adb"
-        adb.write_text(FAKE_ADB % {"py": sys.executable, "log": str(self.log)})
+        adb.write_text(FAKE_ADB % {"py": sys.executable, "log": str(self.log)}, encoding="utf-8")
         adb.chmod(adb.stat().st_mode | stat.S_IEXEC)
         self.old_path = os.environ["PATH"]
         os.environ["PATH"] = str(self.dir) + os.pathsep + self.old_path
@@ -43,11 +43,11 @@ class TabletToolsTest(unittest.TestCase):
 
     def calls(self):
         import json
-        return [json.loads(l) for l in self.log.read_text().splitlines()]
+        return [json.loads(l) for l in self.log.read_text(encoding="utf-8").splitlines()]
 
     def test_debloat_falls_back_to_block(self):
         lst = self.dir / "list.txt"
-        lst.write_text("# comment\ncom.google.android.youtube\ncom.android.email\n")
+        lst.write_text("# comment\ncom.google.android.youtube\ncom.android.email\n", encoding="utf-8")
         panel.cmd_tablet_debloat(Namespace(list=str(lst), restore=False, dry_run=False))
         c = [x for x in self.calls() if x != ["get-state"]]
         self.assertEqual(c, [["shell", "pm", "disable-user", "com.google.android.youtube"],
@@ -56,7 +56,7 @@ class TabletToolsTest(unittest.TestCase):
 
     def test_restore_enables_and_unblocks(self):
         lst = self.dir / "list.txt"
-        lst.write_text("com.android.email\n")
+        lst.write_text("com.android.email\n", encoding="utf-8")
         panel.cmd_tablet_debloat(Namespace(list=str(lst), restore=True, dry_run=False))
         self.assertIn(["shell", "pm", "unblock", "com.android.email"], self.calls())
 

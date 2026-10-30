@@ -67,17 +67,17 @@ class SyncTest(unittest.TestCase):
         sync.sync_once(self.cfg, fetch=fake_fetch, log=lambda *_: None)
         menu = menu_mod.load_menu(self.dir / "data" / "menu.js")
         self.assertEqual(menu_mod.validate(menu), [])
-        self.assertEqual(json.loads((self.dir / "data" / "recipes.json").read_text())[0]["steps"], ["Sofreír.", "Cocer 10 min."])
+        self.assertEqual(json.loads((self.dir / "data" / "recipes.json").read_text(encoding="utf-8"))[0]["steps"], ["Sofreír.", "Cocer 10 min."])
 
     def test_broken_source_keeps_previous_menu(self):
         sync.sync_once(self.cfg, fetch=fake_fetch, log=lambda *_: None)
-        before = (self.dir / "data" / "menu.js").read_text()
+        before = (self.dir / "data" / "menu.js").read_text(encoding="utf-8")
         with self.assertRaises(Exception):
             sync.sync_once(self.cfg, fetch=lambda url: "var X = {weeks: {}};", log=lambda *_: None)
-        self.assertEqual((self.dir / "data" / "menu.js").read_text(), before)
+        self.assertEqual((self.dir / "data" / "menu.js").read_text(encoding="utf-8"), before)
 
     def test_generic_adapter(self):
-        example = (Path(__file__).resolve().parent.parent / "panel/data/menu.example.js").read_text()
+        example = (Path(__file__).resolve().parent.parent / "panel/data/menu.example.js").read_text(encoding="utf-8")
         cfg = dict(self.cfg, MENU_ADAPTER="generic", MENU_URL="https://example.org/menu.js")
         menu = sync.sync_once(cfg, fetch=lambda url: example, log=lambda *_: None)
         self.assertIn("autumn1", menu["weeks"])
