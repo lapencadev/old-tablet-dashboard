@@ -4,6 +4,8 @@ updates:
   - package-ecosystem: pip
     directory: /
     schedule: { interval: weekly }
+    # keep the ranges in requirements.txt; only raise a minimum for a security fix
+    versioning-strategy: increase-if-necessary
   - package-ecosystem: npm
     directory: /
     schedule: { interval: weekly }

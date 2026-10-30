@@ -170,6 +170,7 @@ def build_app(dest, version=None):
     shutil.copytree(ROOT / "ha-app", dest, ignore=ignore)
     shutil.copytree(ROOT / "server", dest / "server", ignore=ignore)
     shutil.copytree(ROOT / "panel", dest / "panel", ignore=ignore)
+    shutil.copy2(ROOT / "requirements.txt", dest / "requirements.txt")
     version = version or "1.0." + datetime.datetime.now().strftime("%Y%m%d%H%M")
     cfg = (dest / "config.yaml").read_text(encoding="utf-8")
     import re

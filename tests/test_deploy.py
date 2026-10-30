@@ -15,7 +15,7 @@ class BuildAppTest(unittest.TestCase):
             version = panel.build_app(dest, version="1.0.test")
         finally:
             (panel.ROOT / "panel" / "._junk").unlink()
-        for rel in ("config.yaml", "Dockerfile", "server/serve.py", "server/menu.py", "panel/index.html", "panel/app.js"):
+        for rel in ("config.yaml", "Dockerfile", "requirements.txt", "server/serve.py", "server/menu.py", "panel/index.html", "panel/app.js"):
             self.assertTrue((dest / rel).exists(), rel)
         self.assertIn('version: "1.0.test"', (dest / "config.yaml").read_text(encoding="utf-8"))
         names = tarfile.open(fileobj=io.BytesIO(panel.tar_bytes(dest))).getnames()

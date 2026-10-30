@@ -1,4 +1,6 @@
-json5==0.17.3
-websockets==17.3
+# Ranges, not pins: pip picks the newest version that works with your Python
+# (3.9 on a stock Mac, 3.12 inside Home Assistant). CI tests both ends.
+json5>=0.9.25
+websockets>=13.1
 # only for password-protected menu sites (MENU_PASSWORD)
-cryptography>=50.0.2
+cryptography>=43
