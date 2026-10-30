@@ -328,21 +328,23 @@
   {
     "id": "menu-sync-adapter",
     "area": "menu",
-    "title": "The menu can be synced from the author's site through an adapter",
-    "user_visible_behavior": "With MENU_URL set and adapter 'static-site', the server downloads the the author's site data every hour and writes panel/data/menu.js (and recipes.json) in the generic format.",
+    "title": "The menu can be synced from a website through an adapter",
+    "user_visible_behavior": "With MENU_URL set, the server downloads the menu every hour and writes panel/data/menu.js (and recipes.json) in the generic format: adapter 'generic' (already in the format) or 'static-site' (the author's meal-planning site format, optionally with a password-protected private.enc.json).",
     "depends_on": [
       "menu-format-example",
       "server-static-proxy"
     ],
     "status": "passing",
     "verification": [
-      "Unit test with a the author's site-shaped fixture: converted menu validates; recipes parsed."
+      "Unit test with static-site fixtures: converted menu validates; recipes (with aliases) parsed.",
+      "Unit test: a password-protected site is decrypted with MENU_PASSWORD; a wrong password keeps the previous menu."
     ],
     "evidence": [
-      "2026-10-30: tests/test_sync.py 7 tests OK — converted the author's site fixture validates (meals Café/Comida/Merienda/Cena, wB start 2026-11-02 repeat 2, wA start from month-range title), recipes parsed with entities decoded, broken source keeps previous menu.js, generic adapter works.",
-      "2026-10-30: shopping.split_products splits 'Canónigos (~750g), tomate…, limones (3)' into 5 products and keeps 'Crema de calabaza y zanahoria' whole."
+      "2026-10-30: tests/test_sync.py 9 tests OK — static-site fixtures convert to a valid menu (wB start 2026-11-02 repeat 2), recipes parsed with aliases, broken source keeps previous menu.js, generic adapter works.",
+      "2026-10-30: PasswordProtectedSiteTest — private.enc.json (PBKDF2-SHA256 + AES-GCM, same layout as the author's site build) decrypted with MENU_PASSWORD; wrong password raises 'wrong MENU_PASSWORD' and writes nothing.",
+      "2026-10-30: same decryption checked against a real build of the author's site with a test password: weeks and shopping files identical to the originals."
     ],
-    "notes": "the author's site is the author's private app; the adapter is an example of how to plug any source."
+    "notes": "Format documented in docs/menu-sources.md and docs/es/fuentes-de-menu.md. cryptography is only needed for password-protected sites."
   },
   {
     "id": "ha-app-package",

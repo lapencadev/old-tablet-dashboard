@@ -81,7 +81,7 @@ Something not working? **[docs/troubleshooting.md](docs/troubleshooting.md)** li
 
 ## Menu sources
 
-The panel reads one simple format (`var MENU = {people, meals, weeks, shopping}`, see [docs/domain-model.md](docs/domain-model.md)). You can write it by hand, generate it with any tool, or sync it from another app through an **adapter**. The repo ships two: `generic` (a URL that already serves the format) and `static-site`, the author's personal meal-planning app — a small, tested example of how to plug in your own ([server/adapters/static_site.py](server/adapters/static_site.py)).
+The panel reads one simple format (`var MENU = {people, meals, weeks, shopping}`, see [docs/domain-model.md](docs/domain-model.md)). You can write it by hand, generate it with any tool, or sync it every hour from a website through an **adapter**. The repo ships two: `generic` (a URL that already serves the format) and `static-site`, the format of the author's own meal-planning website, with an optional password-protected part. Both are described in [docs/menu-sources.md](docs/menu-sources.md) so you can publish your site the same way or write your own adapter.
 
 ## Built with an AI coding agent
 

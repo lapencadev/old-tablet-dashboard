@@ -152,7 +152,7 @@ Open `http://<HA_IP>:8000` from any device on your network.
 | Option | |
 |---|---|
 | `lang` | Language of the Telegram bot. |
-| `menu_url`, `menu_adapter`, `menu_people`, `recipes_url` | Menu sync (step 8). Empty = use the menu file deployed with the app. |
+| `menu_url`, `menu_adapter`, `menu_people`, `menu_password`, `recipes_url` | Menu sync (step 8). Empty = use the menu file deployed with the app. |
 | `telegram_chat_id` | Group id for `/menu` and `/help` (step 7). |
 
 The **Log** tab shows what the server is doing (menu sync, Telegram connection, Home Assistant errors).
@@ -271,7 +271,7 @@ Check it with `python tools/panel.py validate-menu`, then `deploy-app`.
 
 **Recipes**: `panel/data/recipes.json` (same shape as `recipes.example.json`). Tapping a meal shows the recipe whose title best matches the main dish.
 
-**Syncing from another app**: set `menu_url` (and `menu_adapter`) in the app options. `generic` downloads a file already in this format; `static-site` converts the author's meal-planning app. To support another app, copy `server/adapters/static_site.py`.
+**Syncing from a website**: set `menu_url` (and `menu_adapter`) in the app options. `generic` downloads a file already in this format; `static-site` reads a meal-planning website made of static files, even with a password-protected part (`menu_password`). Both formats, with examples, are in [menu-sources.md](menu-sources.md).
 
 **Choosing a week by hand**: tap the week name next to "Today". The choice is shared by every screen and by `/menu`; pick *Automatic* to go back to dates. A new week appears on the day it starts.
 

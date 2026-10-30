@@ -45,6 +45,7 @@ Todo lo que falló al montar el sistema original (una tablet con Android 4.4, Ho
 | Los `/comandos` funcionan pero `+ leche` no hace nada | El modo privacidad del grupo está activado | @BotFather → `/setprivacy` → **Disable**; saca el bot del grupo y vuelve a meterlo. |
 | `/menu` no contesta | Falta `telegram_chat_id` en las opciones de la aplicación, o la aplicación no está en marcha | Ponlo, reinicia la aplicación y busca «Telegram /menu: listening» en la pestaña **Registro**. |
 | `/menu` sugiere muy pocos productos | Las líneas con varios productos se leían como uno | Arreglado: se separan por comas (los nombres con «y» se respetan). |
+| El menú deja de actualizarse y el registro dice «wrong MENU_PASSWORD» | La contraseña de la web cambió o hay una errata en `menu_password` | Corrige `menu_password` en las opciones de la aplicación y reinicia. Mientras tanto el panel sigue mostrando el último menú bueno. |
 | Los comandos no salen al escribir «/» | No se registraron | @BotFather → `/setcommands` (envía la lista completa de una vez; sustituye a la anterior). |
 
 ## Fuera de casa

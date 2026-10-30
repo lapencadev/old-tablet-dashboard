@@ -24,7 +24,7 @@ This repository turns an old tablet into an always-on family panel (meals, agend
 - `panel/*.js` is **ES5 only** (Chrome 40): no `let`/`const`, arrow functions, template literals, `fetch`, Promises, classes, spread, `Array.prototype.includes`. CSS: no variables, grid or flex `gap`; add `-webkit-` flexbox prefixes.
 - No personal data in tracked files: example names, example entities, `192.168.1.x` only in placeholders like `<HA_IP>`.
 - User-facing commands go through `tools/panel.py` so they work on macOS, Linux and Windows. No bash-only steps in the guides.
-- Server code: Python 3.9+ standard library; only `json5` and `websockets` as dependencies.
+- Server code: Python 3.9+ standard library; only `json5` and `websockets` as dependencies, plus `cryptography` used only by the `static-site` adapter for password-protected sites (imported lazily).
 - Every user-visible string goes through the i18n tables (`panel/i18n.js`, `server/i18n.py`) in English and Spanish.
 
 ## Working Rules

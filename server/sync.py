@@ -6,7 +6,7 @@ import urllib.request
 from pathlib import Path
 
 from server import menu as menu_mod
-from server.adapters import static_site as static-site_
+from server.adapters import static_site
 
 
 def fetch_text(url, timeout=30):
@@ -19,15 +19,19 @@ def build(cfg, fetch=fetch_text, log=print):
     base = cfg["MENU_URL"].rstrip("/")
     people = [p.strip() for p in (cfg.get("MENU_PEOPLE") or "").split(",") if p.strip()] or ["A", "B"]
     if cfg["MENU_ADAPTER"] == "static-site":
-        weeks = fetch(base + "/" + static-site.FILES["weeks"])
+        private = {}
+        if cfg.get("MENU_PASSWORD"):
+            private = static_site.private_files(fetch(base + "/" + static_site.PRIVATE_FILE), cfg["MENU_PASSWORD"])
+        weeks = private.get("weeks") or fetch(base + "/" + static_site.FILES["weeks"])
+        shop = private.get("shopping")
+        if shop is None:
+            try:
+                shop = fetch(base + "/" + static_site.FILES["shopping"])
+            except Exception as e:
+                log("Menu sync: no shopping lists (%s)" % e)
+        menu = static_site.convert_menu(weeks, shop, people)
         try:
-            shop = fetch(base + "/" + static-site.FILES["shopping"])
-        except Exception as e:
-            log("Menu sync: no shopping lists (%s)" % e)
-            shop = None
-        menu = static-site.convert_menu(weeks, shop, people)
-        try:
-            recipes = static-site.convert_recipes(fetch(base + "/" + static-site.FILES["recipes"]))
+            recipes = static_site.convert_recipes(fetch(base + "/" + static_site.FILES["recipes"]))
         except Exception as e:
             log("Menu sync: no recipes (%s)" % e)
             recipes = None

@@ -1,4 +1,4 @@
-/* Synthetic the author's site-shaped data for tests (not real). */
+/* Synthetic data in the static-site format, for tests (not real). */
 const WEEKS_DATA = {
   wB: {
     id: 'wB',
