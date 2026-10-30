@@ -1,5 +1,5 @@
 const RECIPES_HTML = `
-    <div class="card" data-cat="comida">
+    <div class="card" data-cat="comida" data-alias="Pavo al curry con brócoli|Curry de pavo">
       <div class="ct"><div class="cb2"><span class="badge bg">15 min</span><span class="badge ba">batch</span></div>
       <div class="ctitle">Pavo al curry rápido con leche evaporada</div>
       <div class="csub">Salsa cremosa sin nata.</div></div>

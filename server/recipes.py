@@ -1,7 +1,7 @@
 """Recipe book: find the recipe whose title best matches a dish name.
 
 Recipes live in panel/data/recipes.json (or recipes.example.json):
-[{"title", "subtitle"?, "badges"?: [], "ingredients": [], "steps": [], "tip"?}]"""
+[{"title", "aliases"?: [], "subtitle"?, "badges"?: [], "ingredients": [], "steps": [], "tip"?}]"""
 import json
 import re
 import unicodedata
@@ -37,13 +37,15 @@ def best_match(recipes, dish):
         return None
     best, score = None, 0.0
     for r in recipes:
-        have = {stem(w) for w in words(r.get("title", ""))}
-        if not have:
-            continue
-        common = len(want & have)
-        s = common / len(want) * 0.7 + common / len(have) * 0.3
-        if s > score:
-            best, score = r, s
+        # `aliases`: other names of the same recipe (e.g. recipes merged into one card)
+        for name in [r.get("title", "")] + list(r.get("aliases") or []):
+            have = {stem(w) for w in words(name)}
+            if not have:
+                continue
+            common = len(want & have)
+            s = common / len(want) * 0.7 + common / len(have) * 0.3
+            if s > score:
+                best, score = r, s
     return best if score >= THRESHOLD else None
 
 

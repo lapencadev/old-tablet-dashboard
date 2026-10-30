@@ -17,13 +17,14 @@ DEFAULTS = {
     "MENU_ADAPTER": "generic",
     "MENU_SYNC_MINUTES": "60",
     "MENU_PEOPLE": "",
+    "MENU_PASSWORD": "",
     "RECIPES_URL": "",
     "TELEGRAM_CHAT_ID": "",
     "PANEL_LANG": "en",   # not LANG: that one is the system locale
 }
 
 # options.json keys (HA app) → setting names
-OPTION_KEYS = {"menu_url": "MENU_URL", "menu_adapter": "MENU_ADAPTER", "menu_people": "MENU_PEOPLE",
+OPTION_KEYS = {"menu_url": "MENU_URL", "menu_adapter": "MENU_ADAPTER", "menu_people": "MENU_PEOPLE", "menu_password": "MENU_PASSWORD",
                "recipes_url": "RECIPES_URL", "telegram_chat_id": "TELEGRAM_CHAT_ID", "lang": "PANEL_LANG"}
 
 

@@ -8,7 +8,7 @@ Old tablets are hard to use for this: they run browsers from ~2014 (no modern Ja
 
 ## Current Workaround / Existing System
 
-This repo generalises a working personal setup (October 2026): a 2014 Android 4.4 tablet showing a custom panel served from a Raspberry Pi with Home Assistant OS, a meal-planning web app (the author's site) as menu source, and a Telegram bot for shopping and tasks. It was built in a few days with an AI coding agent. The original is private and full of personal data; this repo is the clean, reusable version.
+This repo generalises a working personal setup (October 2026): a 2014 Android 4.4 tablet showing a custom panel served from a Raspberry Pi with Home Assistant OS, the author's own meal-planning website as menu source, and a Telegram bot for shopping and tasks. It was built in a few days with an AI coding agent. The original is private and full of personal data; this repo is the clean, reusable version.
 
 Inspiration: Antonio Leiva's post about turning an old tablet into a desk dashboard (https://x.com/antonioleivag/status/2112870497260077245), itself inspired by people running dashboards on cheap digital photo frames. Only the idea comes from there; code and architecture are original.
 

@@ -1,8 +1,10 @@
-"""Adapter for the author's site, a personal meal-planning web app (the author's menu source).
+"""Adapter `static-site`: a personal meal-planning website made of static files (the author's own).
 
-the author's site publishes three files: js/data/weeks.data.js (WEEKS_DATA), js/data/shop.data.js (SHOP_LISTS)
-and js/recipes-content.js (recipe cards as HTML). This module converts them into the generic menu
-format (docs/domain-model.md) and the recipes.json list. Use it as a template for other sources."""
+The site publishes js/data/weeks.data.js (WEEKS_DATA), js/data/shop.data.js (SHOP_LISTS) and
+js/recipes-content.js (recipe cards as HTML). When part of the site is password-protected, the first
+two travel encrypted in private.enc.json (see `private_files`). The format is documented in
+docs/menu-sources.md. This module converts it into the generic menu format (docs/domain-model.md)
+and the recipes.json list; use it as a template for other sources."""
 import html
 import re
 import unicodedata
@@ -11,7 +13,7 @@ from server.menu import parse_js_object
 
 FILES = {"weeks": "js/data/weeks.data.js", "shopping": "js/data/shop.data.js", "recipes": "js/recipes-content.js"}
 
-# the author's site slot names → when each meal is over (hour) and whether "Tomorrow" shows it
+# Slot names (Spanish) → when each meal is over (hour) and whether "Tomorrow" shows it
 MEAL_HOURS = {"café": 9, "desayuno": 12, "media mañana": 12, "comida": 16, "merienda": 19, "cena": 24}
 TOMORROW = {"comida", "cena"}
 MONTHS = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
@@ -103,12 +105,58 @@ def convert_recipes(recipes_js):
         steps = re.search(r'<ol class="steps">(.*?)</ol>', block, re.S)
         tip = re.search(r'<div class="tip">(.*?)</div>', block, re.S)
         items = lambda m: [_text(x) for x in re.findall(r"<li>(.*?)</li>", m.group(1), re.S)] if m else []
+        alias = re.match(r'[^>]*data-alias="([^"]*)"', block)
         out.append({
             "title": _text(title.group(1)),
+            "aliases": [_text(a) for a in alias.group(1).split("|") if a.strip()] if alias else [],
             "subtitle": _text(sub.group(1)) if sub else "",
             "badges": [_text(b) for b in re.findall(r'<span class="badge[^"]*">(.*?)</span>', block)],
             "ingredients": items(ing),
             "steps": items(steps),
             "tip": _text(tip.group(1)) if tip else "",
         })
+    return out
+
+
+# ───────── Password-protected sites ─────────
+# private.enc.json = {"v": 1, "iterations": N, "salt": b64, "iv": b64, "data": b64}
+# key = PBKDF2-HMAC-SHA256(password, salt, iterations, 32 bytes); data = AES-256-GCM(JSON list of HTML blocks)
+# The blocks contain the private <script>s inline; the ones that define WEEKS_DATA / SHOP_LISTS are used.
+PRIVATE_FILE = "private.enc.json"
+PRIVATE_VARS = {"weeks": "WEEKS_DATA", "shopping": "SHOP_LISTS"}
+_KEYS = {}
+
+
+def _derive(password, salt_b64, iterations):
+    import base64
+    import hashlib
+    k = (password, salt_b64, iterations)
+    if k not in _KEYS:  # PBKDF2 with many iterations takes a second or two on a Raspberry Pi
+        _KEYS.clear()
+        _KEYS[k] = hashlib.pbkdf2_hmac("sha256", password.encode(), base64.b64decode(salt_b64), iterations, 32)
+    return _KEYS[k]
+
+
+def private_files(payload_json, password):
+    """{'weeks': js text, 'shopping': js text} from an encrypted private.enc.json. Wrong password → ValueError."""
+    import base64
+    import json
+    try:
+        from cryptography.exceptions import InvalidTag
+        from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+    except ImportError:
+        raise ValueError("the site is password-protected: install the 'cryptography' package")
+    p = json.loads(payload_json)
+    key = _derive(password, p["salt"], int(p["iterations"]))
+    try:
+        plain = AESGCM(key).decrypt(base64.b64decode(p["iv"]), base64.b64decode(p["data"]), None)
+    except InvalidTag:
+        raise ValueError("wrong MENU_PASSWORD: private.enc.json cannot be decrypted")
+    out = {}
+    for block in json.loads(plain.decode("utf-8")):
+        for code in re.findall(r"<script>([\s\S]*?)</script>", block):
+            code = code.replace("<\\/script", "</script")
+            for name, var in PRIVATE_VARS.items():
+                if name not in out and re.search(r"(?m)^\s*(?:const|var|let)\s+%s\s*=" % var, code):
+                    out[name] = code
     return out

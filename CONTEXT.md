@@ -15,7 +15,7 @@ Domain language for this repository. Use these terms in code, docs and commits.
 | **Dish** | What a **person** eats in a meal. HTML allowed; the part in `<strong>` is the **main dish** shown on the panel. |
 | **Person** | Someone who follows the menu. The first person is the default; others are shown with a small tag only when their dish differs. |
 | **Menu source** | Where the menu comes from: a local file (`panel/data/menu.js`) or a URL synced every hour through an **adapter**. |
-| **Adapter** | Code that converts another app's meal-plan format into this repo's menu format (example: the author's site). |
+| **Adapter** | Code that converts another app's meal-plan format into this repo's menu format (the repo ships `static-site`, see docs/menu-sources.md). |
 | **Recipe book** | Optional list of recipes. When a dish matches a recipe title, the meal detail shows the recipe. |
 | **Shopping suggestions** | Per-week list of products the menu needs, grouped by category. The Telegram `/menu` command offers them as checkboxes. |
 | **Shopping list** / **Task list** | Home Assistant to-do lists (`todo.*`) shown on the panel and edited from Telegram. |

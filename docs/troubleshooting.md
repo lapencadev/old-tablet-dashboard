@@ -45,6 +45,7 @@ Every problem met while building the original setup (an Android 4.4 tablet, Home
 | `/commands` work but `+ milk` does nothing | Group privacy is on | @BotFather → `/setprivacy` → **Disable**, then remove and re-add the bot to the group. |
 | `/menu` does not answer | `telegram_chat_id` not set in the app options, or the app is not running | Set it, restart the app and check the **Log** tab for "Telegram /menu: listening". |
 | `/menu` suggests only a few products | Lines with several products were read as one | Fixed: lines are split by commas (names with "and"/"y" stay whole). |
+| The menu stops updating and the log says "wrong MENU_PASSWORD" | The site's password changed, or `menu_password` has a typo | Fix `menu_password` in the app options and restart. The panel keeps showing the last good menu meanwhile. |
 | Commands do not show when typing "/" | They were never registered | @BotFather → `/setcommands` (send the full list at once; it replaces the previous one). |
 
 ## Remote access

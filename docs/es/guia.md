@@ -156,7 +156,7 @@ Abre `http://<IP_DE_HA>:8000` desde cualquier dispositivo de tu red.
 | Opción | |
 |---|---|
 | `lang` | Idioma del bot de Telegram. |
-| `menu_url`, `menu_adapter`, `menu_people`, `recipes_url` | Sincronizar el menú (paso 8). Vacío = el menú que subiste con la aplicación. |
+| `menu_url`, `menu_adapter`, `menu_people`, `menu_password`, `recipes_url` | Sincronizar el menú (paso 8). Vacío = el menú que subiste con la aplicación. |
 | `telegram_chat_id` | Id del grupo para `/menu` y `/ayuda` (paso 7). |
 
 La pestaña **Registro** enseña qué hace el servidor (sincronización del menú, conexión con Telegram, errores de Home Assistant).
@@ -273,7 +273,7 @@ Compruébalo con `python tools/panel.py validate-menu` y luego `deploy-app`.
 
 **Recetas**: `panel/data/recipes.json` (como `recipes.example.es.json`). Al tocar una comida sale la receta cuyo título se parece más al plato principal.
 
-**Sincronizar desde otra app**: pon `menu_url` (y `menu_adapter`) en las opciones de la aplicación. `generic` descarga un archivo que ya tiene este formato; `static-site` convierte la app de menús de la autora. Para otra app, copia `server/adapters/static_site.py`.
+**Sincronizar desde una web**: pon `menu_url` (y `menu_adapter`) en las opciones de la aplicación. `generic` descarga un archivo que ya tiene este formato; `static-site` lee una web de menús hecha con archivos estáticos, aunque tenga una parte privada con contraseña (`menu_password`). Los dos formatos, con ejemplos, están en [fuentes-de-menu.md](fuentes-de-menu.md).
 
 **Elegir semana a mano**: toca el nombre de la semana junto a «Hoy se come». La elección la comparten todas las pantallas y `/menu`; elige *Automático* para volver a las fechas. Un menú nuevo aparece el día que empieza.
 

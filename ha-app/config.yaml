@@ -19,6 +19,7 @@ options:
   menu_url: ""
   menu_adapter: generic
   menu_people: ""
+  menu_password: ""
   recipes_url: ""
   telegram_chat_id: ""
 schema:
@@ -26,5 +27,6 @@ schema:
   menu_url: str?
   menu_adapter: list(generic|static-site)
   menu_people: str?
+  menu_password: password?
   recipes_url: str?
   telegram_chat_id: str?
