@@ -99,7 +99,7 @@ def cmd_demo(args):
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     url = "http://localhost:%d/" % srv.server_address[1]
     print("Demo running: open %s  (Ctrl+C to stop)" % url)
-    print("Fake Home Assistant on %s" % cfg["HA_URL"])
+    print("(Fake Home Assistant behind the panel on %s: no need to open it)" % cfg["HA_URL"])
     try:
         while True:
             time.sleep(3600)

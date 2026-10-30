@@ -197,3 +197,31 @@ html.night .md-line, html.night .md-recipe ul, html.night .md-recipe ol { color:
 html.night .md-rt { color: #93a186; } html.night .md-tip { background: #1a2116; color: #7f8c74; }
 html.night .pk-item { color: #8f9c84; border-bottom-color: #1d2419; }
 html.night .pk-item.on { background: #1d2419; }
+
+/* ───────── Narrow screens: stacked cards, the page scrolls (fit() adds .flow) ───────── */
+@media (max-width: 999px) {
+  html, body { height: auto; overflow: visible; }
+  body { display: block; }
+  .top { -webkit-flex-wrap: wrap; flex-wrap: wrap; padding: 14px 16px 12px; }
+  .weather { margin-right: 12px; }
+  .mode { margin-right: 12px; }
+  .clock { font-size: 48px; }
+  .checklist { -webkit-order: 3; order: 3; width: 100%; margin: 10px 0 0; }
+  .alerts { padding: 10px 16px 0; -webkit-flex-wrap: wrap; flex-wrap: wrap; }
+  .al { -webkit-flex: 1 1 260px; flex: 1 1 260px; margin-bottom: 8px; }
+  .al + .al { margin-left: 0; }
+  .grid { -webkit-flex-wrap: wrap; flex-wrap: wrap; padding: 12px 16px 20px; }
+  .col-meals, .col-side { -webkit-flex: 1 1 300px; flex: 1 1 300px; margin-right: 0; }
+  .col-meals { margin-right: 16px; }
+  .col-mid { -webkit-order: 3; order: 3; -webkit-flex: 1 1 100%; flex: 1 1 100%; margin-right: 0; }
+  .col > .card-photo, .card-photo { -webkit-flex: 0 0 auto; flex: 0 0 auto; height: 240px; }
+}
+@media (max-width: 680px) {
+  .col-meals { margin-right: 0; margin-bottom: 14px; }
+  .col-meals, .col-side { -webkit-flex-basis: 100%; flex-basis: 100%; }
+  .agenda-week { -webkit-column-count: 1; column-count: 1; }
+  .weekday { font-size: 30px; }
+  .clock { font-size: 40px; }
+  .w-now { font-size: 30px; margin-right: 8px; }
+  .w-range { display: none; }
+}

@@ -12,7 +12,7 @@ Turn the tablet that sits in a drawer into an always-on family panel: today's me
 - **Agenda** — the next seven days from every Home Assistant calendar (Google Calendar works through its secret iCal address).
 - **Tasks and shopping** — Home Assistant to-do lists; tap an item to tick it off.
 - **Weather, alerts, daily checklist, photos** — "laundry is waiting" banners from HA helpers, reminders before a date, vitamin/plant chips that every screen shares, and pictures filling the free space.
-- **Fits one screen, always** — long lists collapse into "+N more · see all" before the text shrinks. Night mode from 23:00.
+- **Fits one screen, always** — long lists collapse into "+N more · see all" before the text shrinks. On a phone or a narrow window the cards stack and the page scrolls instead. Night mode from 23:00.
 - **Telegram** — `+ milk, eggs` adds to the shopping list sorted by supermarket aisle, `- eggs` removes, `! call the plumber @friday` adds a task, `/menu` offers the week's shopping as checkboxes, `/help` explains it all.
 - **English and Spanish**, for the panel and the bot.
 

@@ -61,3 +61,7 @@ CSS variables are not available on the target browser, so tokens are documented 
 - Contrast ≥ 4.5:1 for content text in day mode.
 - Touch targets ≥ 44px tall for alert buttons and modal rows.
 - No information conveyed by colour only (states also change weight, opacity or icon).
+
+## Narrow screens
+
+Below 1000 px wide (phones, a portrait tablet, a small browser window) the panel stops fitting: `fit()` adds `.flow`, the cards stack (meals and lists side by side, the week below; one column under 680 px) and the page scrolls. The one-screen rule applies to the landscape tablet only.

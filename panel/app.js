@@ -456,6 +456,7 @@
   /* ───────── Fit: everything on one screen, no scrolling ─────────
      1) trim the lists of the column that overflows; 2) shrink text (fit-0 … fit-7). */
   var FIT_LEVELS = 8;
+  var FLOW_WIDTH = 1000;  // keep in sync with the @media rule in styles.css
   function defaultLimits() { return { tasks: CFG.TASKS_MAX || 5, shopping: CFG.SHOPPING_MAX || 7, agenda: CFG.AGENDA_MAX_PER_DAY || 4 }; }
   var LIMITS = defaultLimits();
   var MIN_LIMITS = { tasks: 3, shopping: 4, agenda: 2 };
@@ -477,6 +478,14 @@
     LIMITS = defaultLimits();
     body.className = 'fit-0';
     renderTodo('tasks'); renderTodo('shopping'); renderAgenda();
+    if (window.innerWidth < FLOW_WIDTH) {
+      // Narrow screen (phone, portrait tablet, small window): stack the cards and
+      // let the page scroll instead of shrinking the text.
+      body.className = 'fit-0 flow';
+      photoRoom();
+      FITTING = false;
+      return;
+    }
     var k = 0, guard = 0;
     while (colOverflows('colSide') && guard++ < 20) {
       var key = (k++ % 2 === 0) ? 'shopping' : 'tasks';
