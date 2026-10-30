@@ -1,4 +1,4 @@
 json5==0.17.3
 websockets==17.3
 # only for password-protected menu sites (MENU_PASSWORD)
-cryptography>=42
+cryptography>=50.0.2
