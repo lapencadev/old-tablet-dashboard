@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 import unittest
 import urllib.error
 
@@ -39,6 +40,38 @@ class ServerTest(unittest.TestCase):
                             {"entity_id": "todo.shopping", "status": "needs_action"})
         self.assertEqual(status, 200)
         self.assertGreater(len(data["service_response"]["todo.shopping"]["items"]), 3)
+
+    def test_proxy_only_lets_through_what_the_panel_uses(self):
+        for path in ("/ha/api/config", "/ha/api/services/lock/unlock", "/ha/api/states/../config", "/ha/api/hassio/info"):
+            with self.assertRaises(urllib.error.HTTPError) as e:
+                get(self.base + path)
+            self.assertEqual(e.exception.code, 403, path)
+        self.assertEqual(post(self.base + "/ha/api/services/lock/unlock", {"entity_id": "lock.front"})[0], 403)
+        self.assertEqual(post(self.base + "/ha/api/services/homeassistant/restart", {})[0], 403)
+        self.assertNotIn("/api/services/lock/unlock", [c.get("path") for c in self.ha.log])
+
+    def test_other_web_pages_cannot_post(self):
+        import urllib.request
+        req = urllib.request.Request(self.base + "/ha/api/services/todo/update_item", method="POST",
+                                     data=b'{"entity_id":"todo.shopping"}', headers={"Content-Type": "text/plain"})
+        with self.assertRaises(urllib.error.HTTPError) as e:
+            urllib.request.urlopen(req, timeout=5)
+        self.assertEqual(e.exception.code, 403)
+
+    def test_dns_rebinding_host_is_refused(self):
+        import urllib.request
+        req = urllib.request.Request(self.base + "/panel/week", headers={"Host": "evil.example.com"})
+        with self.assertRaises(urllib.error.HTTPError) as e:
+            urllib.request.urlopen(req, timeout=5)
+        self.assertEqual(e.exception.code, 403)
+
+    def test_host_rules(self):
+        from server.serve import host_allowed
+        for h in ("192.0.2.10:8000", "localhost:8000", "homeassistant.local:8000", "raspi.example.ts.net:8000", "[::1]:8000", "panel"):
+            self.assertTrue(host_allowed(h), h)
+        for h in ("evil.example.com", "192.0.2.10.nip.io:8000", ""):
+            self.assertFalse(host_allowed(h), h)
+        self.assertTrue(host_allowed("panel.example.org", ("panel.example.org",)))
 
     def test_week_choice_round_trip(self):
         self.assertEqual(json.loads(get(self.base + "/panel/week")[2]), {"week": None})
@@ -83,9 +116,9 @@ class SettingsTest(unittest.TestCase):
         import tempfile
         from server import settings
         env_file = tempfile.mktemp()
-        open(env_file, "w", encoding="utf-8").write("HA_URL=http://from-file:8123/\nPANEL_LANG=es\n")
+        Path(env_file).write_text("HA_URL=http://from-file:8123/\nPANEL_LANG=es\n", encoding="utf-8")
         opts = tempfile.mktemp()
-        open(opts, "w", encoding="utf-8").write(_json.dumps({"menu_url": "https://m.example.org", "lang": "", "telegram_chat_id": "-42"}))
+        Path(opts).write_text(_json.dumps({"menu_url": "https://m.example.org", "lang": "", "telegram_chat_id": "-42"}), encoding="utf-8")
         cfg = settings.load(environ={"LANG": "en_US.UTF-8", "PORT": "9000"}, env_file=env_file, options_file=opts)
         self.assertEqual(cfg["HA_URL"], "http://from-file:8123")
         self.assertEqual(cfg["PANEL_LANG"], "es")

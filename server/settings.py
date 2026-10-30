@@ -21,11 +21,13 @@ DEFAULTS = {
     "RECIPES_URL": "",
     "TELEGRAM_CHAT_ID": "",
     "PANEL_LANG": "en",   # not LANG: that one is the system locale
+    "ALLOWED_HOSTS": "",  # extra host names the panel may be opened with (comma separated)
 }
 
 # options.json keys (HA app) → setting names
 OPTION_KEYS = {"menu_url": "MENU_URL", "menu_adapter": "MENU_ADAPTER", "menu_people": "MENU_PEOPLE", "menu_password": "MENU_PASSWORD",
-               "recipes_url": "RECIPES_URL", "telegram_chat_id": "TELEGRAM_CHAT_ID", "lang": "PANEL_LANG"}
+               "recipes_url": "RECIPES_URL", "telegram_chat_id": "TELEGRAM_CHAT_ID", "lang": "PANEL_LANG",
+               "allowed_hosts": "ALLOWED_HOSTS"}
 
 
 def read_env_file(path):

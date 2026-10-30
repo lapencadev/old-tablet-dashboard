@@ -64,6 +64,18 @@ The full walkthrough, with macOS and Windows commands side by side, is in **[doc
 
 Something not working? **[docs/troubleshooting.md](docs/troubleshooting.md)** lists every problem met while building the original setup, with the fix.
 
+## Security
+
+The panel is meant for your home network. What protects it:
+
+- **The Home Assistant token never reaches the tablet.** The server adds it when it talks to Home Assistant; inside HA OS it uses the app's own supervisor token.
+- **The proxy is an allowlist, not an open door.** It only forwards the calls the panel makes (read states and calendars, weather forecast, read and tick to-do items, switch off an alert helper). Anything else, like unlocking a door or restarting HA, gets a 403.
+- **Other web pages cannot use it.** POSTs must be JSON, which makes browsers ask first (CORS) and this server never says yes; requests with an unknown host name are refused, which blocks DNS rebinding.
+- **No personal data in the repo**, checked by a test on every run. Your `.env`, `panel/config.js` and menu stay out of git.
+- **Menu passwords** live in the app options (stored by Home Assistant), never in files.
+
+What it does not do: there is no login. Anyone on your Wi-Fi can open the panel and see what it shows, and tick items. Keep guests on a separate network if that matters to you, and never forward port 8000 on your router: for remote access use Tailscale. See [docs/security.md](docs/security.md) ([español](docs/es/seguridad.md)).
+
 ## Commands
 
 | Command | What it does |

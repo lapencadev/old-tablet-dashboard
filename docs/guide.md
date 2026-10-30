@@ -154,6 +154,7 @@ Open `http://<HA_IP>:8000` from any device on your network.
 | `lang` | Language of the Telegram bot. |
 | `menu_url`, `menu_adapter`, `menu_people`, `menu_password`, `recipes_url` | Menu sync (step 8). Empty = use the menu file deployed with the app. |
 | `telegram_chat_id` | Group id for `/menu` and `/help` (step 7). |
+| `allowed_hosts` | Only if you open the panel with your own domain name (not an IP, `homeassistant.local` or a Tailscale name): add it here, comma separated. |
 
 The **Log** tab shows what the server is doing (menu sync, Telegram connection, Home Assistant errors).
 

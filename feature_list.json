@@ -128,6 +128,25 @@
     "notes": "Inside HA OS use SUPERVISOR_TOKEN and http://supervisor/core."
   },
   {
+    "id": "proxy-hardening",
+    "area": "server",
+    "title": "The Home Assistant proxy only forwards what the panel uses",
+    "user_visible_behavior": "Calls the panel never makes (e.g. lock.unlock, homeassistant.restart, /api/config) get 403; POSTs that are not JSON and requests with an unknown host name are refused, so other web pages cannot use the server.",
+    "depends_on": [
+      "server-static-proxy"
+    ],
+    "status": "passing",
+    "verification": [
+      "tests/test_server.py: allowlist, non-JSON POST, DNS-rebinding host and host rules.",
+      "Playwright e2e: all panel scenarios still pass through the proxy."
+    ],
+    "evidence": [
+      "2026-10-30: test_server 13 tests OK (4 new); e2e 14/14 scenarios.",
+      "2026-10-30: same rules applied to the owner's private server and checked with curl: /api/config 403, lock.unlock 403, text/plain POST 403, Host evil.com 403, panel 200."
+    ],
+    "notes": "Threat model and limits in docs/security.md. Extra domain names go in the allowed_hosts app option."
+  },
+  {
     "id": "demo-mode",
     "area": "platform",
     "title": "A demo runs without Home Assistant",

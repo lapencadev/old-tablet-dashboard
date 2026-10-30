@@ -22,6 +22,7 @@ options:
   menu_password: ""
   recipes_url: ""
   telegram_chat_id: ""
+  allowed_hosts: ""
 schema:
   lang: list(en|es)
   menu_url: str?
@@ -30,3 +31,4 @@ schema:
   menu_password: password?
   recipes_url: str?
   telegram_chat_id: str?
+  allowed_hosts: str?
