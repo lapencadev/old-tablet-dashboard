@@ -24,7 +24,7 @@ SKIP_DIRS = ("docs/img/", "panel/img/")
 
 def tracked_files():
     try:
-        out = subprocess.check_output(["git", "ls-files", "--cached", "--others", "--exclude-standard"], cwd=ROOT, text=True)
+        out = subprocess.check_output(["git", "ls-files", "--cached", "--others", "--exclude-standard"], cwd=ROOT, text=True, encoding="utf-8")
         return [ROOT / p for p in out.splitlines() if p]
     except (OSError, subprocess.CalledProcessError):
         return [p for p in ROOT.rglob("*") if p.is_file() and ".git" not in p.parts and "node_modules" not in p.parts]

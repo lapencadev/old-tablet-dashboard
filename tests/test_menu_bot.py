@@ -63,7 +63,7 @@ class BotFlowTest(unittest.TestCase):
 class HelpTest(unittest.TestCase):
     def test_help_lists_every_package_command(self):
         for lang in ("en", "es"):
-            cmds = json.loads((ROOT / "config" / ("ha.%s.json" % lang)).read_text())["commands"]
+            cmds = json.loads((ROOT / "config" / ("ha.%s.json" % lang)).read_text(encoding="utf-8"))["commands"]
             text = i18n.help_text(lang)
             for c in list(cmds.values()) + ["/menu"]:
                 self.assertIn(c, text)

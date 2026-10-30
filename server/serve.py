@@ -30,6 +30,14 @@ from server import settings as settings_mod  # noqa: E402
 from server.recipes import RecipeBook  # noqa: E402
 from server.state import State  # noqa: E402
 
+# Windows consoles and CI pipes default to a legacy code page; print UTF-8 so
+# names with accents or emoji never crash a command.
+for _s in (sys.stdout, sys.stderr):
+    try:
+        _s.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):
+        pass
+
 
 def log(msg):
     sys.stderr.write(time.strftime("%H:%M:%S ") + msg + "\n")

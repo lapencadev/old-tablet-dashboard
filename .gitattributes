@@ -1,0 +1,4 @@
+# Same line endings on every OS (scripts with CRLF break on Linux/HA OS)
+* text=auto eol=lf
+*.png binary
+*.jpg binary

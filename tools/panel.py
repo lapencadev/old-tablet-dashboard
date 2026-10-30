@@ -10,6 +10,14 @@ import subprocess
 import sys
 from pathlib import Path
 
+# Windows consoles and CI pipes default to a legacy code page; print UTF-8 so
+# names with accents or emoji never crash a command.
+for _s in (sys.stdout, sys.stderr):
+    try:
+        _s.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):
+        pass
+
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
@@ -321,7 +329,7 @@ def adb(*args):
     exe = shutil.which("adb")
     if not exe:
         raise SystemExit("adb not found. Install Android platform-tools and enable USB debugging on the tablet (see the guide).")
-    r = subprocess.run([exe] + list(args), capture_output=True, text=True)
+    r = subprocess.run([exe] + list(args), capture_output=True, text=True, encoding="utf-8", errors="replace")
     return r.returncode, (r.stdout + r.stderr).replace("\r", "").strip()
 
 
