@@ -168,6 +168,20 @@ async function scenario(name, fn) {
     assert.strictEqual(await p.getAttribute('html', 'class'), '');
   });
 
+  await scenario('panel-flow: on a phone the cards stack and the page scrolls, nothing overlaps', async () => {
+    const p = await page(browser, { viewport: { width: 390, height: 844 } });
+    assert.ok((await p.getAttribute('body', 'class')).indexOf('flow') >= 0);
+    const m = await p.evaluate(() => {
+      const r = (id) => document.getElementById(id).getBoundingClientRect();
+      return { scrollW: document.documentElement.scrollWidth, scrollH: document.documentElement.scrollHeight,
+        meals: r('colMeals'), side: r('colSide'), mid: r('colMid') };
+    });
+    assert.ok(m.scrollW <= 390, 'no sideways scroll: ' + m.scrollW);
+    assert.ok(m.scrollH > 844, 'page scrolls');
+    assert.ok(m.side.top >= m.meals.bottom && m.mid.top >= m.side.bottom, 'columns stacked in order');
+    if (SHOTS) await p.screenshot({ path: SHOTS + '/phone.png', fullPage: true });
+  });
+
   await scenario('week-picker: choose a week, it is shared through the server', async () => {
     const p = await page(browser);
     await p.click('#weekLabel');

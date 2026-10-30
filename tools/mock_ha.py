@@ -127,6 +127,15 @@ def make_handler(ha):
             url = urlparse(self.path)
             if url.path == "/mock/log":
                 return self.reply(ha.log)
+            if url.path == "/":
+                # Someone opened this address in a browser: point them to the panel.
+                data = ("Fake Home Assistant for the demo. Nothing to see here: "
+                        "the panel uses it behind the scenes. Open the panel instead (the other address).").encode()
+                self.send_response(200)
+                self.send_header("Content-Type", "text/plain; charset=utf-8")
+                self.send_header("Content-Length", str(len(data)))
+                self.end_headers()
+                return self.wfile.write(data)
             self.record()
             if not self.authorized():
                 return self.reply({"message": "unauthorized"}, 401)

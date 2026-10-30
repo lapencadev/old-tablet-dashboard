@@ -230,7 +230,8 @@
       "Playwright with 15 shopping items at 1280×672: last card bottom ≤ viewport height and a '+N more' row exists."
     ],
     "evidence": [
-      "2026-10-30: python tools/panel.py e2e (Playwright, Chromium) → 'PASS panel-fit: 22 shopping items fit 1280x672 with \"+N more\"' (all columns inside viewport; full list modal ≥ 20 rows). Screenshot screenshots/long-lists-672.png."
+      "2026-10-30: python tools/panel.py e2e (Playwright, Chromium) → 'PASS panel-fit: 22 shopping items fit 1280x672 with \"+N more\"' (all columns inside viewport; full list modal ≥ 20 rows). Screenshot screenshots/long-lists-672.png.",
+      "2026-10-30: below 1000 px the panel switches to a stacked, scrolling layout; e2e 'panel-flow' (390x844: no sideways scroll, columns stacked) passes, 15/15 scenarios."
     ],
     "notes": ""
   },

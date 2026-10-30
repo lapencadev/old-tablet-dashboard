@@ -4,7 +4,7 @@
 
 - Repository root: `old-tablet-dashboard/`
 - Standard startup path: `./init.sh` (Windows: `python tools/panel.py check`)
-- Standard verification path: `./init.sh` (59 Python tests, 11 JS logic tests, ES5 gate) + `python tools/panel.py e2e` (14 Playwright scenarios, needs `npm i -D playwright`)
+- Standard verification path: `./init.sh` (59 Python tests, 11 JS logic tests, ES5 gate) + `python tools/panel.py e2e` (15 Playwright scenarios, needs `npm i -D playwright`)
 - Features: 30 `passing`, 3 `blocked`, 0 `accepted` (no independent validation yet)
 - Current next step: run `feature-validator` in a fresh session, feature by feature in list order, starting with `quality-gate`
 - Current blockers (need the owner's real setup):
