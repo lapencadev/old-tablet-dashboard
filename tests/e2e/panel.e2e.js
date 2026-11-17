@@ -104,6 +104,13 @@ async function scenario(name, fn) {
     assert.ok(call && call.body.status === 'completed' && call.body.entity_id === 'todo.shopping', JSON.stringify(call));
     await p.waitForTimeout(1800);
     assert.ok(!(await p.textContent('#shopping')).includes('Milk'));
+    // an overdue task goes away too (HA refuses ?return_response on update_item)
+    const overdue = p.locator('#tasks .td', { hasText: 'overdue' }).first();
+    const name = (await overdue.textContent()).replace('overdue', '').trim();
+    await overdue.click();
+    await p.waitForTimeout(2300);
+    assert.ok(!(await p.textContent('#tasks')).includes(name), name + ' still listed');
+    assert.ok(!(await haLog()).some((r) => r.path.indexOf('update_item?return_response') >= 0));
   });
 
   await scenario('panel-weather: temperature, condition and range', async () => {

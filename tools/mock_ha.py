@@ -38,6 +38,10 @@ TEXTS = {
 }
 
 
+
+# Actions that return data (HA "supports_response"); the rest refuse ?return_response
+RESPONSE_SERVICES = {"todo/get_items", "weather/get_forecasts", "calendar/get_events"}
+
 class MockHA:
     def __init__(self, lang="en", today=None, extra_shopping=0, token=None):
         self.lang = lang if lang in TEXTS else "en"
@@ -159,8 +163,12 @@ def make_handler(ha):
                 return self.reply({"message": "unauthorized"}, 401)
             parts = url.path.split("/")
             if url.path.startswith("/api/services/") and len(parts) == 5:
+                wants = "return_response" in parse_qs(url.query, keep_blank_values=True)
+                # Like the real HA: asking for a response from an action that has none is a 400
+                if wants and "%s/%s" % (parts[3], parts[4]) not in RESPONSE_SERVICES:
+                    return self.reply({"message": "Service does not support responses. Remove return_response from request."}, 400)
                 resp = ha.service(parts[3], parts[4], body)
-                return self.reply({"changed_states": [], "service_response": resp} if "return_response" in parse_qs(url.query, keep_blank_values=True) else [])
+                return self.reply({"changed_states": [], "service_response": resp} if wants else [])
             if url.path.startswith("/api/config/"):
                 return self.reply({"result": "ok"})
             self.reply({"message": "not found"}, 404)

@@ -190,8 +190,13 @@
     // Always through the server: a token in config.js would be readable by anyone on the Wi-Fi.
     xhr(method, (CFG.HA_BASE || '/ha') + path, body, done);
   }
+  var WITH_RESPONSE = { 'todo/get_items': 1, 'weather/get_forecasts': 1 };
+
   function service(domain, name, body, done) {
-    ha('POST', '/api/services/' + domain + '/' + name + '?return_response', body, function (data, status) {
+    // Only actions that return data may ask for it: Home Assistant answers 400 (and does
+    // nothing) when ?return_response is sent to one that does not, like todo.update_item.
+    var q = WITH_RESPONSE[domain + '/' + name] ? '?return_response' : '';
+    ha('POST', '/api/services/' + domain + '/' + name + q, body, function (data, status) {
       if (done) done(data && data.service_response ? data.service_response : null, status);
     });
   }
