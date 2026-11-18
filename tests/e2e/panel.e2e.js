@@ -95,6 +95,30 @@ async function scenario(name, fn) {
     assert.strictEqual((await p.$$('#agenda .ag-block')).length, 7);
   });
 
+  await scenario('panel-calendar: tap the agenda → week/month calendar with ‹ › and Today', async () => {
+    const p = await page(browser);
+    await p.click('#agenda'); await p.waitForTimeout(800);
+    assert.strictEqual(await p.getAttribute('#modal', 'data-mode'), 'cal');
+    assert.strictEqual(await p.locator('.cv-week td').count(), 7);
+    assert.ok((await p.textContent('.cv-week')).includes('Swimming lesson'));
+    assert.ok((await p.$$('.cv-legend span')).length >= 2, 'one colour per calendar');
+    const week = await p.textContent('.cv-title');
+    await p.click('[data-cal=next]'); await p.waitForTimeout(600);
+    assert.notStrictEqual(await p.textContent('.cv-title'), week);
+    await p.click('[data-cal=today]'); await p.waitForTimeout(600);
+    assert.strictEqual(await p.textContent('.cv-title'), week);
+    await p.click('[data-cal=month]'); await p.waitForTimeout(800);
+    const cells = await p.locator('.cv-month td[data-day]').count();
+    assert.ok(cells === 35 || cells === 42 || cells === 28, 'whole weeks: ' + cells);
+    if (SHOTS) await p.screenshot({ path: SHOTS + '/calendar-month.png' });
+    await p.click('[data-cal=prev]'); await p.waitForTimeout(600);
+    await p.click('.cv-month td[data-day] >> nth=10'); await p.waitForTimeout(600);
+    assert.strictEqual(await p.locator('.cv-seg .on').textContent(), 'Week', 'a day opens its week');
+    await p.click('.md-close'); await p.waitForTimeout(200);
+    assert.ok(!(await p.getAttribute('#modal', 'class')).includes('on'));
+    assert.deepStrictEqual(p.errors, []);
+  });
+
   await scenario('panel-todo-lists: tapping an item completes it in HA', async () => {
     const p = await page(browser);
     assert.ok((await p.textContent('#tasks')).includes('overdue'));

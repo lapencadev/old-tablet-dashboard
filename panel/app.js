@@ -448,6 +448,129 @@
     }
   }
 
+  /* ───────── Big calendar: week or month, ‹ › and Today, one colour per calendar ───────── */
+  var CAL_COLORS = ['#4a7a3a', '#3a6a8a', '#b8900a', '#a04a6a', '#7a5aa0', '#a06a3a', '#3a8a7a'];
+  var CALV = { view: 'week', anchor: null, cals: [], token: 0 };
+
+  function mondayOf(d) { var m = C.startOfDay(d); m.setDate(m.getDate() - ((m.getDay() + 6) % 7)); return m; }
+  function addDays(d, n) { var x = new Date(d.getTime()); x.setDate(x.getDate() + n); return x; }
+  function headMonFirst() { var w = T('weekdaysShort'); return w.slice(1).concat(w.slice(0, 1)); }
+
+  // Events of every calendar from first (included) to last (excluded), grouped by day; null = offline
+  function fetchRange(first, last, done) {
+    withCalendars(function (cals) {
+      if (cals === null) { done(null); return; }
+      CALV.cals = cals;
+      var byDay = {}, pending = cals.length, failed = 0;
+      if (!pending) { done(byDay); return; }
+      var each = function (cal, ci) {
+        ha('GET', '/api/calendars/' + cal + '?start=' + encodeURIComponent(first.toISOString()) +
+          '&end=' + encodeURIComponent(new Date(last.getTime() + 3600000).toISOString()), null, function (list) {
+          if (!list) failed++;
+          for (var k = 0; list && k < list.length; k++) {
+            var s = parseWhen(list[k].start), e = parseWhen(list[k].end);
+            var d0 = C.startOfDay(s.date), d1 = C.startOfDay(new Date(e.date.getTime() - 1));
+            if (d1 < d0) d1 = d0;
+            for (var d = d0 < first ? new Date(first.getTime()) : d0; d <= d1 && d < last; d = addDays(d, 1)) {
+              var key = C.dateKey(d);
+              (byDay[key] = byDay[key] || []).push({ s: s, title: list[k].summary || T('untitled'), ci: ci, cont: d > d0 });
+            }
+          }
+          if (--pending === 0) done(failed === cals.length ? null : byDay);
+        });
+      };
+      for (var i = 0; i < cals.length; i++) each(cals[i], i);
+    });
+  }
+
+  function sortDay(list) {
+    list.sort(function (a, b) {
+      var ad = a.s.allDay || a.cont, bd = b.s.allDay || b.cont;
+      if (ad !== bd) return ad ? -1 : 1;
+      return a.s.date - b.s.date;
+    });
+    return list;
+  }
+
+  function calChip(it, withTime) {
+    var col = CAL_COLORS[it.ci % CAL_COLORS.length];
+    if (it.s.allDay || it.cont) return '<div class="cv-ev cv-all" style="background:' + col + '">' + esc(it.title) + '</div>';
+    return '<div class="cv-ev"><i style="background:' + col + '"></i>' +
+      (withTime ? '<b>' + it.s.date.getHours() + ':' + C.pad(it.s.date.getMinutes()) + '</b> ' : '') + esc(it.title) + '</div>';
+  }
+
+  function openCal(view, anchor) {
+    CALV.view = view || CALV.view;
+    CALV.anchor = anchor || CALV.anchor || now();
+    var a = CALV.anchor, months = T('months'), first, last, title;
+    if (CALV.view === 'week') {
+      first = mondayOf(a); last = addDays(first, 7);
+      var end = addDays(first, 6);
+      title = first.getDate() + (first.getMonth() !== end.getMonth() ? ' ' + months[first.getMonth()].slice(0, 3) : '') +
+        ' – ' + end.getDate() + ' ' + months[end.getMonth()].slice(0, 3) + ' ' + end.getFullYear();
+    } else {
+      first = mondayOf(new Date(a.getFullYear(), a.getMonth(), 1));
+      last = addDays(mondayOf(new Date(a.getFullYear(), a.getMonth() + 1, 0)), 7);
+      title = months[a.getMonth()] + ' ' + a.getFullYear();
+    }
+    var token = ++CALV.token;
+    renderCal(title, first, last, undefined);
+    fetchRange(first, last, function (byDay) {
+      if (token === CALV.token && $('modal').getAttribute('data-mode') === 'cal') renderCal(title, first, last, byDay);
+    });
+  }
+
+  function renderCal(title, first, last, byDay) {
+    var todayK = C.dateKey(now()), heads = headMonFirst(), body = '', head = '';
+    for (var h = 0; h < 7; h++) head += '<th>' + esc(heads[h]) + '</th>';
+    if (byDay === null) {
+      body = '<div class="empty">' + esc(T('offline')) + '</div>';
+    } else if (CALV.view === 'week') {
+      var row = '';
+      for (var i = 0; i < 7; i++) {
+        var d = addDays(first, i), k = C.dateKey(d), list = sortDay((byDay && byDay[k]) || []), cell = '';
+        for (var j = 0; j < list.length; j++) cell += calChip(list[j], true);
+        if (byDay && !list.length) cell = '<div class="cv-none">—</div>';
+        row += '<td class="' + (k === todayK ? 'cv-today' : '') + '"><div class="cv-dn"><span>' + esc(heads[i]) + '</span> ' + d.getDate() + '</div>' + cell + '</td>';
+      }
+      body = '<table class="cv-week"><tr>' + row + '</tr></table>';
+    } else {
+      var rows = '', month = CALV.anchor.getMonth(), nWeeks = Math.round((last - first) / (7 * DAY_MS));
+      for (var w = first; w < last; w = addDays(w, 7)) {
+        rows += '<tr style="height:' + (100 / nWeeks).toFixed(2) + '%">';
+        for (var n = 0; n < 7; n++) {
+          var dd = addDays(w, n), kk = C.dateKey(dd), l = sortDay((byDay && byDay[kk]) || []), c = '', max = 4;
+          for (var m = 0; m < Math.min(l.length, l.length > max ? max - 1 : max); m++) c += calChip(l[m], false);
+          if (l.length > max) c += '<div class="cv-more">' + esc(T('more', { n: l.length - max + 1 })) + '</div>';
+          rows += '<td data-day="' + kk + '" class="' + (dd.getMonth() !== month ? 'cv-out' : '') + (kk === todayK ? ' cv-today' : '') + '">' +
+            '<div class="cv-num">' + dd.getDate() + '</div>' + c + '</td>';
+        }
+        rows += '</tr>';
+      }
+      body = '<table class="cv-month"><tr>' + head + '</tr>' + rows + '</table>';
+    }
+    var legend = '';
+    for (var ci = 0; ci < CALV.cals.length && CALV.cals.length > 1; ci++) {
+      legend += '<span><i style="background:' + CAL_COLORS[ci % CAL_COLORS.length] + '"></i>' + esc(CAL_NAMES[CALV.cals[ci]] || CALV.cals[ci].slice(9)) + '</span>';
+    }
+    var bar = '<span class="cv-btn" data-cal="prev">‹</span><span class="cv-btn" data-cal="next">›</span>' +
+      '<span class="cv-title">' + esc(title) + (byDay === undefined ? ' <em>' + esc(T('loading')) + '</em>' : '') + '</span>' +
+      '<span class="cv-btn cv-today-btn" data-cal="today">' + esc(T('today')) + '</span>' +
+      '<span class="cv-seg"><span class="' + (CALV.view === 'week' ? 'on' : '') + '" data-cal="week">' + esc(T('calWeek')) + '</span>' +
+      '<span class="' + (CALV.view === 'month' ? 'on' : '') + '" data-cal="month">' + esc(T('calMonth')) + '</span></span>';
+    openModal('cal', bar, body + (legend ? '<div class="cv-legend">' + legend + '</div>' : ''));
+  }
+
+  function calClick(el) {
+    var act = el.getAttribute('data-cal'), a = CALV.anchor;
+    if (el.getAttribute('data-day')) openCal('week', C.parseDate(el.getAttribute('data-day')));
+    else if (act === 'prev' || act === 'next') {
+      var dir = act === 'next' ? 1 : -1;
+      openCal(null, CALV.view === 'week' ? addDays(a, 7 * dir) : new Date(a.getFullYear(), a.getMonth() + dir, 1));
+    } else if (act === 'today') openCal(null, now());
+    else if (act === 'week' || act === 'month') openCal(act, a);
+  }
+
   /* ───────── Work timer (optional: CFG.WORK_TIMER) ─────────
      ▶ starts the day, ❚❚ opens a break, ▶ ends it. The leave time is now + what is left of
      the configured day. Events are stored on the server with the server's clock. */
@@ -686,9 +809,7 @@
     $('today').onclick = meals;
     $('tomorrow').onclick = meals;
     $('weekLabel').onclick = openPicker;
-    $('agenda').onclick = function () {
-      if (LAST_EVENTS) openModal('agenda', esc(T('thisWeek')), '<div class="agenda-week">' + agendaHtml(LAST_EVENTS, 99) + '</div>');
-    };
+    $('agenda').onclick = function () { openCal('week', now()); };
     var lists = function (ev) {
       var box = this.id;
       var el = closest(ev.target, this, function (e) { return e.getAttribute('data-uid') || e.getAttribute('data-more'); });
@@ -704,6 +825,10 @@
       if (mode === 'work' && back) { openWorkWeek(+back.getAttribute('data-back')); return; }
       var wday = closest(ev.target, this, function (e) { return e.getAttribute('data-wday'); });
       if (mode === 'work' && wday) { openWorkDay(WORK.week.days[+wday.getAttribute('data-wday')], WORK.week.back); return; }
+      if (mode === 'cal') {
+        var cv = closest(ev.target, this, function (e) { return e.getAttribute('data-cal') || e.getAttribute('data-day'); });
+        if (cv) { calClick(cv); return; }
+      }
       if (mode === 'workday') {
         var ed = closest(ev.target, this, function (e) { return e.getAttribute('data-ed') || e.getAttribute('data-add') || e.getAttribute('data-del') || e.getAttribute('data-wd'); });
         if (ed) workDayClick(ed);

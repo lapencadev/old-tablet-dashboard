@@ -182,6 +182,24 @@
     "notes": ""
   },
   {
+    "id": "panel-calendar",
+    "area": "panel",
+    "title": "Tapping the agenda opens a week/month calendar",
+    "user_visible_behavior": "A full-screen calendar with Week and Month views, ‹ › to move, Today to come back and one colour per calendar with a legend. Tapping a day in the month opens its week. Same calendars as the agenda.",
+    "depends_on": [
+      "panel-agenda"
+    ],
+    "status": "passing",
+    "verification": [
+      "e2e: open from the agenda, 7 days in week view with events, legend for 2 calendars, next/today, month with whole weeks, previous month, a day opens its week, close."
+    ],
+    "evidence": [
+      "2026-11-18: e2e 'panel-calendar' passes (18/18 scenarios); screenshots at 1280×800 and 390×844 checked by eye.",
+      "2026-11-18: same feature added to the owner's own panel."
+    ],
+    "notes": "Spec: docs/specs/panel-calendar.md. Week starts on Monday."
+  },
+  {
     "id": "panel-todo-lists",
     "area": "panel",
     "title": "The panel shows tasks and shopping and ticks them on tap",

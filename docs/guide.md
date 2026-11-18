@@ -111,6 +111,12 @@ Copy `panel/config.example.js` to `panel/config.js` and edit it. The file explai
 - `PHOTOS`: put images in `panel/img/` and list them. They are git-ignored, so your photos stay private.
 - `WORK_TIMER` (optional, off by default): a "clock in" card next to the photo. Set **your own** working day, for example `WORK_TIMER: { HOURS: '8:00', DAYS: [1, 2, 3, 4, 5] }` (`HOURS` also takes `'7:30'` or `6.5`; `DAYS` go from 0 = Sunday to 6 = Saturday). See [the work timer](#the-work-timer-optional) below.
 
+### The big calendar
+
+Tap the week's agenda to open a full calendar, a bit like Google Calendar: **Week** or **Month**, ‹ › to go back and forward, **Today** to come back, and one colour per Home Assistant calendar (the legend is at the bottom). In the month, tap a day to see its week. It reads the same calendars as the panel, so there is nothing to configure.
+
+![The big calendar, week view](img/calendar-week.png)
+
 ### The work timer (optional)
 
 ![The work timer next to the photo, during the day](img/work-timer.png)

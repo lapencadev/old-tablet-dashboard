@@ -54,3 +54,4 @@
 - Goal: fix ticking items on a real HA; add the owner's "clock in" idea as an optional feature.
 - Completed: `?return_response` only for actions that return data (HA answered 400 to `todo.update_item`); the fake HA now behaves the same. New `work-timer` (off by default, hours set by each user) with week modal and manual corrections; docs in both guides.
 - Verification run: `./init.sh` green, e2e 17/17.
+- Also: `panel-calendar` (tap the agenda → week/month calendar), e2e 18/18.

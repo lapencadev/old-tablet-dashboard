@@ -9,7 +9,7 @@ Turn the tablet that sits in a drawer into an always-on family panel: today's me
 ## What it does
 
 - **Meals** — today's menu with the current meal highlighted and past ones faded; tomorrow's lunch and dinner ("what to prepare today"). Tap a meal to see everyone's dish and the matching recipe.
-- **Agenda** — the next seven days from every Home Assistant calendar (Google Calendar works through its secret iCal address).
+- **Agenda** — the next seven days from every Home Assistant calendar (Google Calendar works through its secret iCal address). Tap it for a big calendar: week or month, ‹ › to move, *Today* to come back, one colour per calendar.
 - **Tasks and shopping** — Home Assistant to-do lists; tap an item to tick it off.
 - **Weather, alerts, daily checklist, photos** — "laundry is waiting" banners from HA helpers, reminders before a date, vitamin/plant chips that every screen shares, and pictures filling the free space.
 - **Fits one screen, always** — long lists collapse into "+N more · see all" before the text shrinks. On a phone or a narrow window the cards stack and the page scrolls instead. Night mode from 23:00.

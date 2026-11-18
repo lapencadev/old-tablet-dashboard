@@ -115,6 +115,12 @@ Copia `panel/config.example.js` como `panel/config.js` y edítalo. Cada opción 
 - `PHOTOS`: pon las imágenes en `panel/img/` y añádelas a la lista. Git las ignora, así que tus fotos no se publican.
 - `WORK_TIMER` (opcional, apagado por defecto): una tarjeta para fichar junto a la foto. Pon **tu propia** jornada, por ejemplo `WORK_TIMER: { HOURS: '8:00', DAYS: [1, 2, 3, 4, 5] }` (`HOURS` acepta también `'7:30'` o `6.5`; `DAYS` va de 0 = domingo a 6 = sábado). Más abajo tienes [cómo funciona el fichaje](#el-fichaje-opcional).
 
+### El calendario en grande
+
+Toca la agenda de la semana para abrir un calendario completo, al estilo de Google Calendar: **Semana** o **Mes**, ‹ › para ir hacia atrás y hacia delante, **Hoy** para volver, y un color por cada calendario de Home Assistant (la leyenda está abajo). En el mes, toca un día para ver su semana. Lee los mismos calendarios que el panel, así que no hay nada que configurar.
+
+![El calendario en grande, vista de semana](../img/calendar-week.png)
+
 ### El fichaje (opcional)
 
 ![La tarjeta de fichaje junto a la foto](../img/work-timer.png)
