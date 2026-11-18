@@ -175,6 +175,46 @@ async function scenario(name, fn) {
     assert.strictEqual(await p.getAttribute('html', 'class'), '');
   });
 
+  await scenario('work-timer: start, break, resume and end the day (second tap), week in a modal', async () => {
+    const p = await page(browser, { config: { WORK_TIMER: { HOURS: '8:00', DAYS: [1, 2, 3, 4, 5] } } });
+    const cls = async () => p.getAttribute('#work', 'class');
+    assert.ok((await cls()).includes('wk-idle'), await cls());
+    await p.click('#work [data-act=start]'); await p.waitForTimeout(500);
+    assert.ok((await cls()).includes('wk-work'));
+    await p.click('#work [data-act=pause]'); await p.waitForTimeout(500);
+    assert.ok((await cls()).includes('wk-break'));
+    await p.click('#work [data-act=resume]'); await p.waitForTimeout(500);
+    await p.click('#work [data-act=stop]'); await p.waitForTimeout(300);
+    assert.ok((await cls()).includes('wk-work'), 'one tap does not end the day');
+    await p.click('#work [data-act=stop]'); await p.waitForTimeout(500);
+    assert.ok((await cls()).includes('wk-done'), await cls());
+    await p.click('#work .wk-hd'); await p.waitForTimeout(700);
+    assert.ok((await p.textContent('#modal')).includes('This week'));
+    assert.strictEqual(await p.locator('#modal .wk-table tr').count(), 8);
+    await p.click('#modal .wk-arrow >> nth=0'); await p.waitForTimeout(700);
+    assert.ok((await p.textContent('#modal')).includes('Last week'));
+    if (SHOTS) await p.screenshot({ path: SHOTS + '/work-week.png' });
+    // correct today's start by hand: one hour earlier
+    await p.click('#modal .wk-arrow >> nth=1'); await p.waitForTimeout(700);
+    await p.click('#modal tr.wk-today'); await p.waitForTimeout(700);
+    const t0 = await p.textContent('#modal .wd-t');
+    await p.click('#modal [data-ed="0:-60"]');
+    assert.notStrictEqual(await p.textContent('#modal .wd-t'), t0);
+    await p.click('#modal [data-ed="0:-60"]'); await p.click('#modal [data-ed="0:60"]');
+    await p.click('#modal [data-wd=save]'); await p.waitForTimeout(700);
+    assert.strictEqual(await p.getAttribute('#modal', 'data-mode'), 'work');
+    const log = await (await fetch(BASE + '/panel/work?from=2000-01-01&to=2100-01-01')).json();
+    const day = Object.keys(log.days)[0];
+    assert.ok(log.days[day][1].ts - log.days[day][0].ts >= 3600000 - 1000, 'start moved an hour back');
+    assert.deepStrictEqual(p.errors, []);
+  });
+
+  await scenario('work-timer: off unless configured', async () => {
+    const p = await page(browser, { config: { WORK_TIMER: null } });
+    assert.ok(!(await p.isVisible('#work')));
+    assert.ok(await p.isVisible('#photo'));
+  });
+
   await scenario('panel-flow: on a phone the cards stack and the page scrolls, nothing overlaps', async () => {
     const p = await page(browser, { viewport: { width: 390, height: 844 } });
     assert.ok((await p.getAttribute('body', 'class')).indexOf('flow') >= 0);

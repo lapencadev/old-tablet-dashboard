@@ -109,6 +109,22 @@ Copy `panel/config.example.js` to `panel/config.js` and edit it. The file explai
 - `ALERTS` and `DATE_ALERTS`: your helpers and the text to show.
 - `CHECKLIST`: daily chips with a time window.
 - `PHOTOS`: put images in `panel/img/` and list them. They are git-ignored, so your photos stay private.
+- `WORK_TIMER` (optional, off by default): a "clock in" card next to the photo. Set **your own** working day, for example `WORK_TIMER: { HOURS: '8:00', DAYS: [1, 2, 3, 4, 5] }` (`HOURS` also takes `'7:30'` or `6.5`; `DAYS` go from 0 = Sunday to 6 = Saturday). See [the work timer](#the-work-timer-optional) below.
+
+### The work timer (optional)
+
+![The work timer next to the photo, during the day](img/work-timer.png)
+
+Useful if you want to know how many hours you really work without writing them down anywhere. It only shows when `WORK_TIMER` is set in `panel/config.js`, with the hours **you** work: nothing in the repo assumes a particular working day.
+
+- **▶** starts the day. The card shows the time worked and, lighter, the time you can leave to complete your day.
+- **❚❚** starts a break (the card turns yellow and counts it). **▶** again carries on, and the leave time moves forward by the length of the break.
+- **End the day** needs a second tap within 4 seconds, so it is not ended by accident.
+- **Tap the card** to see the week: in, out, breaks, hours worked and the difference with your day; the arrow goes to earlier weeks.
+- **Forgot to clock in?** In the week, tap the day and correct each time with −1 h, −5, +5 and +1 h, add the step you missed (a break, the end) or remove the last one. Times must go in order.
+- A day you never ended counts as a full day and is marked with "?".
+
+Entries are kept on the server (`work.json` in the state folder, inside Home Assistant OS it survives updates), with the server's clock, so every screen shows the same and a reload loses nothing.
 
 Try it against your real Home Assistant before installing anything:
 

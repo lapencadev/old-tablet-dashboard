@@ -47,3 +47,10 @@
 - Goal: First GitHub push failed on Windows CI; owner asked whether the project is secure.
 - Completed: explicit UTF-8 everywhere (Windows code page), LF line endings, CI actions off Node 20 plus a non-UTF-8 locale step; security review → `proxy-hardening` (allowlist, JSON-only POST, host check, body cap) and `docs/security.md`.
 - Verification run: `./init.sh` green (also with `LC_ALL=C PYTHONUTF8=0`), e2e 14/14.
+
+### Session 005
+
+- Date: 2026-11-17 → 2026-11-18
+- Goal: fix ticking items on a real HA; add the owner's "clock in" idea as an optional feature.
+- Completed: `?return_response` only for actions that return data (HA answered 400 to `todo.update_item`); the fake HA now behaves the same. New `work-timer` (off by default, hours set by each user) with week modal and manual corrections; docs in both guides.
+- Verification run: `./init.sh` green, e2e 17/17.

@@ -95,3 +95,28 @@ test('i18n: every English key exists in every language, with the same placeholde
   assert.strictEqual(tr('moreSeeAll', { n: 3 }), '+3 más · ver todo');
   assert.strictEqual(tr('dateLine', { day: 4, month: 'noviembre', year: 2026 }), '4 de noviembre · 2026');
 });
+
+test('workMinutes: hours as text or number, anything else turns the timer off', () => {
+  assert.strictEqual(C.workMinutes('7:42'), 462);
+  assert.strictEqual(C.workMinutes('8'), 480);
+  assert.strictEqual(C.workMinutes(6.5), 390);
+  for (const v of [null, undefined, '', 'eight', '25:00', 0, -1, '7:42:00']) assert.strictEqual(C.workMinutes(v), null, String(v));
+});
+
+test('workSummary: working, on a break, done and a past day left open', () => {
+  const M = 60000;
+  const ev = [{ a: 'start', ts: 0 }, { a: 'pause', ts: 60 * M }, { a: 'resume', ts: 80 * M }];
+  let s = C.workSummary(ev, 200 * M, true, 462);
+  assert.strictEqual(s.state, 'work'); assert.strictEqual(s.worked, 180 * M); assert.strictEqual(s.pause, 20 * M);
+  assert.strictEqual(s.exit, 200 * M + (462 - 180) * M, 'leave time = now + what is left');
+  s = C.workSummary(ev.slice(0, 2), 70 * M, true, 462);
+  assert.strictEqual(s.state, 'break'); assert.strictEqual(s.worked, 60 * M); assert.strictEqual(s.pause, 10 * M);
+  assert.strictEqual(s.exit, 70 * M + 402 * M, 'the break pushes the leave time');
+  s = C.workSummary(ev.concat([{ a: 'stop', ts: 500 * M }]), 600 * M, true, 462);
+  assert.strictEqual(s.state, 'done'); assert.strictEqual(s.worked, 480 * M); assert.strictEqual(s.out, 500 * M);
+  s = C.workSummary([{ a: 'start', ts: 0 }], 9999 * M, false, 480);
+  assert.ok(s.open); assert.strictEqual(s.worked, 480 * M); assert.strictEqual(s.out, 480 * M);
+  s = C.workSummary([], 0, true, 480);
+  assert.strictEqual(s.state, 'idle'); assert.strictEqual(s.worked, 0);
+  assert.strictEqual(C.hm(462 * M), '7:42'); assert.strictEqual(C.hm(-5), '0:00');
+});

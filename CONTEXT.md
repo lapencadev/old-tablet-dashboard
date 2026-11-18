@@ -23,4 +23,5 @@ Domain language for this repository. Use these terms in code, docs and commits.
 | **Alert** | A banner shown when an HA helper is on (e.g. laundry waiting) or a date is close (e.g. a vet appointment). |
 | **Week choice** | The week picked by hand on the panel. Stored on the server so the tablet and `/menu` agree. Empty = automatic by date. |
 | **Fit** | The panel's layout loop: it trims long lists first and then shrinks text until everything fits the screen. |
+| **Work timer** | Optional "clock in" card (`WORK_TIMER`): start, breaks, end of the day and the leave time for the configured hours. Entries are per day on the server. |
 | **Group chat** | The Telegram group where the household talks to the HA bot. |

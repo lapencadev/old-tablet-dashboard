@@ -99,6 +99,64 @@ var PanelCore = (function () {
     return from > to ? (h >= from || h < to) : (h >= from && h < to);
   }
 
+  /* ───────── Work timer ─────────
+     A day is a list of events {a: 'start'|'pause'|'resume'|'stop', ts: ms}. */
+
+  // '7:42' or 7.7 (hours) → minutes; anything else → null (timer off)
+  function workMinutes(v) {
+    if (typeof v === 'number' && v > 0 && v <= 24) return Math.round(v * 60);
+    var m = /^\s*(\d{1,2})(?::(\d{2}))?\s*$/.exec(v == null ? '' : String(v));
+    if (!m) return null;
+    var min = (+m[1]) * 60 + (+(m[2] || 0));
+    return min > 0 && min <= 24 * 60 ? min : null;
+  }
+
+  // 'h:mm' from milliseconds (negative counts as 0)
+  function hm(ms) {
+    var m = Math.max(0, Math.round(ms / 60000));
+    return Math.floor(m / 60) + ':' + pad(m % 60);
+  }
+
+  /* Totals of one day. state: idle | work | break | done. exit = time to leave to reach
+     targetMin (moves forward during a break). A past day left open (no stop) counts as a
+     full day and is flagged with open. */
+  function workSummary(events, nowMs, isToday, targetMin) {
+    var target = targetMin * 60000, worked = 0, pause = 0, seg = null, brk = null;
+    var r = { state: 'idle', first: events.length ? events[0].ts : null, since: null, out: null, open: false };
+    for (var i = 0; i < events.length; i++) {
+      var e = events[i];
+      if (e.a === 'start' || e.a === 'resume') {
+        if (brk !== null) { pause += e.ts - brk; brk = null; }
+        seg = e.ts;
+      } else if (e.a === 'pause') {
+        if (seg !== null) { worked += e.ts - seg; seg = null; }
+        brk = e.ts;
+      } else if (e.a === 'stop') {
+        if (seg !== null) { worked += e.ts - seg; seg = null; }
+        if (brk !== null) { pause += e.ts - brk; brk = null; }
+        r.out = e.ts;
+      }
+      r.since = e.ts;
+    }
+    if (!events.length) {
+      r.worked = 0; r.pause = 0; r.exit = null;
+      return r;
+    }
+    if (seg !== null) {
+      if (isToday) { worked += nowMs - seg; r.state = 'work'; }
+      else { r.open = true; r.out = seg + Math.max(0, target - worked); worked = Math.max(worked, target); r.state = 'done'; }
+    } else if (brk !== null) {
+      if (isToday) { pause += nowMs - brk; r.state = 'break'; }
+      else { r.open = true; r.out = brk; r.state = 'done'; }
+    } else {
+      r.state = 'done';
+    }
+    r.worked = worked;
+    r.pause = pause;
+    r.exit = r.state === 'done' ? r.out : nowMs + Math.max(0, target - worked);
+    return r;
+  }
+
   /* Translation helper: tr('more', {n: 3}) */
   function translator(i18n, lang) {
     var table = i18n[lang] || i18n.en;
@@ -113,6 +171,7 @@ var PanelCore = (function () {
   return {
     DAY_MS: DAY_MS, pad: pad, startOfDay: startOfDay, parseDate: parseDate, dateKey: dateKey,
     planFor: planFor, currentMeal: currentMeal, mainDish: mainDish, stripTags: stripTags,
-    dueLabel: dueLabel, checklistState: checklistState, isNight: isNight, translator: translator
+    dueLabel: dueLabel, checklistState: checklistState, isNight: isNight, translator: translator,
+    workMinutes: workMinutes, hm: hm, workSummary: workSummary
   };
 })();

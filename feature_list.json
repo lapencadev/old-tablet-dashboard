@@ -290,6 +290,27 @@
     "notes": "Example photo must be license-free (generated)."
   },
   {
+    "id": "work-timer",
+    "area": "panel",
+    "title": "Optional work timer: clock in, breaks, leave time and the week",
+    "user_visible_behavior": "With WORK_TIMER set (the user's own hours), a card next to the photo starts the day, opens and closes breaks and shows the time worked and the time to leave; ending the day needs a second tap. Tapping the card opens the week (in, out, breaks, worked, difference) and any day can be corrected by hand. Hidden when WORK_TIMER is null (the default).",
+    "depends_on": [
+      "panel-photos",
+      "server-static-proxy"
+    ],
+    "status": "passing",
+    "verification": [
+      "JS unit tests for workMinutes and workSummary (working, break, done, past day left open).",
+      "Server tests: allowed order of actions, 409 on a wrong step, range query, manual correction validated (order, rising times, max 30 h).",
+      "e2e: start → pause → resume → end (second tap) → week modal → last week → correct today's start; the card is hidden without WORK_TIMER."
+    ],
+    "evidence": [
+      "2026-11-18: ./init.sh green (63 Python tests, JS tests incl. 2 new); e2e 17/17 including work-timer scenarios.",
+      "2026-11-18: same feature added to the owner's own panel (7:42 h day); click-through and correction checked there with Playwright against the fake HA."
+    ],
+    "notes": "Spec: docs/specs/work-timer.md. Times come from the server clock; the day key is the tablet's local date."
+  },
+  {
     "id": "panel-night-mode",
     "area": "panel",
     "title": "Night mode dims the panel",

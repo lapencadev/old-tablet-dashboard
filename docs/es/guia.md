@@ -113,6 +113,22 @@ Copia `panel/config.example.js` como `panel/config.js` y edítalo. Cada opción 
 - `ALERTS` y `DATE_ALERTS`: tus ayudantes y el texto del aviso.
 - `CHECKLIST`: recordatorios diarios con una franja horaria (vitaminas, plantas…).
 - `PHOTOS`: pon las imágenes en `panel/img/` y añádelas a la lista. Git las ignora, así que tus fotos no se publican.
+- `WORK_TIMER` (opcional, apagado por defecto): una tarjeta para fichar junto a la foto. Pon **tu propia** jornada, por ejemplo `WORK_TIMER: { HOURS: '8:00', DAYS: [1, 2, 3, 4, 5] }` (`HOURS` acepta también `'7:30'` o `6.5`; `DAYS` va de 0 = domingo a 6 = sábado). Más abajo tienes [cómo funciona el fichaje](#el-fichaje-opcional).
+
+### El fichaje (opcional)
+
+![La tarjeta de fichaje junto a la foto](../img/work-timer.png)
+
+Sirve para saber cuántas horas trabajas de verdad sin apuntarlas en ningún sitio. Solo aparece si pones `WORK_TIMER` en `panel/config.js`, con las horas que trabajas **tú**: el repo no da por hecha ninguna jornada.
+
+- **▶** empieza la jornada. La tarjeta enseña las horas trabajadas y, más clarito, la hora a la que puedes salir para completar tu jornada.
+- **❚❚** abre un descanso (la tarjeta se pone amarilla y lo cuenta). Al darle otra vez a **▶** sigue sumando, y la hora de salida se retrasa lo que haya durado el descanso.
+- **Terminar jornada** pide un segundo toque en 4 segundos, para no cerrarla sin querer.
+- **Tocando la tarjeta** ves la semana: entrada, salida, descansos, horas trabajadas y la diferencia con tu jornada; con la flecha vas a semanas anteriores.
+- **¿Se te olvidó fichar?** En la semana, toca el día y corrige cada hora con −1 h, −5, +5 y +1 h, añade el paso que faltó (un descanso, la salida) o quita el último. Las horas tienen que ir en orden.
+- Un día que no se terminó cuenta como jornada completa y sale marcado con «?».
+
+Los fichajes se guardan en el servidor (`work.json` en la carpeta de estado; dentro de Home Assistant OS sobrevive a las actualizaciones), con la hora del servidor, así todas las pantallas ven lo mismo y una recarga no pierde nada.
 
 Pruébalo con tu Home Assistant de verdad antes de instalar nada:
 

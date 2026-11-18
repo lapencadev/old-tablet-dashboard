@@ -435,6 +435,8 @@
   function renderPhotos(d) {
     showPhoto(CFG.PHOTOS, 'photo', d);
     showPhoto(CFG.PHOTOS_SIDE, 'photo2', d);
+    var used = (CFG.PHOTOS && CFG.PHOTOS.length) || WORK_MIN;
+    $('midBottom').style.display = used ? '' : 'none';
   }
   // A photo hides instead of becoming tiny.
   function photoRoom() {
@@ -444,6 +446,169 @@
       box.className = 'card card-photo';
       if (box.offsetHeight < 130) box.className = 'card card-photo tiny';
     }
+  }
+
+  /* ───────── Work timer (optional: CFG.WORK_TIMER) ─────────
+     ▶ starts the day, ❚❚ opens a break, ▶ ends it. The leave time is now + what is left of
+     the configured day. Events are stored on the server with the server's clock. */
+  var WORK_MIN = CFG.WORK_TIMER ? C.workMinutes(CFG.WORK_TIMER.HOURS) : null;
+  var WORK = { events: [], offset: 0, sure: 0 };
+
+  function clockOf(ms) { var d = new Date(ms); return d.getHours() + ':' + C.pad(d.getMinutes()); }
+  function workNow() { return now().getTime() + WORK.offset; }
+  function workSync(data) { if (data && data.now && !window.__NOW__) WORK.offset = data.now - new Date().getTime(); }
+
+  function renderWork() {
+    var box = $('work');
+    if (!WORK_MIN) { box.style.display = 'none'; return; }
+    var t = workNow(), target = WORK_MIN * 60000;
+    var s = C.workSummary(WORK.events, t, true, WORK_MIN);
+    var btn, line, stop = '', exit;
+    if (s.state === 'work') {
+      btn = '<div class="wk-btn wk-pause" data-act="pause"><i></i><i></i></div>';
+      line = esc(T('wkIn', { t: clockOf(s.first) })) + (s.pause ? ' · ' + esc(T('wkBreakSoFar', { t: C.hm(s.pause) })) : '');
+    } else if (s.state === 'break') {
+      btn = '<div class="wk-btn wk-play" data-act="resume"><i></i></div>';
+      line = T('wkOnBreak', { t: C.hm(t - s.since) });
+    } else {
+      btn = '<div class="wk-btn wk-play" data-act="start"><i></i></div>';
+      line = esc(s.state === 'done' ? T('wkDone', { d: (s.worked >= target ? '+' : '−') + C.hm(Math.abs(s.worked - target)) }) : T('wkTapToStart'));
+    }
+    if (s.state === 'work' || s.state === 'break') {
+      var sure = WORK.sure > t;
+      stop = '<div class="wk-stop' + (sure ? ' wk-sure' : '') + '" data-act="stop">' + esc(T(sure ? 'wkStopSure' : 'wkStop')) + '</div>';
+    }
+    exit = s.state === 'done' ? T('wkLeft', { t: clockOf(s.out) }) : s.state === 'idle' ? T('wkDay', { t: C.hm(target) }) : T('wkLeaveAt', { t: clockOf(s.exit) });
+    box.style.display = '';
+    box.className = 'card card-work wk-' + s.state;
+    box.innerHTML = '<div class="wk-hd">' + esc(T('wkTitle')) + '<span>' + esc(T('wkWeekLink')) + '</span></div>' +
+      '<div class="wk-row">' + btn + '<div class="wk-info"><div class="wk-time">' + C.hm(s.worked) + '</div>' +
+      '<div class="wk-exit">' + esc(exit) + '</div></div></div>' +
+      '<div class="wk-bar"><i style="width:' + Math.min(100, Math.round(s.worked / target * 100)) + '%"></i></div>' +
+      '<div class="wk-state">' + line + '</div>' + stop;
+  }
+
+  function loadWork() {
+    if (!WORK_MIN) return;
+    var day = C.dateKey(now());
+    xhr('GET', '/panel/work?from=' + day + '&to=' + day, null, function (data) {
+      if (!data) return;
+      workSync(data);
+      WORK.events = (data.days && data.days[day]) || [];
+      renderWork();
+    });
+  }
+
+  function workAction(act) {
+    xhr('POST', '/panel/work', { day: C.dateKey(now()), a: act }, function (data) {
+      if (data && data.events) { workSync(data); WORK.events = data.events; renderWork(); } else loadWork();
+    });
+  }
+
+  function openWorkWeek(back) {
+    var d = now(), monday = C.startOfDay(d);
+    monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7) - 7 * back);
+    var days = [];
+    for (var i = 0; i < 7; i++) { var x = new Date(monday.getTime()); x.setDate(monday.getDate() + i); days.push(x); }
+    var today = C.dateKey(d), workDays = CFG.WORK_TIMER.DAYS || [1, 2, 3, 4, 5], target = WORK_MIN * 60000;
+    xhr('GET', '/panel/work?from=' + C.dateKey(days[0]) + '&to=' + C.dateKey(days[6]), null, function (data) {
+      var all = (data && data.days) || {}, rows = '', total = 0, due = 0, wd = T('weekdaysShort');
+      for (var i = 0; i < 7; i++) {
+        var key = C.dateKey(days[i]), ev = all[key] || [], on = workDays.indexOf(days[i].getDay()) !== -1;
+        var s = C.workSummary(ev, workNow(), key === today, WORK_MIN);
+        var diff = ev.length && s.state === 'done' ? s.worked - target : null;
+        if (on) due += target;
+        total += s.worked;
+        rows += '<tr data-wday="' + i + '" class="' + (key === today ? 'wk-today' : '') + (on ? '' : ' wk-off') + '">' +
+          '<td>' + esc(wd[days[i].getDay()]) + ' <span>' + days[i].getDate() + '</span></td>' +
+          '<td>' + (s.first ? clockOf(s.first) : '–') + '</td>' +
+          '<td>' + (s.out ? clockOf(s.out) + (s.open ? '<sup>?</sup>' : '') : (s.state === 'work' || s.state === 'break') ? esc(T('wkNow')) : '–') + '</td>' +
+          '<td>' + (s.pause ? C.hm(s.pause) : '–') + '</td>' +
+          '<td><b>' + (ev.length ? C.hm(s.worked) : '–') + '</b></td>' +
+          '<td class="' + (diff === null ? '' : diff >= 0 ? 'wk-plus' : 'wk-minus') + '">' +
+          (diff === null ? '' : (diff >= 0 ? '+' : '−') + C.hm(Math.abs(diff))) + '</td></tr>';
+      }
+      var title = '<span class="wk-arrow" data-back="' + (back + 1) + '">‹</span>' +
+        esc(back === 0 ? T('wkThisWeek') : back === 1 ? T('wkLastWeek') : T('wkWeekOf', { d: days[0].getDate() + '/' + (days[0].getMonth() + 1) })) +
+        '<span class="wk-arrow' + (back ? '' : ' wk-none') + '"' + (back ? ' data-back="' + (back - 1) + '"' : '') + '>›</span>';
+      openModal('work', title, '<table class="wk-table"><tr><th></th><th>' + esc(T('wkColIn')) + '</th><th>' + esc(T('wkColOut')) +
+        '</th><th>' + esc(T('wkColBreak')) + '</th><th>' + esc(T('wkColWorked')) + '</th><th></th></tr>' + rows + '</table>' +
+        '<div class="wk-total">' + T('wkTotal', { t: C.hm(total), d: C.hm(due) }) + ' · ' +
+        (total >= due ? '<span class="wk-plus">+' + C.hm(total - due) + '</span>' : esc(T('wkMissing', { t: C.hm(due - total) }))) + '</div>' +
+        '<div class="wk-note">' + esc(T('wkFixHint')) + ' ' + esc(T('wkOpenNote')) + '</div>');
+      WORK.week = { days: days, back: back };
+    });
+  }
+
+  /* Correct a day by hand: every time with −1 h, −5, +5, +1 h; add the next step or remove the last. */
+  var WK_NEXT = { none: ['start'], stop: ['start'], start: ['pause', 'stop'], resume: ['pause', 'stop'], pause: ['resume', 'stop'] };
+  var EDIT = null;
+
+  function openWorkDay(date, back) {
+    var key = C.dateKey(date);
+    xhr('GET', '/panel/work?from=' + key + '&to=' + key, null, function (data) {
+      var ev = (data && data.days && data.days[key]) || [], copy = [];
+      for (var i = 0; i < ev.length; i++) copy.push({ a: ev[i].a, ts: ev[i].ts });
+      EDIT = { key: key, date: date, back: back, events: copy, error: '' };
+      renderWorkDay();
+    });
+  }
+
+  function renderWorkDay() {
+    var ev = EDIT.events, labels = T('wkLabels'), rows = '', adds = '';
+    for (var i = 0; i < ev.length; i++) {
+      rows += '<div class="wd-row"><span class="wd-lab">' + esc(labels[ev[i].a]) + '</span>' +
+        '<span class="wd-b" data-ed="' + i + ':-60">−1 h</span><span class="wd-b" data-ed="' + i + ':-5">−5</span>' +
+        '<span class="wd-t">' + clockOf(ev[i].ts) + '</span>' +
+        '<span class="wd-b" data-ed="' + i + ':5">+5</span><span class="wd-b" data-ed="' + i + ':60">+1 h</span></div>';
+    }
+    if (!ev.length) rows = '<div class="wd-empty">' + esc(T('wkNone')) + '</div>';
+    var next = WK_NEXT[ev.length ? ev[ev.length - 1].a : 'none'];
+    for (var k = 0; k < next.length; k++) adds += '<span class="wd-add" data-add="' + next[k] + '">' + esc(T('wkAdd', { x: labels[next[k]].toLowerCase() })) + '</span>';
+    if (ev.length) adds += '<span class="wd-add wd-del" data-del="1">' + esc(T('wkRemoveLast')) + '</span>';
+    var d = EDIT.date;
+    openModal('workday', esc(T('wkFix', { d: T('weekdaysShort')[d.getDay()] + ' ' + d.getDate() })),
+      rows + '<div class="wd-adds">' + adds + '</div>' + (EDIT.error ? '<div class="wd-err">' + esc(EDIT.error) + '</div>' : '') +
+      '<div class="wd-foot"><span class="wd-cancel" data-wd="cancel">' + esc(T('cancel')) + '</span><span class="wd-save" data-wd="save">' + esc(T('save')) + '</span></div>');
+  }
+
+  function workDayClick(el) {
+    var ev = EDIT.events, v;
+    if ((v = el.getAttribute('data-ed'))) {
+      var p = v.split(':');
+      ev[+p[0]].ts += (+p[1]) * 60000;
+      EDIT.error = '';
+    } else if ((v = el.getAttribute('data-add'))) {
+      var d = EDIT.date, base = ev.length ? ev[ev.length - 1].ts + 30 * 60000 : new Date(d.getFullYear(), d.getMonth(), d.getDate(), 8, 0).getTime();
+      if (EDIT.key === C.dateKey(now()) && base > workNow()) base = Math.max(workNow(), ev.length ? ev[ev.length - 1].ts + 60000 : 0);
+      ev.push({ a: v, ts: Math.round(base / 60000) * 60000 });
+    } else if (el.getAttribute('data-del')) {
+      ev.pop();
+    } else if ((v = el.getAttribute('data-wd'))) {
+      if (v === 'cancel') { openWorkWeek(EDIT.back); return; }
+      for (var i = 1; i < ev.length; i++) if (ev[i].ts <= ev[i - 1].ts) { EDIT.error = T('wkOrder'); renderWorkDay(); return; }
+      xhr('POST', '/panel/work', { day: EDIT.key, events: ev }, function (data, status) {
+        if (!data) { EDIT.error = T('wkSaveError', { s: status }); renderWorkDay(); return; }
+        if (EDIT.key === C.dateKey(now())) { WORK.events = data.events; renderWork(); }
+        openWorkWeek(EDIT.back);
+      });
+      return;
+    } else return;
+    renderWorkDay();
+  }
+
+  function onWorkClick(ev) {
+    var el = closest(ev.target, this, function (e) { return e.getAttribute('data-act'); });
+    if (!el) { openWorkWeek(0); return; }
+    var act = el.getAttribute('data-act');
+    if (act === 'stop' && WORK.sure < workNow()) {
+      WORK.sure = workNow() + 4000;   // a second tap within 4 s, so the day is not ended by accident
+      renderWork();
+      setTimeout(renderWork, 4100);
+      return;
+    }
+    WORK.sure = 0;
+    workAction(act);
   }
 
   /* ───────── Night mode: Auto → Day → Night (remembered by this tablet) ───────── */
@@ -532,8 +697,18 @@
     };
     $('tasks').onclick = lists;
     $('shopping').onclick = lists;
+    $('work').onclick = onWorkClick;
     $('modal').onclick = function (ev) {
       var mode = this.getAttribute('data-mode');
+      var back = closest(ev.target, this, function (e) { return e.getAttribute('data-back'); });
+      if (mode === 'work' && back) { openWorkWeek(+back.getAttribute('data-back')); return; }
+      var wday = closest(ev.target, this, function (e) { return e.getAttribute('data-wday'); });
+      if (mode === 'work' && wday) { openWorkDay(WORK.week.days[+wday.getAttribute('data-wday')], WORK.week.back); return; }
+      if (mode === 'workday') {
+        var ed = closest(ev.target, this, function (e) { return e.getAttribute('data-ed') || e.getAttribute('data-add') || e.getAttribute('data-del') || e.getAttribute('data-wd'); });
+        if (ed) workDayClick(ed);
+        return;
+      }
       var row = closest(ev.target, this, function (e) { return e.getAttribute('data-uid'); });
       if (mode === 'list' && row) { completeTodo(row, row.parentNode.getAttribute('data-box')); return; }
       var item = closest(ev.target, this, function (e) { return e.getAttribute('data-key') !== null; });
@@ -581,11 +756,13 @@
     applyTheme(d);
     renderChecklist(d);
     renderPhotos(d);
+    renderWork();
     renderToday(d);
     renderTomorrow(d);
     fit();
   }
   function loadAll() {
+    loadWork();
     loadChecklist();
     loadAlerts();
     loadWeather();

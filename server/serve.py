@@ -12,6 +12,8 @@ Endpoints
                            needs (see HA_ALLOWED); everything else is 403
     /panel/week            GET/POST the week chosen by hand
     /panel/checklist       GET ?date=YYYY-MM-DD / POST {date, id, done}
+    /panel/work            GET ?from=YYYY-MM-DD&to=YYYY-MM-DD / POST {day, a: start|pause|resume|stop}
+                           or POST {day, events: [...]} to correct a day by hand
     /panel/recipe?q=dish   best matching recipe or null
 """
 import http.server
@@ -88,6 +90,8 @@ PANEL_CONFIG.CHECKLIST = [{ id: 'morning', icon: '☀️', label: 'Vitamina D', 
   { id: 'plants', icon: '🪴', label: 'Plantas', sub: 'regar', from: 18, to: 21 }];
 PANEL_CONFIG.PHOTOS = [{ src: 'img/example-photo.svg', caption: 'Paseo del domingo' }];
 """
+# The demo shows the optional work timer; real setups turn it on in config.js.
+DEMO_WORK = "PANEL_CONFIG.WORK_TIMER = { HOURS: '8:00', DAYS: [1, 2, 3, 4, 5] };\n"
 
 
 def make_handler(cfg, state, recipes):
@@ -174,6 +178,12 @@ def make_handler(cfg, state, recipes):
                     return self.send_json({"done": state.get_checklist((q.get("date") or [""])[0])})
                 except ValueError as e:
                     return self.send_json({"error": str(e)}, 400)
+            if url.path == "/panel/work":
+                try:
+                    days = state.get_work((q.get("from") or [""])[0], (q.get("to") or [""])[0])
+                except ValueError as e:
+                    return self.send_json({"error": str(e)}, 400)
+                return self.send_json({"days": days, "now": int(time.time() * 1000)})
             if url.path == "/panel/recipe":
                 dish = (q.get("q") or [""])[0]
                 try:
@@ -181,6 +191,13 @@ def make_handler(cfg, state, recipes):
                 except Exception as e:
                     log("Recipes: %s" % e)
                     return self.send_json({"recipe": None})
+            if demo_lang and url.path == "/config.js":
+                data = ((DEMO_CONFIG_ES if demo_lang == "es" else "") + DEMO_WORK).encode()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/javascript; charset=utf-8")
+                self.send_header("Content-Length", str(len(data)))
+                self.end_headers()
+                return self.wfile.write(data)
             if demo_lang == "es" and url.path in ("/config.js", "/data/menu.js"):
                 data = (DEMO_CONFIG_ES if url.path == "/config.js" else
                         Path(panel_dir, "data", "menu.example.es.js").read_text(encoding="utf-8")).encode()
@@ -211,6 +228,17 @@ def make_handler(cfg, state, recipes):
                     key = state.set_week(body.get("week") or None)
                     log("Week chosen: %s" % (key or "automatic"))
                     return self.send_json({"week": key})
+                if url.path == "/panel/work":
+                    day, action = str(body.get("day", "")), str(body.get("a", ""))
+                    try:
+                        if "events" in body:  # a day corrected by hand
+                            events, action = state.set_work_day(day, body["events"]), "corrected"
+                        else:
+                            events = state.add_work(day, action)
+                    except ValueError as e:  # e.g. a second screen already did it
+                        return self.send_json({"error": str(e)}, 409)
+                    log("Work timer: %s %s" % (day, action))
+                    return self.send_json({"day": day, "events": events, "now": int(time.time() * 1000)})
                 if url.path == "/panel/checklist":
                     return self.send_json({"done": state.set_check(str(body.get("date")), str(body.get("id")), bool(body.get("done")))})
             except (ValueError, TypeError) as e:

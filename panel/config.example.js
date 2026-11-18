@@ -40,5 +40,11 @@ var PANEL_CONFIG = {
   // Photos for the free space (files in panel/img/). Several rotate every PHOTO_MINUTES.
   PHOTOS: [{ src: 'img/example-photo.svg', caption: 'Sunday walk' }],
   PHOTOS_SIDE: [],
-  PHOTO_MINUTES: 10
+  PHOTO_MINUTES: 10,
+
+  // Optional work timer ("clock in"), a card next to the photo: ▶ start, ❚❚ break, and the time
+  // you can leave. Off when null. Put YOUR working day here, e.g. HOURS: '8:00', '7:30' or 6.5,
+  // and the days you work (0 = Sunday … 6 = Saturday). Entries are kept on the server.
+  WORK_TIMER: null
+  // WORK_TIMER: { HOURS: '8:00', DAYS: [1, 2, 3, 4, 5] }
 };

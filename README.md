@@ -13,6 +13,7 @@ Turn the tablet that sits in a drawer into an always-on family panel: today's me
 - **Tasks and shopping** — Home Assistant to-do lists; tap an item to tick it off.
 - **Weather, alerts, daily checklist, photos** — "laundry is waiting" banners from HA helpers, reminders before a date, vitamin/plant chips that every screen shares, and pictures filling the free space.
 - **Fits one screen, always** — long lists collapse into "+N more · see all" before the text shrinks. On a phone or a narrow window the cards stack and the page scrolls instead. Night mode from 23:00.
+- **Work timer (optional)** — clock in with ▶, take breaks with ❚❚ and see the time you can leave for the hours *you* set; the week opens in a modal and any time can be corrected by hand. Off unless you turn it on.
 - **Telegram** — `+ milk, eggs` adds to the shopping list sorted by supermarket aisle, `- eggs` removes, `! call the plumber @friday` adds a task, `/menu` offers the week's shopping as checkboxes, `/help` explains it all.
 - **English and Spanish**, for the panel and the bot.
 

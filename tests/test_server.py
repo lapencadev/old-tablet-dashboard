@@ -89,6 +89,40 @@ class ServerTest(unittest.TestCase):
         with self.assertRaises(urllib.error.HTTPError):
             get(self.base + "/panel/checklist?date=yesterday")
 
+    def test_work_timer_day(self):
+        day = "2026-11-04"
+        self.assertEqual(post(self.base + "/panel/work", {"day": day, "a": "pause"})[0], 409)  # nothing started
+        for a in ("start", "pause", "resume"):
+            self.assertEqual(post(self.base + "/panel/work", {"day": day, "a": a})[0], 200, a)
+        self.assertEqual(post(self.base + "/panel/work", {"day": day, "a": "start"})[0], 409)  # already working
+        self.assertEqual(post(self.base + "/panel/work", {"day": day, "a": "stop"})[0], 200)
+        self.assertEqual(post(self.base + "/panel/work", {"day": day, "a": "start"})[0], 200)  # back after the end
+        data = json.loads(get(self.base + "/panel/work?from=2026-11-02&to=2026-11-08")[2])
+        self.assertEqual([e["a"] for e in data["days"][day]], ["start", "pause", "resume", "stop", "start"])
+        self.assertTrue(all(isinstance(e["ts"], int) for e in data["days"][day]))
+        self.assertGreater(data["now"], 0)
+        self.assertEqual(json.loads(get(self.base + "/panel/work?from=2026-11-05&to=2026-11-08")[2])["days"], {})
+
+    def test_work_timer_correct_a_day_by_hand(self):
+        day, h = "2026-11-03", 3600000
+        good = [{"a": "start", "ts": 8 * h}, {"a": "pause", "ts": 12 * h}, {"a": "resume", "ts": 13 * h}, {"a": "stop", "ts": 16 * h}]
+        self.assertEqual(post(self.base + "/panel/work", {"day": day, "events": good})[0], 200)
+        self.assertEqual(json.loads(get(self.base + "/panel/work?from=%s&to=%s" % (day, day))[2])["days"][day], good)
+        for bad in ([{"a": "pause", "ts": 1}],                                   # cannot start with a break
+                    [{"a": "start", "ts": 5}, {"a": "stop", "ts": 5}],           # times must go up
+                    [{"a": "start", "ts": 0}, {"a": "stop", "ts": 40 * h}],      # longer than a day
+                    [{"a": "start", "ts": "8:00"}]):
+            self.assertEqual(post(self.base + "/panel/work", {"day": day, "events": bad})[0], 409, bad)
+        self.assertEqual(json.loads(get(self.base + "/panel/work?from=%s&to=%s" % (day, day))[2])["days"][day], good)
+        self.assertEqual(post(self.base + "/panel/work", {"day": day, "events": []})[0], 200)
+        self.assertEqual(json.loads(get(self.base + "/panel/work?from=%s&to=%s" % (day, day))[2])["days"], {})
+
+    def test_work_timer_rejects_bad_input(self):
+        for body in ({"day": "today", "a": "start"}, {"day": "2026-11-04", "a": "explode"}, {}):
+            self.assertIn(post(self.base + "/panel/work", body)[0], (400, 409), body)
+        with self.assertRaises(urllib.error.HTTPError):
+            get(self.base + "/panel/work?from=x&to=y")
+
     def test_recipe_endpoint(self):
         data = json.loads(get(self.base + "/panel/recipe?q=Turkey%20curry")[2])
         self.assertEqual(data["recipe"]["title"], "Turkey curry with onion and courgette")

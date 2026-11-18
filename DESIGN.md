@@ -65,3 +65,7 @@ CSS variables are not available on the target browser, so tokens are documented 
 ## Narrow screens
 
 Below 1000 px wide (phones, a portrait tablet, a small browser window) the panel stops fitting: `fit()` adds `.flow`, the cards stack (meals and lists side by side, the week below; one column under 680 px) and the page scrolls. The one-screen rule applies to the landscape tablet only.
+
+## Work timer card
+
+Optional (`WORK_TIMER`). It sits next to the photo under the agenda, 218 px wide, so it never pushes other cards: the photo gives up the space. A round 54 px button (▶ dark green, ❚❚ amber), the worked time in the serif font, the leave time lighter beside it, a thin progress bar and one status line. A break tints the card light yellow. Everything else (the week, corrections) lives in modals, so the screen keeps one tap per action.

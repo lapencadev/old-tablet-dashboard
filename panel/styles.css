@@ -225,3 +225,100 @@ html.night .pk-item.on { background: #1d2419; }
   .w-now { font-size: 30px; margin-right: 8px; }
   .w-range { display: none; }
 }
+
+/* ───────── Work timer (optional): a card next to the photo ───────── */
+.mid-bottom { -webkit-flex: 1 0 150px; flex: 1 0 150px; min-height: 0; margin-top: 14px; display: -webkit-flex; display: flex; }
+.mid-bottom > .card-photo, .col > .mid-bottom > .card-photo { -webkit-flex: 1; flex: 1; min-width: 0; margin-top: 0; }
+.card-work { width: 218px; -webkit-flex-shrink: 0; flex-shrink: 0; margin: 0 0 0 14px; padding: 14px 16px 12px; display: -webkit-flex; display: flex; -webkit-flex-direction: column; flex-direction: column; }
+.card + .card.card-work { margin-top: 0; }
+.wk-hd { font-family: Georgia, serif; font-size: 20px; color: #2d3d26; display: -webkit-flex; display: flex; -webkit-justify-content: space-between; justify-content: space-between; -webkit-align-items: baseline; align-items: baseline; }
+.wk-hd span { font-family: Roboto, Arial, sans-serif; font-size: 12px; color: #8a8a7a; }
+.wk-row { display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; margin-top: 12px; }
+.wk-btn { position: relative; width: 54px; height: 54px; border-radius: 27px; background: #2d3d26; -webkit-flex-shrink: 0; flex-shrink: 0; margin-right: 14px; }
+.wk-play i { position: absolute; left: 21px; top: 16px; width: 0; height: 0; border-style: solid; border-width: 11px 0 11px 17px; border-color: transparent transparent transparent #f4f7f1; }
+.wk-pause { background: #b8900a; }
+.wk-pause i { position: absolute; top: 17px; width: 6px; height: 20px; background: #fff; border-radius: 2px; left: 19px; }
+.wk-pause i + i { left: 29px; }
+.wk-info { min-width: 0; }
+.wk-time { font-family: Georgia, serif; font-size: 34px; line-height: 1; color: #1e1e18; }
+.wk-exit { font-size: 13px; color: #9aa68e; margin-top: 4px; white-space: nowrap; }
+.wk-work .wk-exit, .wk-break .wk-exit { color: #7a8c6e; }
+.wk-bar { height: 5px; background: #e8ede4; border-radius: 3px; margin-top: 12px; overflow: hidden; }
+.wk-bar i { display: block; height: 100%; background: #7a8c6e; border-radius: 3px; }
+.wk-done .wk-bar i { background: #4a5c3e; }
+.wk-state { font-size: 13px; color: #6c6c60; margin-top: 8px; }
+.wk-state b { font-weight: 500; color: #8a5a00; }
+.wk-stop { font-size: 12.5px; color: #8a8a7a; margin-top: auto; padding-top: 8px; }
+.wk-stop.wk-sure { color: #a03020; font-weight: 500; }
+.wk-break { background: #fdf8ea; }
+
+/* Week of work (modal) */
+.md-work { width: 640px; }
+.md-work .md-hd { display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; }
+.wk-arrow { display: inline-block; width: 40px; text-align: center; font-size: 28px; color: #4a5c3e; }
+.wk-arrow:first-child { margin-right: 6px; }
+.md-hd .wk-arrow:last-child { margin-left: auto; }
+.wk-none { visibility: hidden; }
+.wk-table { width: 100%; border-collapse: collapse; font-size: 15px; color: #1e1e18; }
+.wk-table th { font-size: 12px; font-weight: 400; color: #7a8c6e; text-transform: uppercase; letter-spacing: .5px; text-align: left; padding: 6px 8px; }
+.wk-table td { padding: 9px 8px; border-top: 1px solid #e8ede4; }
+.wk-table td span { color: #8a8a7a; }
+.wk-table td b { font-weight: 500; }
+.wk-table sup { color: #b8900a; font-weight: 500; }
+.wk-today td { background: #f4f7f1; }
+.wk-off td { color: #b8b8a8; }
+.wk-plus { color: #4a7a3a; }
+.wk-minus { color: #a03020; }
+.wk-total { font-size: 16px; padding: 14px 8px 4px; color: #4a4a40; }
+.wk-total b { font-weight: 500; color: #1e1e18; }
+.wk-note { font-size: 12px; color: #8a8a7a; padding: 2px 8px 12px; }
+
+.fit-3 .card-work, .fit-4 .card-work, .fit-5 .card-work, .fit-6 .card-work, .fit-7 .card-work { width: 200px; padding: 10px 12px; }
+.fit-4 .wk-time, .fit-5 .wk-time, .fit-6 .wk-time, .fit-7 .wk-time { font-size: 28px; }
+.fit-4 .wk-row, .fit-5 .wk-row, .fit-6 .wk-row, .fit-7 .wk-row { margin-top: 6px; }
+
+html.night .wk-hd, html.night .wk-time { color: #8f9c84; }
+html.night .wk-btn { background: #2d3726; }
+html.night .wk-pause { background: #5a4a10; }
+html.night .wk-bar { background: #1d2419; }
+html.night .wk-bar i { background: #4a5c3e; }
+html.night .wk-state, html.night .wk-exit, html.night .wk-stop { color: #5f6b55; }
+html.night .wk-break { background: #1f1c10; }
+html.night .wk-table { color: #8f9c84; }
+html.night .wk-table td { border-top-color: #1d2419; }
+html.night .wk-today td { background: #1a2116; }
+html.night .wk-total { color: #7f8c74; }
+html.night .wk-play i { border-color: transparent transparent transparent #93a186; }
+html.night .wk-pause i { background: #b5a46a; }
+
+@media (max-width: 999px) {
+  .mid-bottom { -webkit-flex: 0 0 auto; flex: 0 0 auto; }
+  .card-work { min-height: 200px; }
+}
+@media (max-width: 680px) {
+  .mid-bottom { -webkit-flex-wrap: wrap; flex-wrap: wrap; }
+  .card-work { width: 100%; margin: 14px 0 0; }
+}
+@media (max-width: 680px) { .card + .card.card-work { margin-top: 14px; } }
+
+/* Correct a day by hand */
+.md-workday { width: 540px; }
+.md-workday .md-close { display: none; }
+.wk-table tr[data-wday] td { cursor: pointer; }
+.wd-row { display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; padding: 8px 8px; border-bottom: 1px solid #e8ede4; }
+.wd-lab { width: 96px; font-size: 14px; color: #7a8c6e; text-transform: uppercase; letter-spacing: .5px; }
+.wd-b { display: inline-block; min-width: 54px; text-align: center; padding: 9px 6px; margin: 0 3px; border-radius: 10px; background: #eef2ea; color: #2d3d26; font-size: 15px; font-weight: 500; }
+.wd-t { width: 76px; text-align: center; font-family: Georgia, serif; font-size: 24px; color: #1e1e18; }
+.wd-empty { padding: 14px 8px; color: #8a8a7a; }
+.wd-adds { padding: 12px 4px 4px; }
+.wd-add { display: inline-block; padding: 9px 14px; margin: 0 6px 8px 0; border-radius: 18px; border: 1px solid #c8d4bc; color: #2d3d26; font-size: 14px; }
+.wd-del { border-color: #e8c4bc; color: #a03020; }
+.wd-err { color: #a03020; font-size: 14px; padding: 6px 8px 10px; }
+.wd-foot { display: -webkit-flex; display: flex; border-top: 1px solid #e8ede4; }
+.wd-foot span { -webkit-flex: 1; flex: 1; text-align: center; padding: 14px; font-size: 15px; }
+.wd-cancel { color: #8a8a7a; }
+.wd-save { color: #fff; background: #2d3d26; font-weight: 500; }
+html.night .wd-b { background: #1d2419; color: #8f9c84; }
+html.night .wd-t { color: #8f9c84; }
+html.night .wd-row, html.night .wd-foot { border-color: #1d2419; }
+html.night .wd-save { background: #2d3726; color: #a8b89a; }
