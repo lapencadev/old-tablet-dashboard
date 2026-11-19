@@ -375,7 +375,7 @@ html.night .cv-seg span.on { background: #2d3726; color: #a8b89a; }
 /* In the narrow slot the photo fills its card and the work timer is centred vertically;
    "End" sits in the header instead of "week ›" so everything fits at 672 px. */
 .mid-bottom > .card-photo { padding: 8px 8px 6px; }
-.mid-bottom .photo-img { -webkit-background-size: cover; background-size: cover; background-position: center 40%; border-radius: 10px; }
+.mid-bottom .photo-img { -webkit-background-size: contain; background-size: contain; background-position: center center; }
 .card-work { overflow: hidden; }
 .wk-row { margin-top: auto; }
 .wk-state { margin-bottom: auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
