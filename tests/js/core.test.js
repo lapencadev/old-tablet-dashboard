@@ -120,3 +120,11 @@ test('workSummary: working, on a break, done and a past day left open', () => {
   assert.strictEqual(s.state, 'idle'); assert.strictEqual(s.worked, 0);
   assert.strictEqual(C.hm(462 * M), '7:42'); assert.strictEqual(C.hm(-5), '0:00');
 });
+
+test('mainDish: never returns markup, even from nested or broken tags', () => {
+  for (const h of ['<<b>b>Soup', '<scr<script>ipt>Soup', 'Soup <img src=x onerror=alert(1)', '<strong>Soup</strong>']) {
+    const out = C.mainDish(h);
+    assert.ok(!/[<>]/.test(out), h + ' → ' + out);
+    assert.ok(out.includes('Soup'), out);
+  }
+});

@@ -346,14 +346,18 @@
     }
     var max = LIMITS[box], shown = items.length > max ? max - 1 : items.length, html = '';
     for (var i = 0; i < shown; i++) html += todoRow(items[i]);
-    if (shown < items.length) html += '<div class="td-more" data-more="' + box + '">' + esc(T('moreSeeAll', { n: items.length - shown })) + '</div>';
+    if (shown < items.length) html += '<div class="td-more" data-more="' + esc(box) + '">' + esc(T('moreSeeAll', { n: items.length - shown })) + '</div>';
     $(box).innerHTML = html;
   }
 
+  // Box names come back from data-* attributes: only the two known names are accepted
+  function boxName(b) { return b === 'shopping' ? 'shopping' : 'tasks'; }
+
   function openList(box) {
+    box = boxName(box);
     var d = LISTS[box];
     if (!d) return;
-    var body = '<div data-box="' + box + '">';
+    var body = '<div data-box="' + esc(box) + '">';
     for (var i = 0; i < d.items.length; i++) body += todoRow(d.items[i]);
     openModal('list', esc(T(box)) + ' · ' + d.items.length, body + '</div>');
   }
@@ -836,7 +840,7 @@
         return;
       }
       var row = closest(ev.target, this, function (e) { return e.getAttribute('data-uid'); });
-      if (mode === 'list' && row) { completeTodo(row, row.parentNode.getAttribute('data-box')); return; }
+      if (mode === 'list' && row) { completeTodo(row, boxName(row.parentNode.getAttribute('data-box'))); return; }
       var item = closest(ev.target, this, function (e) { return e.getAttribute('data-key') !== null; });
       if (mode === 'week' && item) { choose(item.getAttribute('data-key')); closeModal(); return; }
       var card = closest(ev.target, this, function (e) { return /(^| )md-card( |$)/.test(e.className); });

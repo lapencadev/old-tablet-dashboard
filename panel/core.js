@@ -54,7 +54,13 @@ var PanelCore = (function () {
     return meals.length - 1;
   }
 
-  function stripTags(h) { return (h || '').replace(/<[^>]+>/g, ''); }
+  // Text of a dish: tags removed until none is left, then any stray '<' or '>' too
+  // (the result is escaped again before it reaches the page)
+  function stripTags(h) {
+    var s = h || '', prev;
+    do { prev = s; s = s.replace(/<[^<>]*>/g, ''); } while (s !== prev);
+    return s.replace(/[<>]/g, '');
+  }
   function trim(s) { return s.replace(/^\s+|\s+$/g, ''); }
 
   /* Main dish of a dish text: what is in <strong> (joined with ' + '), else the text before '(' / ' — ' / ' · ' / ' • '. */
