@@ -154,7 +154,8 @@ def private_files(payload_json, password):
         raise ValueError("wrong MENU_PASSWORD: private.enc.json cannot be decrypted")
     out = {}
     for block in json.loads(plain.decode("utf-8")):
-        for code in re.findall(r"<script>([\s\S]*?)</script>", block):
+        # tolerant of attributes, case and spaces: <script type=...>…</SCRIPT >
+        for code in re.findall(r"<script\b[^>]*>([\s\S]*?)</script\s*>", block, re.IGNORECASE):
             code = code.replace("<\\/script", "</script")
             for name, var in PRIVATE_VARS.items():
                 if name not in out and re.search(r"(?m)^\s*(?:const|var|let)\s+%s\s*=" % var, code):

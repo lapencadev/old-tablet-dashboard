@@ -149,9 +149,11 @@ class SettingsTest(unittest.TestCase):
         import os
         import tempfile
         from server import settings
-        env_file = tempfile.mktemp()
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        env_file = os.path.join(tmp.name, ".env")
         Path(env_file).write_text("HA_URL=http://from-file:8123/\nPANEL_LANG=es\n", encoding="utf-8")
-        opts = tempfile.mktemp()
+        opts = os.path.join(tmp.name, "options.json")
         Path(opts).write_text(_json.dumps({"menu_url": "https://m.example.org", "lang": "", "telegram_chat_id": "-42"}), encoding="utf-8")
         cfg = settings.load(environ={"LANG": "en_US.UTF-8", "PORT": "9000"}, env_file=env_file, options_file=opts)
         self.assertEqual(cfg["HA_URL"], "http://from-file:8123")

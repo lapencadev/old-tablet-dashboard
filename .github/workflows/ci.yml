@@ -1,5 +1,8 @@
 name: checks
 on: [push, pull_request]
+# The checks only read the code
+permissions:
+  contents: read
 jobs:
   check:
     strategy:

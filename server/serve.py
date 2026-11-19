@@ -206,7 +206,8 @@ def make_handler(cfg, state, recipes):
                 self.send_header("Content-Length", str(len(data)))
                 self.end_headers()
                 return self.wfile.write(data)
-            if url.path in ("/config.js", "/data/menu.js") and not Path(panel_dir, url.path[1:]).exists():
+            optional = {"/config.js": "config.js", "/data/menu.js": "menu.js"}.get(url.path)
+            if optional and not (Path(panel_dir, optional) if optional == "config.js" else Path(panel_dir, "data", optional)).exists():
                 # Optional personal files: answer with an empty script instead of a 404.
                 data = b"/* not configured: using the example file */\n"
                 self.send_response(200)
