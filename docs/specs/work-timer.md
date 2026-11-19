@@ -17,7 +17,7 @@ Let someone who does not log their hours anywhere see, at a glance, how long the
 1. Given `WORK_TIMER: null` (default), the card is not shown and the photo keeps the space.
 2. Given `WORK_TIMER: { HOURS: '8:00' }`, when ▶ is tapped, the card shows the time worked and "leave at" = now + what is left.
 3. When ❚❚ is tapped, a break starts; the leave time moves forward while it lasts; ▶ resumes.
-4. "End the day" needs a second tap within 4 s; then the card shows the difference with the day.
+4. "End" (in the card header while the day runs) needs a second tap within 4 s; then the card shows the difference with the day.
 5. Tapping the card opens the week (in, out, break, worked, ±) with the total against `HOURS × DAYS`; arrows move between weeks.
 6. Tapping a day opens the correction view: −1 h / −5 / +5 / +1 h per time, add the next valid step, remove the last; times out of order cannot be saved.
 7. A past day left open counts as a full day and is marked "?".

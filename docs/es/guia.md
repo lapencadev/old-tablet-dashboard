@@ -318,6 +318,8 @@ Compruébalo con `python tools/panel.py validate-menu` y luego `deploy-app`.
 
 Para dar acceso a otra persona sin compartir tu cuenta: en la consola de Tailscale, **Users → Invite**, o comparte solo la máquina de Home Assistant.
 
+**No** abras los puertos 8000 ni 8123 en el router en lugar de usar Tailscale: el panel no tiene contraseña. Qué protege el proyecto y qué queda en tus manos está en [seguridad.md](seguridad.md).
+
 ## 10. Actualizar y comandos del día a día
 
 ```bash

@@ -15,7 +15,7 @@
 ```
 Menu source (file or URL) ──hourly sync──▶ server ──static files──▶ tablet browser
                                               │  ▲
-             HA REST (/api/*) ◀──proxy + token┘  └── /panel/* (week choice, checklist, recipes)
+             HA REST (/api/*) ◀──proxy + token┘  └── /panel/* (week choice, checklist, recipes, work timer)
                      │
 Telegram group ◀──▶ HA telegram_bot ──events──▶ HA automations (shopping, tasks)
                                     └─websocket─▶ server bot (/menu, /help)
@@ -24,7 +24,7 @@ Telegram group ◀──▶ HA telegram_bot ──events──▶ HA automations
 ## Configuration
 
 - `panel/config.js` (copied from `panel/config.example.js`): what the panel shows and which HA entities.
-- `.env` (copied from `.env.example`): `HA_URL`, `HA_TOKEN`, `HA_SSH` for tools; `TELEGRAM_CHAT_ID`, `LANG`.
+- `.env` (copied from `.env.example`): `HA_URL`, `HA_TOKEN`, `HA_SSH` for tools; `TELEGRAM_CHAT_ID`, `PANEL_LANG` (not `LANG`, which is the system locale); optional `MENU_*` and `ALLOWED_HOSTS`.
 - HA app options (`ha-app/config.yaml`): `menu_url`, `menu_adapter`, `telegram_chat_id`, `lang`.
 
 ## Security

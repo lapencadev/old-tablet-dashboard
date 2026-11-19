@@ -316,6 +316,8 @@ Check it with `python tools/panel.py validate-menu`, then `deploy-app`.
 
 To share with someone else without sharing your account: in the Tailscale admin console, **Users → Invite**, or share just the Home Assistant machine.
 
+Do **not** open ports 8000 or 8123 on your router instead: the panel has no login. What the project protects and what it leaves to you is in [security.md](security.md).
+
 ## 10. Updating and everyday commands
 
 ```bash

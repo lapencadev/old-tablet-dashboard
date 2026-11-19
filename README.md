@@ -56,7 +56,7 @@ flowchart LR
 ```
 
 - The **panel** is one static page in ES5 JavaScript (no build step), designed for 2014 browsers.
-- The **server** serves the page, adds the Home Assistant token when proxying (the tablet never sees it), keeps a little shared state (the week picked by hand, checklist ticks), syncs the menu and answers `/menu` and `/help`.
+- The **server** serves the page, adds the Home Assistant token when proxying (the tablet never sees it), keeps a little shared state (the week picked by hand, checklist ticks, the optional work timer), syncs the menu and answers `/menu` and `/help`.
 - **Home Assistant automations** (rendered from templates) handle `+`, `-`, `!`, `/shopping` and `/tasks`.
 
 ## Set it up for real
@@ -64,7 +64,7 @@ flowchart LR
 The full walkthrough, with macOS and Windows commands side by side, is in **[docs/guide.md](docs/guide.md)** ([español](docs/es/guia.md)). In short:
 
 1. Copy `.env.example` to `.env` and fill in your Home Assistant address and a long-lived token. `python tools/panel.py ha-check` lists the calendars and lists you can use.
-2. Copy `panel/config.example.js` to `panel/config.js` and pick your entities, alerts, checklist and photos.
+2. Copy `panel/config.example.js` to `panel/config.js` and pick your entities, alerts, checklist, photos and, if you want it, the work timer with your own hours.
 3. Write your menu in `panel/data/menu.js` ([format](docs/domain-model.md)) or let the server sync it from a URL.
 4. `python tools/panel.py deploy-app` installs the server as a Home Assistant OS local app over SSH.
 5. Open `http://<HA_IP>:8000` on the tablet and add it to the home screen.
@@ -117,7 +117,7 @@ The method is [harness-starter](https://github.com/devexpert-io/harness-starter)
 
 - **The idea**: [Antonio Leiva's post](https://x.com/antonioleivag/status/2112870497260077245) about turning an old tablet into a desk dashboard, after people started running dashboards on cheap digital photo frames. Only the idea comes from there: this code and architecture are original.
 - **Working method**: [harness-starter](https://github.com/devexpert-io/harness-starter) (MIT), linked, not copied.
-- **Built on**: [Home Assistant](https://www.home-assistant.io/) (OS, to-do lists, Remote Calendar, Telegram bot integrations), [Telegram Bot API](https://core.telegram.org/bots/api), [Tailscale](https://tailscale.com/) for remote access, [json5](https://pypi.org/project/json5/) and [websockets](https://pypi.org/project/websockets/) for Python; [acorn](https://github.com/acornjs/acorn) and [Playwright](https://playwright.dev/) for the tests.
+- **Built on**: [Home Assistant](https://www.home-assistant.io/) (OS, to-do lists, Remote Calendar, Telegram bot integrations), [Telegram Bot API](https://core.telegram.org/bots/api), [Tailscale](https://tailscale.com/) for remote access, [json5](https://pypi.org/project/json5/), [websockets](https://pypi.org/project/websockets/) and [cryptography](https://pypi.org/project/cryptography/) (password-protected menu sites) for Python; [acorn](https://github.com/acornjs/acorn) and [Playwright](https://playwright.dev/) for the tests.
 
 ## Future ideas
 

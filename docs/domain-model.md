@@ -47,6 +47,10 @@ Rules:
 
 `todo.get_items` → `{ uid, summary, due?, status }`. Tapping on the panel calls `todo.update_item` with `status: completed`.
 
+### Work day (optional work timer, server state `work.json`)
+
+`{ "YYYY-MM-DD": [ { a: "start" | "pause" | "resume" | "stop", ts: ms }, … ] }`. The day is the tablet's local date, `ts` the server's clock. Allowed order: nothing/stop → start; start/resume → pause or stop; pause → resume or stop. A corrected day is replaced whole, if the order is valid and the times rise. Target hours come from `WORK_TIMER.HOURS` in the panel config.
+
 ### Shopping suggestion session (Telegram)
 
 One per chat: list of `(category, product)` + selected indexes. Created by `/menu`, edited by button callbacks, closed by *Add* or *Close*. Products already on the shopping list are not duplicated (HA script checks).

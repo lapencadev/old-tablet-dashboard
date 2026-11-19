@@ -4,13 +4,13 @@
 
 - Repository root: `old-tablet-dashboard/`
 - Standard startup path: `./init.sh` (Windows: `python tools/panel.py check`)
-- Standard verification path: `./init.sh` (59 Python tests, 11 JS logic tests, ES5 gate) + `python tools/panel.py e2e` (15 Playwright scenarios, needs `npm i -D playwright`)
-- Features: 30 `passing`, 3 `blocked`, 0 `accepted` (no independent validation yet)
+- Standard verification path: `./init.sh` (62 Python tests, 12 JS logic tests, ES5 gate, personal-data scan) + `python tools/panel.py e2e` (18 Playwright scenarios, needs `npm i -D playwright`)
+- Features: 32 `passing`, 3 `blocked`, 0 `accepted` (no independent validation yet)
 - Current next step: run `feature-validator` in a fresh session, feature by feature in list order, starting with `quality-gate`
 - Current blockers (need the owner's real setup):
   - `ha-app-package` — one real `deploy-app` against Home Assistant OS.
   - `telegram-shopping`, `telegram-tasks` — try `+`, `-`, `/compra`, `!` and `/tareas` in the real group after `deploy-ha`.
-- Last verified at: 2026-10-30
+- Last verified at: 2026-11-19
 
 ## Session Log
 
@@ -55,3 +55,11 @@
 - Completed: `?return_response` only for actions that return data (HA answered 400 to `todo.update_item`); the fake HA now behaves the same. New `work-timer` (off by default, hours set by each user) with week modal and manual corrections; docs in both guides.
 - Verification run: `./init.sh` green, e2e 17/17.
 - Also: `panel-calendar` (tap the agenda → week/month calendar), e2e 18/18.
+
+### Session 006
+
+- Date: 2026-11-19
+- Goal: full review before sharing the repo.
+- Completed: screenshots refreshed (work timer, big calendar), photo next to the timer shown whole; stale details fixed (`PANEL_LANG` in technical discovery, missing `proxy-hardening` spec, `.env.example` with `MENU_PASSWORD` and `ALLOWED_HOSTS`, work day in the domain model, security link in both guides, cryptography in credits).
+- Verification run: `./init.sh` green with the private word list, e2e 18/18, CI green on Linux, Windows and Python 3.9; no open PRs, issues or Dependabot alerts.
+- Next best step: unchanged — the three blocked checks on the real setup, then `feature-validator` sessions.
