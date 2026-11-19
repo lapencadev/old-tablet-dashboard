@@ -371,3 +371,29 @@ html.night .cv-seg span.on { background: #2d3726; color: #a8b89a; }
   .cv-ev { font-size: 11px; }
   .cv-dn { font-size: 16px; }
 }
+
+/* In the narrow slot the photo fills its card and the work timer is centred vertically;
+   "End" sits in the header instead of "week ›" so everything fits at 672 px. */
+.mid-bottom > .card-photo { padding: 8px 8px 6px; }
+.mid-bottom .photo-img { -webkit-background-size: cover; background-size: cover; background-position: center 40%; border-radius: 10px; }
+.card-work { overflow: hidden; }
+.wk-row { margin-top: auto; }
+.wk-state { margin-bottom: auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wk-hd .wk-stop { margin: 0; padding: 4px 0 4px 8px; font-size: 13px; color: #8a6a5a; }
+.wk-hd .wk-stop.wk-sure { color: #a03020; font-weight: 500; }
+@media (min-height: 760px) {
+  .wk-btn { width: 62px; height: 62px; border-radius: 31px; }
+  .wk-play i { left: 24px; top: 18px; border-width: 13px 0 13px 20px; }
+  .wk-pause i { top: 20px; height: 22px; left: 22px; }
+  .wk-pause i + i { left: 33px; }
+  .wk-time { font-size: 40px; }
+  .wk-exit { font-size: 14px; }
+  .wk-bar { margin-top: 16px; height: 6px; }
+  .wk-state { margin-top: 10px; }
+}
+@media (max-height: 720px) {
+  .card-work { padding: 10px 14px 10px; }
+  .wk-row { padding-top: 4px; }
+  .wk-bar { margin-top: 8px; }
+  .wk-state { margin-top: 6px; }
+}

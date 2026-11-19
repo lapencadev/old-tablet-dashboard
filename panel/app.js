@@ -599,16 +599,17 @@
     }
     if (s.state === 'work' || s.state === 'break') {
       var sure = WORK.sure > t;
-      stop = '<div class="wk-stop' + (sure ? ' wk-sure' : '') + '" data-act="stop">' + esc(T(sure ? 'wkStopSure' : 'wkStop')) + '</div>';
+      stop = '<span class="wk-stop' + (sure ? ' wk-sure' : '') + '" data-act="stop">' + esc(T(sure ? 'wkStopSure' : 'wkStop')) + '</span>';
     }
     exit = s.state === 'done' ? T('wkLeft', { t: clockOf(s.out) }) : s.state === 'idle' ? T('wkDay', { t: C.hm(target) }) : T('wkLeaveAt', { t: clockOf(s.exit) });
     box.style.display = '';
     box.className = 'card card-work wk-' + s.state;
-    box.innerHTML = '<div class="wk-hd">' + esc(T('wkTitle')) + '<span>' + esc(T('wkWeekLink')) + '</span></div>' +
+    // while the day runs, "End" takes the place of "week ›" so the card needs one line less
+    box.innerHTML = '<div class="wk-hd">' + esc(T('wkTitle')) + (stop || '<span>' + esc(T('wkWeekLink')) + '</span>') + '</div>' +
       '<div class="wk-row">' + btn + '<div class="wk-info"><div class="wk-time">' + C.hm(s.worked) + '</div>' +
       '<div class="wk-exit">' + esc(exit) + '</div></div></div>' +
       '<div class="wk-bar"><i style="width:' + Math.min(100, Math.round(s.worked / target * 100)) + '%"></i></div>' +
-      '<div class="wk-state">' + line + '</div>' + stop;
+      '<div class="wk-state">' + line + '</div>';
   }
 
   function loadWork() {

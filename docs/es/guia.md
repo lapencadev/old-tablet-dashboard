@@ -131,7 +131,7 @@ Sirve para saber cuántas horas trabajas de verdad sin apuntarlas en ningún sit
 
 - **▶** empieza la jornada. La tarjeta enseña las horas trabajadas y, más clarito, la hora a la que puedes salir para completar tu jornada.
 - **❚❚** abre un descanso (la tarjeta se pone amarilla y lo cuenta). Al darle otra vez a **▶** sigue sumando, y la hora de salida se retrasa lo que haya durado el descanso.
-- **Terminar jornada** pide un segundo toque en 4 segundos, para no cerrarla sin querer.
+- **Terminar** (arriba a la derecha mientras la jornada está en marcha) pide un segundo toque en 4 segundos, para no cerrarla sin querer.
 - **Tocando la tarjeta** ves la semana: entrada, salida, descansos, horas trabajadas y la diferencia con tu jornada; con la flecha vas a semanas anteriores.
 - **¿Se te olvidó fichar?** En la semana, toca el día y corrige cada hora con −1 h, −5, +5 y +1 h, añade el paso que faltó (un descanso, la salida) o quita el último. Las horas tienen que ir en orden.
 - Un día que no se terminó cuenta como jornada completa y sale marcado con «?».

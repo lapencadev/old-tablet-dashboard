@@ -127,7 +127,7 @@ Useful if you want to know how many hours you really work without writing them d
 
 - **▶** starts the day. The card shows the time worked and, lighter, the time you can leave to complete your day.
 - **❚❚** starts a break (the card turns yellow and counts it). **▶** again carries on, and the leave time moves forward by the length of the break.
-- **End the day** needs a second tap within 4 seconds, so it is not ended by accident.
+- **End** (top right while the day runs) needs a second tap within 4 seconds, so the day is not ended by accident.
 - **Tap the card** to see the week: in, out, breaks, hours worked and the difference with your day; the arrow goes to earlier weeks.
 - **Forgot to clock in?** In the week, tap the day and correct each time with −1 h, −5, +5 and +1 h, add the step you missed (a break, the end) or remove the last one. Times must go in order.
 - A day you never ended counts as a full day and is marked with "?".
