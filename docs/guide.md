@@ -115,7 +115,9 @@ Copy `panel/config.example.js` to `panel/config.js` and edit it. The file explai
 
 Tap the week's agenda to open a full calendar, a bit like Google Calendar: **Week** or **Month**, ‹ › to go back and forward, **Today** to come back, and one colour per Home Assistant calendar (the legend is at the bottom). In the month, tap a day to see its week. It reads the same calendars as the panel, so there is nothing to configure.
 
-![The big calendar, week view](img/calendar-week.png)
+| Week | Month |
+|---|---|
+| ![The big calendar, week view](img/calendar-week.png) | ![The big calendar, month view](img/calendar-month.png) |
 
 ### The work timer (optional)
 
@@ -129,6 +131,8 @@ Useful if you want to know how many hours you really work without writing them d
 - **Tap the card** to see the week: in, out, breaks, hours worked and the difference with your day; the arrow goes to earlier weeks.
 - **Forgot to clock in?** In the week, tap the day and correct each time with −1 h, −5, +5 and +1 h, add the step you missed (a break, the end) or remove the last one. Times must go in order.
 - A day you never ended counts as a full day and is marked with "?".
+
+![The week of the work timer](img/work-week.png)
 
 Entries are kept on the server (`work.json` in the state folder, inside Home Assistant OS it survives updates), with the server's clock, so every screen shows the same and a reload loses nothing.
 

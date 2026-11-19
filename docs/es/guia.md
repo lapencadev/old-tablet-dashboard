@@ -119,7 +119,9 @@ Copia `panel/config.example.js` como `panel/config.js` y edítalo. Cada opción 
 
 Toca la agenda de la semana para abrir un calendario completo, al estilo de Google Calendar: **Semana** o **Mes**, ‹ › para ir hacia atrás y hacia delante, **Hoy** para volver, y un color por cada calendario de Home Assistant (la leyenda está abajo). En el mes, toca un día para ver su semana. Lee los mismos calendarios que el panel, así que no hay nada que configurar.
 
-![El calendario en grande, vista de semana](../img/calendar-week.png)
+| Semana | Mes |
+|---|---|
+| ![El calendario en grande, vista de semana](../img/calendar-week.png) | ![El calendario en grande, vista de mes](../img/calendar-month.png) |
 
 ### El fichaje (opcional)
 
@@ -133,6 +135,8 @@ Sirve para saber cuántas horas trabajas de verdad sin apuntarlas en ningún sit
 - **Tocando la tarjeta** ves la semana: entrada, salida, descansos, horas trabajadas y la diferencia con tu jornada; con la flecha vas a semanas anteriores.
 - **¿Se te olvidó fichar?** En la semana, toca el día y corrige cada hora con −1 h, −5, +5 y +1 h, añade el paso que faltó (un descanso, la salida) o quita el último. Las horas tienen que ir en orden.
 - Un día que no se terminó cuenta como jornada completa y sale marcado con «?».
+
+![La semana del fichaje](../img/work-week.png)
 
 Los fichajes se guardan en el servidor (`work.json` en la carpeta de estado; dentro de Home Assistant OS sobrevive a las actualizaciones), con la hora del servidor, así todas las pantallas ven lo mismo y una recarga no pierde nada.
 

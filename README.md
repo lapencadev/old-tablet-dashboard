@@ -21,6 +21,10 @@ Turn the tablet that sits in a drawer into an always-on family panel: today's me
 |---|---|---|
 | ![](docs/img/meal-detail.png) | ![](docs/img/long-lists-672.png) | ![](docs/img/night.png) |
 
+| Big calendar: month | Big calendar: week | Work timer: the week (optional) |
+|---|---|---|
+| ![](docs/img/calendar-month.png) | ![](docs/img/calendar-week.png) | ![](docs/img/work-week.png) |
+
 <img src="docs/img/telegram-es.png" alt="Shopping and tasks from a Telegram group" width="520">
 
 ## Try it in one minute
