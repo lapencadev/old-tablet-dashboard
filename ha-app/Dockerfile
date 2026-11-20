@@ -1,5 +1,5 @@
 # Official Python image: works on Raspberry Pi and PCs. HA OS 2026 no longer passes BUILD_FROM by default.
-FROM python:3.12-alpine
+FROM python:3.15-alpine
 # Same dependency list the tests run with (deploy-app copies it here)
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
