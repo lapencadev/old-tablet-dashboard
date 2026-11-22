@@ -397,3 +397,32 @@ html.night .cv-seg span.on { background: #2d3726; color: #a8b89a; }
   .wk-bar { margin-top: 8px; }
   .wk-state { margin-top: 6px; }
 }
+
+/* Work timer: drawing, the week as small bars and the week total. The leave time counts the week so far. */
+.card-work { -webkit-justify-content: space-between; justify-content: space-between; }
+.card-work .wk-row, .card-work .wk-state { margin-top: 0; margin-bottom: 0; }
+.wk-cafe { height: 46px; -webkit-flex-shrink: 1; flex-shrink: 1; min-height: 0; background: url(img/deco-cafe.svg) center center no-repeat; -webkit-background-size: contain; background-size: contain; }
+.wk-tight .wk-cafe { display: none; }
+.wk-week { position: relative; display: -webkit-flex; display: flex; height: 44px; margin-top: 8px; }
+.wb { -webkit-flex: 1; flex: 1; text-align: center; }
+.wb-col { position: relative; height: 30px; margin: 0 5px; background: #eef2ea; border-radius: 3px; overflow: hidden; }
+.wb-col i { position: absolute; left: 0; right: 0; bottom: 0; background: #b5c4a6; border-radius: 3px; }
+.wb-full .wb-col i { background: #7a8c6e; }
+.wb-today .wb-col i { background: #b8900a; }
+.wb-today.wb-full .wb-col i { background: #4a5c3e; }
+.wb span { display: block; font-size: 11px; color: #9aa68e; margin-top: 2px; }
+.wb-today span { color: #2d3d26; font-weight: 500; }
+.wb-future .wb-col { background: #f3f5f0; }
+.wb-line { position: absolute; left: 2px; right: 2px; height: 0; border-top: 1px dashed #7a8c6e; z-index: 1; }
+.wk-sum { font-size: 12.5px; color: #6c6c60; white-space: nowrap; display: -webkit-flex; display: flex; -webkit-justify-content: space-between; justify-content: space-between; margin-top: 2px; }
+.wk-sum b { font-weight: 500; color: #2d3d26; }
+.wk-sum em { font-style: normal; color: #4a7a3a; font-weight: 500; }
+html.night .wk-cafe { opacity: .45; }
+html.night .wb-col { background: #1d2419; }
+html.night .wb-col i { background: #3f4d36; }
+html.night .wb-full .wb-col i { background: #4a5c3e; }
+html.night .wb-today .wb-col i { background: #6a5a1a; }
+html.night .wk-sum, html.night .wb span { color: #5f6b55; }
+html.night .wk-sum b { color: #8f9c84; }
+.card-work { width: 244px; }
+@media (max-width: 680px) { .card-work { width: 100%; } }

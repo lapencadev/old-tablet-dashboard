@@ -125,7 +125,9 @@ Tap the week's agenda to open a full calendar, a bit like Google Calendar: **Wee
 
 Useful if you want to know how many hours you really work without writing them down anywhere. It only shows when `WORK_TIMER` is set in `panel/config.js`, with the hours **you** work: nothing in the repo assumes a particular working day.
 
-- **▶** starts the day. The card shows the time worked and, lighter, the time you can leave to complete your day.
+- **▶** starts the day. The card shows the time worked and, lighter, the time you can leave.
+- **Your hours are an average over the week.** If you worked longer earlier in the week, the card lets you leave earlier today (and the other way round), so on Friday it tells you what is left for the *week*, not for a standard day. A past workday with nothing recorded counts as a day off.
+- **Small bars** show each workday of the week, with a dashed line at your daily hours, and the bottom line shows the week total and what is left.
 - **❚❚** starts a break (the card turns yellow and counts it). **▶** again carries on, and the leave time moves forward by the length of the break.
 - **End** (top right while the day runs) needs a second tap within 4 seconds, so the day is not ended by accident.
 - **Tap the card** to see the week: in, out, breaks, hours worked and the difference with your day; the arrow goes to earlier weeks.

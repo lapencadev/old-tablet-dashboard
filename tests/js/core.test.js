@@ -128,3 +128,19 @@ test('mainDish: never returns markup, even from nested or broken tags', () => {
     assert.ok(out.includes('Soup'), out);
   }
 });
+
+test('weekShare: the daily hours are an average over the week', () => {
+  const H = 3600000, day = (on, worked, logged) => ({ on, worked, logged: logged === undefined ? worked > 0 : logged });
+  // Mon 8h, Tue 9h, Wed 6h, Thu 8.5h, today Friday; 7:42 a day
+  let w = C.weekShare([day(1, 8 * H), day(1, 9 * H), day(1, 6 * H), day(1, 8.5 * H), day(1, 0), day(0, 0), day(0, 0)], 4, 462);
+  assert.strictEqual(w.prevWorked, 31.5 * H);
+  assert.strictEqual(w.weekTarget, 5 * 462 * 60000);
+  assert.strictEqual(w.today, 462 * 60000 - (31.5 * H - 4 * 462 * 60000), 'extra hours earlier → less today');
+  // a past workday with nothing logged is a day off: it is not owed
+  w = C.weekShare([day(1, 0), day(1, 0), day(1, 8 * H), day(1, 0), day(1, 0), day(0, 0), day(0, 0)], 3, 480);
+  assert.strictEqual(w.weekTarget, 3 * 8 * H);
+  assert.strictEqual(w.today, 8 * H);
+  // way ahead → nothing left today
+  w = C.weekShare([day(1, 20 * H), day(1, 0)], 1, 480);
+  assert.strictEqual(w.today, 0);
+});

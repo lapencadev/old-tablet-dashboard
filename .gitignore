@@ -6,6 +6,7 @@ panel/data/menu.js
 panel/data/recipes.json
 panel/img/*
 !panel/img/example-*
+!panel/img/deco-*
 state/
 build/
 *.tmp

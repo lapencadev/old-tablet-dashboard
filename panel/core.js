@@ -163,6 +163,26 @@ var PanelCore = (function () {
     return r;
   }
 
+  /* The daily hours are an average: what counts is the week. days = the 7 days of the week
+     (Monday first) as {on: workday?, logged: has entries?, worked: ms}; a past workday with no
+     entries counts as a day off. Returns how much is left for today and for the week. */
+  function weekShare(days, todayIndex, dayMin) {
+    var day = dayMin * 60000, r = { prevWorked: 0, prevDue: 0, weekTarget: 0 };
+    for (var i = 0; i < days.length; i++) {
+      var d = days[i];
+      if (i < todayIndex) {
+        r.prevWorked += d.worked || 0;
+        if (d.on && d.logged) { r.prevDue += day; r.weekTarget += day; }
+      } else if (d.on) {
+        r.weekTarget += day;
+      }
+    }
+    r.today = days[todayIndex] && days[todayIndex].on
+      ? Math.max(0, day - (r.prevWorked - r.prevDue))
+      : Math.max(0, r.weekTarget - r.prevWorked);
+    return r;
+  }
+
   /* Translation helper: tr('more', {n: 3}) */
   function translator(i18n, lang) {
     var table = i18n[lang] || i18n.en;
@@ -178,6 +198,6 @@ var PanelCore = (function () {
     DAY_MS: DAY_MS, pad: pad, startOfDay: startOfDay, parseDate: parseDate, dateKey: dateKey,
     planFor: planFor, currentMeal: currentMeal, mainDish: mainDish, stripTags: stripTags,
     dueLabel: dueLabel, checklistState: checklistState, isNight: isNight, translator: translator,
-    workMinutes: workMinutes, hm: hm, workSummary: workSummary
+    workMinutes: workMinutes, hm: hm, workSummary: workSummary, weekShare: weekShare
   };
 })();

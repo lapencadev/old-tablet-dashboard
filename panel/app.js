@@ -579,17 +579,43 @@
      ▶ starts the day, ❚❚ opens a break, ▶ ends it. The leave time is now + what is left of
      the configured day. Events are stored on the server with the server's clock. */
   var WORK_MIN = CFG.WORK_TIMER ? C.workMinutes(CFG.WORK_TIMER.HOURS) : null;
-  var WORK = { events: [], offset: 0, sure: 0 };
+  var WORK = { events: [], prev: {}, offset: 0, sure: 0 };
 
   function clockOf(ms) { var d = new Date(ms); return d.getHours() + ':' + C.pad(d.getMinutes()); }
   function workNow() { return now().getTime() + WORK.offset; }
   function workSync(data) { if (data && data.now && !window.__NOW__) WORK.offset = data.now - new Date().getTime(); }
 
+  // The week so far: one entry per day, Monday first, and today's index
+  function workWeek(t) {
+    var d = now(), monday = C.startOfDay(d), workDays = CFG.WORK_TIMER.DAYS || [1, 2, 3, 4, 5], days = [], idx = 0;
+    monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
+    for (var i = 0; i < 7; i++) {
+      var x = new Date(monday.getTime()); x.setDate(monday.getDate() + i);
+      var key = C.dateKey(x), ev = WORK.prev[key] || [];
+      if (key === C.dateKey(d)) idx = i;
+      days.push({ date: x, on: workDays.indexOf(x.getDay()) !== -1, logged: ev.length > 0,
+        worked: ev.length ? C.workSummary(ev, t, false, WORK_MIN).worked : 0 });
+    }
+    return { days: days, index: idx, share: C.weekShare(days, idx, WORK_MIN) };
+  }
+
+  function weekBars(w, todayWorked) {
+    var day = WORK_MIN * 60000, max = day * 1.35, letters = T('wkLetters'), html = '';
+    for (var i = 0; i < 7; i++) {
+      var d = w.days[i], v = i === w.index ? todayWorked : d.worked;
+      if (!d.on && !v) continue;
+      html += '<div class="wb' + (i === w.index ? ' wb-today' : '') + (i > w.index ? ' wb-future' : '') + (v >= day ? ' wb-full' : '') + '">' +
+        '<div class="wb-col"><i style="height:' + Math.min(100, Math.round((v || 0) / max * 100)) + '%"></i></div><span>' + esc(letters[d.date.getDay()]) + '</span></div>';
+    }
+    // dashed line at the daily average, inside the 30 px bars (labels below take 14 px)
+    return '<div class="wk-week"><div class="wb-line" style="bottom:' + (14 + Math.round(30 * day / max)) + 'px"></div>' + html + '</div>';
+  }
+
   function renderWork() {
     var box = $('work');
     if (!WORK_MIN) { box.style.display = 'none'; return; }
-    var t = workNow(), target = WORK_MIN * 60000;
-    var s = C.workSummary(WORK.events, t, true, WORK_MIN);
+    var t = workNow(), w = workWeek(t), target = w.share.today;
+    var s = C.workSummary(WORK.events, t, true, target / 60000);
     var btn, line, stop = '', exit;
     if (s.state === 'work') {
       btn = '<div class="wk-btn wk-pause" data-act="pause"><i></i><i></i></div>';
@@ -599,30 +625,41 @@
       line = T('wkOnBreak', { t: C.hm(t - s.since) });
     } else {
       btn = '<div class="wk-btn wk-play" data-act="start"><i></i></div>';
-      line = esc(s.state === 'done' ? T('wkDone', { d: (s.worked >= target ? '+' : '−') + C.hm(Math.abs(s.worked - target)) }) : T('wkTapToStart'));
+      line = '';
     }
     if (s.state === 'work' || s.state === 'break') {
       var sure = WORK.sure > t;
       stop = '<span class="wk-stop' + (sure ? ' wk-sure' : '') + '" data-act="stop">' + esc(T(sure ? 'wkStopSure' : 'wkStop')) + '</span>';
     }
-    exit = s.state === 'done' ? T('wkLeft', { t: clockOf(s.out) }) : s.state === 'idle' ? T('wkDay', { t: C.hm(target) }) : T('wkLeaveAt', { t: clockOf(s.exit) });
+    exit = s.state === 'done' ? T('wkLeft', { t: clockOf(s.out) }) : s.state === 'idle' ? T('wkTodayShare', { t: C.hm(target) }) :
+      s.worked >= target ? T('wkCanLeave') : T('wkLeaveAt', { t: clockOf(s.exit) });
+    var weekDone = w.share.prevWorked + s.worked, left = w.share.weekTarget - weekDone;
     box.style.display = '';
     box.className = 'card card-work wk-' + s.state;
     // while the day runs, "End" takes the place of "week ›" so the card needs one line less
     box.innerHTML = '<div class="wk-hd">' + esc(T('wkTitle')) + (stop || '<span>' + esc(T('wkWeekLink')) + '</span>') + '</div>' +
+      '<div class="wk-cafe"></div>' +
       '<div class="wk-row">' + btn + '<div class="wk-info"><div class="wk-time">' + C.hm(s.worked) + '</div>' +
       '<div class="wk-exit">' + esc(exit) + '</div></div></div>' +
-      '<div class="wk-bar"><i style="width:' + Math.min(100, Math.round(s.worked / target * 100)) + '%"></i></div>' +
-      '<div class="wk-state">' + line + '</div>';
+      '<div class="wk-bar"><i style="width:' + (target ? Math.min(100, Math.round(s.worked / target * 100)) : 100) + '%"></i></div>' +
+      (line ? '<div class="wk-state">' + line + '</div>' : '') + weekBars(w, s.worked) +
+      '<div class="wk-sum"><span>' + T('wkWeekSum', { t: C.hm(weekDone), d: C.hm(w.share.weekTarget) }) + '</span>' +
+      (left > 0 ? '<span>' + esc(T('wkWeekLeft', { t: C.hm(left) })) + '</span>' : '<em>+' + C.hm(-left) + '</em>') + '</div>';
+    // the drawing only when there is room for it
+    if (box.scrollHeight > box.clientHeight + 1) box.className += ' wk-tight';
   }
 
   function loadWork() {
     if (!WORK_MIN) return;
-    var day = C.dateKey(now());
-    xhr('GET', '/panel/work?from=' + day + '&to=' + day, null, function (data) {
+    var d = now(), day = C.dateKey(d), monday = C.startOfDay(d);
+    monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
+    xhr('GET', '/panel/work?from=' + C.dateKey(monday) + '&to=' + day, null, function (data) {
       if (!data) return;
       workSync(data);
-      WORK.events = (data.days && data.days[day]) || [];
+      var all = data.days || {};
+      WORK.events = all[day] || [];
+      WORK.prev = {};
+      for (var k in all) if (k !== day) WORK.prev[k] = all[k];
       renderWork();
     });
   }
@@ -717,7 +754,7 @@
       for (var i = 1; i < ev.length; i++) if (ev[i].ts <= ev[i - 1].ts) { EDIT.error = T('wkOrder'); renderWorkDay(); return; }
       xhr('POST', '/panel/work', { day: EDIT.key, events: ev }, function (data, status) {
         if (!data) { EDIT.error = T('wkSaveError', { s: status }); renderWorkDay(); return; }
-        if (EDIT.key === C.dateKey(now())) { WORK.events = data.events; renderWork(); }
+        loadWork();   // recompute today and the week
         openWorkWeek(EDIT.back);
       });
       return;

@@ -129,7 +129,9 @@ Toca la agenda de la semana para abrir un calendario completo, al estilo de Goog
 
 Sirve para saber cuántas horas trabajas de verdad sin apuntarlas en ningún sitio. Solo aparece si pones `WORK_TIMER` en `panel/config.js`, con las horas que trabajas **tú**: el repo no da por hecha ninguna jornada.
 
-- **▶** empieza la jornada. La tarjeta enseña las horas trabajadas y, más clarito, la hora a la que puedes salir para completar tu jornada.
+- **▶** empieza la jornada. La tarjeta enseña las horas trabajadas y, más clarito, la hora a la que puedes salir.
+- **Tus horas son una media de la semana.** Si otro día echaste más, hoy puedes salir antes (y al revés), así que el viernes te dice lo que falta para cuadrar la *semana*, no para un día normal. Un día laborable pasado sin ningún fichaje cuenta como libre.
+- **Unas barritas** enseñan cada día laborable de la semana, con una raya en tus horas diarias, y abajo tienes el total de la semana y lo que falta.
 - **❚❚** abre un descanso (la tarjeta se pone amarilla y lo cuenta). Al darle otra vez a **▶** sigue sumando, y la hora de salida se retrasa lo que haya durado el descanso.
 - **Terminar** (arriba a la derecha mientras la jornada está en marcha) pide un segundo toque en 4 segundos, para no cerrarla sin querer.
 - **Tocando la tarjeta** ves la semana: entrada, salida, descansos, horas trabajadas y la diferencia con tu jornada; con la flecha vas a semanas anteriores.

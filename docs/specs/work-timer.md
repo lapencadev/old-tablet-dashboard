@@ -15,7 +15,8 @@ Let someone who does not log their hours anywhere see, at a glance, how long the
 ## Acceptance Scenarios
 
 1. Given `WORK_TIMER: null` (default), the card is not shown and the photo keeps the space.
-2. Given `WORK_TIMER: { HOURS: '8:00' }`, when ▶ is tapped, the card shows the time worked and "leave at" = now + what is left.
+2. Given `WORK_TIMER: { HOURS: '8:00' }`, when ▶ is tapped, the card shows the time worked and "leave at" = now + what is left of **today's share of the week**: HOURS − (worked so far this week − HOURS × past workdays with entries). Past workdays without entries are days off.
+2b. The card shows one small bar per workday (dashed line at HOURS) and the week total against HOURS × (past logged workdays + workdays from today).
 3. When ❚❚ is tapped, a break starts; the leave time moves forward while it lasts; ▶ resumes.
 4. "End" (in the card header while the day runs) needs a second tap within 4 s; then the card shows the difference with the day.
 5. Tapping the card opens the week (in, out, break, worked, ±) with the total against `HOURS × DAYS`; arrows move between weeks.

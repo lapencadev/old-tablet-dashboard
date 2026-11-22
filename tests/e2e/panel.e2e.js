@@ -203,6 +203,8 @@ async function scenario(name, fn) {
     const p = await page(browser, { config: { WORK_TIMER: { HOURS: '8:00', DAYS: [1, 2, 3, 4, 5] } } });
     const cls = async () => p.getAttribute('#work', 'class');
     assert.ok((await cls()).includes('wk-idle'), await cls());
+    assert.strictEqual(await p.locator('#work .wb').count(), 5, 'one bar per workday');
+    assert.ok(/of \d+:\d\d/.test(await p.textContent('#work .wk-sum')), await p.textContent('#work .wk-sum'));
     await p.click('#work [data-act=start]'); await p.waitForTimeout(500);
     assert.ok((await cls()).includes('wk-work'));
     await p.click('#work [data-act=pause]'); await p.waitForTimeout(500);
