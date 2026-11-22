@@ -68,5 +68,5 @@
 - Date: 2026-11-22
 - Goal: work timer counts holidays and vacation.
 - Completed: all-day calendar events whose title matches `WORK_TIMER.OFF_WORDS` are days off (only on workdays): week target drops, bar hatched, tag in the week modal; guides EN/ES and spec updated.
-- Verification run: `./init.sh` green, e2e 19/19.
+- Verification run: `./init.sh` green, e2e 20/20 (also `OFF_CALENDARS` to skip public holiday calendars).
 - Next best step: unchanged.

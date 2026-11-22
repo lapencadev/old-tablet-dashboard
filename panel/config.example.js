@@ -49,4 +49,5 @@ var PANEL_CONFIG = {
   // WORK_TIMER: { HOURS: '8:00', DAYS: [1, 2, 3, 4, 5] }
   // Days off: an all-day event in any calendar whose title has one of OFF_WORDS is not counted, e.g.
   // WORK_TIMER: { HOURS: '7:42', DAYS: [1, 2, 3, 4, 5], OFF_WORDS: ['holiday', 'vacation', 'day off'] }
+  // OFF_CALENDARS: ['calendar.me'] only looks there (skip public holiday calendars full of other regions' days)
 };

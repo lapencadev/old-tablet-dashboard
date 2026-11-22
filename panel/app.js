@@ -590,11 +590,13 @@
   function offDays(first, lastExcl, done) {
     var words = CFG.WORK_TIMER.OFF_WORDS || ['holiday', 'vacation', 'day off', 'festivo', 'vacaciones', 'libre', 'puente'];
     var re = new RegExp('(^|[^a-záéíóúñ])(' + words.join('|') + ')', 'i');
+    var only = CFG.WORK_TIMER.OFF_CALENDARS; // null = every calendar the panel shows
     fetchRange(first, lastExcl, function (byDay) {
       var off = {};
       for (var k in byDay || {}) {
         for (var i = 0; i < byDay[k].length; i++) {
           var it = byDay[k][i];
+          if (only && only.indexOf(CALV.cals[it.ci]) === -1) continue;
           if ((it.s.allDay || it.cont) && re.test(it.title)) { off[k] = it.title; break; }
         }
       }

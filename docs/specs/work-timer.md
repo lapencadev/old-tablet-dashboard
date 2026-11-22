@@ -37,4 +37,4 @@ Let someone who does not log their hours anywhere see, at a glance, how long the
 
 ## Days off from the calendar
 
-An all-day event (any configured calendar) whose title contains one of `WORK_TIMER.OFF_WORDS` (default: holiday, vacation, day off, festivo, vacaciones, libre, puente; case-insensitive) marks that date as a day off. Only configured workdays are affected: the day does not count towards the week target, its bar is hatched and the week modal tags it. Events are re-read when the week changes or every 30 minutes.
+An all-day event (any configured calendar) whose title contains one of `WORK_TIMER.OFF_WORDS` (default: holiday, vacation, day off, festivo, vacaciones, libre, puente; case-insensitive) marks that date as a day off. Only configured workdays are affected: the day does not count towards the week target, its bar is hatched and the week modal tags it. `OFF_CALENDARS` (optional list of entity ids) limits which calendars count; unset = all. Events are re-read when the week changes or every 30 minutes.

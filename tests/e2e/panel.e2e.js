@@ -246,6 +246,13 @@ async function scenario(name, fn) {
     assert.deepStrictEqual(p.errors, []);
   });
 
+  await scenario('work-timer: OFF_CALENDARS ignores days off in other calendars', async () => {
+    const p = await page(browser, { config: { WORK_TIMER: { HOURS: '8:00', DAYS: [1, 2, 3, 4, 5], OFF_WORDS: ['bins'], OFF_CALENDARS: ['calendar.school'] } } });
+    await p.waitForTimeout(800);
+    assert.strictEqual(await p.locator('#work .wb-off').count(), 0, '"Bins out" is in the family calendar');
+    assert.deepStrictEqual(p.errors, []);
+  });
+
   await scenario('work-timer: off unless configured', async () => {
     const p = await page(browser, { config: { WORK_TIMER: null } });
     assert.ok(!(await p.isVisible('#work')));
