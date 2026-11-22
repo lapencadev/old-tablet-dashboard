@@ -588,7 +588,7 @@
   /* Days off from the calendar: an all-day event whose title contains one of
      WORK_TIMER.OFF_WORDS (holiday, vacation…), in any calendar. */
   function offDays(first, lastExcl, done) {
-    var words = CFG.WORK_TIMER.OFF_WORDS || ['holiday', 'vacation', 'day off', 'festivo', 'vacaciones', 'libre', 'puente'];
+    var words = CFG.WORK_TIMER.OFF_WORDS || ['holiday', 'vacation', 'day off', 'out of office', 'festivo', 'vacaciones', 'libre', 'puente'];
     var re = new RegExp('(^|[^a-záéíóúñ])(' + words.join('|') + ')', 'i');
     var only = CFG.WORK_TIMER.OFF_CALENDARS; // null = every calendar the panel shows
     fetchRange(first, lastExcl, function (byDay) {
