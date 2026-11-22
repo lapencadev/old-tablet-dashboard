@@ -235,6 +235,17 @@ async function scenario(name, fn) {
     assert.deepStrictEqual(p.errors, []);
   });
 
+  await scenario('work-timer: an all-day calendar event with an OFF_WORDS word is a day off', async () => {
+    const p = await page(browser, { config: { WORK_TIMER: { HOURS: '8:00', DAYS: [1, 2, 3, 4, 5], OFF_WORDS: ['bins'] } } });
+    await p.waitForTimeout(800);
+    assert.strictEqual(await p.locator('#work .wb-off').count(), 1, 'today is off');
+    // Mon/Tue past with nothing logged, Wed off → only Thu and Fri are owed
+    assert.ok((await p.textContent('#work .wk-sum')).includes('of 16:00'), await p.textContent('#work .wk-sum'));
+    await p.click('#work .wk-time'); await p.waitForTimeout(800);
+    assert.ok((await p.textContent('#modal .wk-offtag')).includes('Bins out'));
+    assert.deepStrictEqual(p.errors, []);
+  });
+
   await scenario('work-timer: off unless configured', async () => {
     const p = await page(browser, { config: { WORK_TIMER: null } });
     assert.ok(!(await p.isVisible('#work')));

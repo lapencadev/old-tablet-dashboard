@@ -426,3 +426,12 @@ html.night .wk-sum, html.night .wb span { color: #5f6b55; }
 html.night .wk-sum b { color: #8f9c84; }
 .card-work { width: 244px; }
 @media (max-width: 680px) { .card-work { width: 100%; } }
+
+/* Days off (holidays, vacation… from the calendar) */
+.wb-off .wb-col { background: repeating-linear-gradient(135deg, #eef2ea, #eef2ea 4px, #f8faf5 4px, #f8faf5 8px); }
+.wb-off span { color: #c8c8b8; }
+.wk-offtag { font-style: normal; font-size: 11px; color: #4a7a3a; background: #e5f4e4; border-radius: 8px; padding: 1px 6px; margin-left: 4px; }
+html.night .wb-off .wb-col { background: repeating-linear-gradient(135deg, #1d2419, #1d2419 4px, #141a11 4px, #141a11 8px); }
+/* the coffee drawing never shrinks: if it does not fit whole it is hidden (wk-tight) */
+.wk-cafe { -webkit-flex-shrink: 0; flex-shrink: 0; }
+.card-work > div { -webkit-flex-shrink: 0; flex-shrink: 0; }

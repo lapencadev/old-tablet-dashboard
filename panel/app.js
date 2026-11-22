@@ -579,11 +579,28 @@
      ▶ starts the day, ❚❚ opens a break, ▶ ends it. The leave time is now + what is left of
      the configured day. Events are stored on the server with the server's clock. */
   var WORK_MIN = CFG.WORK_TIMER ? C.workMinutes(CFG.WORK_TIMER.HOURS) : null;
-  var WORK = { events: [], prev: {}, offset: 0, sure: 0 };
+  var WORK = { events: [], prev: {}, off: {}, offWeek: '', offAt: 0, offset: 0, sure: 0 };
 
   function clockOf(ms) { var d = new Date(ms); return d.getHours() + ':' + C.pad(d.getMinutes()); }
   function workNow() { return now().getTime() + WORK.offset; }
   function workSync(data) { if (data && data.now && !window.__NOW__) WORK.offset = data.now - new Date().getTime(); }
+
+  /* Days off from the calendar: an all-day event whose title contains one of
+     WORK_TIMER.OFF_WORDS (holiday, vacation…), in any calendar. */
+  function offDays(first, lastExcl, done) {
+    var words = CFG.WORK_TIMER.OFF_WORDS || ['holiday', 'vacation', 'day off', 'festivo', 'vacaciones', 'libre', 'puente'];
+    var re = new RegExp('(^|[^a-záéíóúñ])(' + words.join('|') + ')', 'i');
+    fetchRange(first, lastExcl, function (byDay) {
+      var off = {};
+      for (var k in byDay || {}) {
+        for (var i = 0; i < byDay[k].length; i++) {
+          var it = byDay[k][i];
+          if ((it.s.allDay || it.cont) && re.test(it.title)) { off[k] = it.title; break; }
+        }
+      }
+      done(off, byDay !== null);
+    });
+  }
 
   // The week so far: one entry per day, Monday first, and today's index
   function workWeek(t) {
@@ -593,7 +610,8 @@
       var x = new Date(monday.getTime()); x.setDate(monday.getDate() + i);
       var key = C.dateKey(x), ev = WORK.prev[key] || [];
       if (key === C.dateKey(d)) idx = i;
-      days.push({ date: x, on: workDays.indexOf(x.getDay()) !== -1, logged: ev.length > 0,
+      var workday = workDays.indexOf(x.getDay()) !== -1;
+      days.push({ date: x, off: workday && !!WORK.off[key], on: workday && !WORK.off[key], logged: ev.length > 0,
         worked: ev.length ? C.workSummary(ev, t, false, WORK_MIN).worked : 0 });
     }
     return { days: days, index: idx, share: C.weekShare(days, idx, WORK_MIN) };
@@ -603,8 +621,8 @@
     var day = WORK_MIN * 60000, max = day * 1.35, letters = T('wkLetters'), html = '';
     for (var i = 0; i < 7; i++) {
       var d = w.days[i], v = i === w.index ? todayWorked : d.worked;
-      if (!d.on && !v) continue;
-      html += '<div class="wb' + (i === w.index ? ' wb-today' : '') + (i > w.index ? ' wb-future' : '') + (v >= day ? ' wb-full' : '') + '">' +
+      if (!d.on && !d.off && !v) continue;
+      html += '<div class="wb' + (i === w.index ? ' wb-today' : '') + (i > w.index ? ' wb-future' : '') + (d.off ? ' wb-off' : '') + (v >= day ? ' wb-full' : '') + '">' +
         '<div class="wb-col"><i style="height:' + Math.min(100, Math.round((v || 0) / max * 100)) + '%"></i></div><span>' + esc(letters[d.date.getDay()]) + '</span></div>';
     }
     // dashed line at the daily average, inside the 30 px bars (labels below take 14 px)
@@ -661,6 +679,16 @@
       WORK.prev = {};
       for (var k in all) if (k !== day) WORK.prev[k] = all[k];
       renderWork();
+      // days off of this week: when the week changes and every 30 minutes
+      var weekKey = C.dateKey(monday);
+      if (WORK.offWeek !== weekKey || new Date().getTime() - WORK.offAt > 30 * 60000) {
+        var sunday = new Date(monday.getTime()); sunday.setDate(monday.getDate() + 7);
+        offDays(monday, sunday, function (off, ok) {
+          if (!ok) return;
+          WORK.off = off; WORK.offWeek = weekKey; WORK.offAt = new Date().getTime();
+          renderWork();
+        });
+      }
     });
   }
 
@@ -676,16 +704,20 @@
     var days = [];
     for (var i = 0; i < 7; i++) { var x = new Date(monday.getTime()); x.setDate(monday.getDate() + i); days.push(x); }
     var today = C.dateKey(d), workDays = CFG.WORK_TIMER.DAYS || [1, 2, 3, 4, 5], target = WORK_MIN * 60000;
+    var sundayExcl = new Date(monday.getTime()); sundayExcl.setDate(monday.getDate() + 7);
+    offDays(monday, sundayExcl, function (offMap) {
     xhr('GET', '/panel/work?from=' + C.dateKey(days[0]) + '&to=' + C.dateKey(days[6]), null, function (data) {
       var all = (data && data.days) || {}, rows = '', total = 0, due = 0, wd = T('weekdaysShort');
       for (var i = 0; i < 7; i++) {
-        var key = C.dateKey(days[i]), ev = all[key] || [], on = workDays.indexOf(days[i].getDay()) !== -1;
+        var key = C.dateKey(days[i]), ev = all[key] || [], offTitle = offMap[key];
+        var on = workDays.indexOf(days[i].getDay()) !== -1 && !offTitle;
         var s = C.workSummary(ev, workNow(), key === today, WORK_MIN);
         var diff = ev.length && s.state === 'done' ? s.worked - target : null;
-        if (on) due += target;
+        if (on && (ev.length || key >= today)) due += target;   // same rule as the card
         total += s.worked;
         rows += '<tr data-wday="' + i + '" class="' + (key === today ? 'wk-today' : '') + (on ? '' : ' wk-off') + '">' +
-          '<td>' + esc(wd[days[i].getDay()]) + ' <span>' + days[i].getDate() + '</span></td>' +
+          '<td>' + esc(wd[days[i].getDay()]) + ' <span>' + days[i].getDate() + '</span>' +
+          (offTitle ? ' <em class="wk-offtag">' + esc(offTitle) + '</em>' : '') + '</td>' +
           '<td>' + (s.first ? clockOf(s.first) : '–') + '</td>' +
           '<td>' + (s.out ? clockOf(s.out) + (s.open ? '<sup>?</sup>' : '') : (s.state === 'work' || s.state === 'break') ? esc(T('wkNow')) : '–') + '</td>' +
           '<td>' + (s.pause ? C.hm(s.pause) : '–') + '</td>' +
@@ -702,6 +734,7 @@
         (total >= due ? '<span class="wk-plus">+' + C.hm(total - due) + '</span>' : esc(T('wkMissing', { t: C.hm(due - total) }))) + '</div>' +
         '<div class="wk-note">' + esc(T('wkFixHint')) + ' ' + esc(T('wkOpenNote')) + '</div>');
       WORK.week = { days: days, back: back };
+    });
     });
   }
 

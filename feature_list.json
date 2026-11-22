@@ -325,7 +325,8 @@
     "evidence": [
       "2026-11-18: ./init.sh green (63 Python tests, JS tests incl. 2 new); e2e 17/17 including work-timer scenarios.",
       "2026-11-18: same feature added to the owner's own panel (7:42 h day); click-through and correction checked there with Playwright against the fake HA.",
-      "2026-11-22: leave time counts the week (weekShare unit test: extra hours earlier → less today; unlogged past workday = day off); e2e checks 5 bars and the week total; 18/18."
+      "2026-11-22: leave time counts the week (weekShare unit test: extra hours earlier → less today; unlogged past workday = day off); e2e checks 5 bars and the week total; 18/18.",
+      "2026-11-22: all-day calendar events matching OFF_WORDS are days off (hatched bar, smaller week target); e2e scenario with OFF_WORDS ['bins']; 19/19."
     ],
     "notes": "Spec: docs/specs/work-timer.md. Times come from the server clock; the day key is the tablet's local date."
   },
