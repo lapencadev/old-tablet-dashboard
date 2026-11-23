@@ -70,3 +70,10 @@
 - Completed: all-day calendar events whose title matches `WORK_TIMER.OFF_WORDS` are days off (only on workdays): week target drops, bar hatched, tag in the week modal; guides EN/ES and spec updated.
 - Verification run: `./init.sh` green, e2e 20/20 (also `OFF_CALENDARS` to skip public holiday calendars).
 - Next best step: unchanged.
+
+## Session
+- Date: 2026-11-23
+- Goal: see the whole week's menu.
+- Completed: `panel-meal-week` — "see week ›" opens the seven days by meal, ‹ ›, recipe with a way back; guides EN/ES, spec, screenshot.
+- Verification run: `./init.sh` green, e2e 21/21.
+- Next best step: unchanged.

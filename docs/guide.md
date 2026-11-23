@@ -311,6 +311,10 @@ Check it with `python tools/panel.py validate-menu`, then `deploy-app`.
 
 **Choosing a week by hand**: tap the week name next to "Today". The choice is shared by every screen and by `/menu`; pick *Automatic* to go back to dates. A new week appears on the day it starts.
 
+**The whole week**: tap **see week ›** next to "Today" to see the seven days at once, one column per day and one row per meal. ‹ › moves to other weeks (handy for the shopping), **This week** comes back, and tapping a dish opens its recipe with a way back to the week.
+
+![The menu for the whole week](img/meal-week.png)
+
 ## 9. Use it away from home (Tailscale)
 
 1. **Settings → Apps → Install app → Tailscale** → install, start, open the web UI and log in.

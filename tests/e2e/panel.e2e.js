@@ -66,6 +66,32 @@ async function scenario(name, fn) {
     assert.strictEqual(await p.getAttribute('#modal', 'class'), 'modal');
   });
 
+  await scenario('panel-meal-week: "see week" opens the 7 days, ‹ › and a dish opens its recipe with a way back', async () => {
+    const p = await page(browser);
+    await p.click('#mealWeekBtn');
+    await p.waitForTimeout(300);
+    assert.strictEqual(await p.getAttribute('#modal', 'data-mode'), 'mealweek');
+    assert.strictEqual(await p.locator('#modal .mw-table th').count(), 8);
+    const rows = await p.$$eval('#modal .mw-table .mw-rh', (els) => els.map((e) => e.textContent).filter(Boolean));
+    assert.deepStrictEqual(rows, ['Breakfast', 'Mid-morning', 'Lunch', 'Afternoon', 'Dinner']);
+    assert.ok((await p.textContent('#modal td.cv-today')).length > 0, 'today column highlighted');
+    if (SHOTS) await p.screenshot({ path: SHOTS + '/meal-week.png' });
+    const title = await p.textContent('#modal .cv-title');
+    await p.click('#modal [data-mw="next"]');
+    assert.notStrictEqual(await p.textContent('#modal .cv-title'), title);
+    await p.click('#modal [data-mw="today"]');
+    assert.strictEqual(await p.textContent('#modal .cv-title'), title);
+    await p.click('#modal td.cv-today[data-row]');
+    await p.waitForTimeout(500);
+    assert.strictEqual(await p.getAttribute('#modal', 'data-mode'), 'meal');
+    assert.ok((await p.textContent('#modal .md-hd')).startsWith('Wednesday'));
+    await p.click('#modal .md-close');
+    assert.strictEqual(await p.getAttribute('#modal', 'data-mode'), 'mealweek');
+    await p.click('#modal .md-close');
+    assert.strictEqual(await p.getAttribute('#modal', 'class'), 'modal');
+    assert.deepStrictEqual(p.errors, []);
+  });
+
   await scenario('panel-i18n: Spanish config translates every fixed text', async () => {
     const p = await page(browser, { config: { LANG: 'es' } });
     assert.strictEqual(await p.textContent('#hToday'), 'Hoy se come');

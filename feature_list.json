@@ -91,6 +91,25 @@
     "notes": "Recipe section is added by recipe-lookup."
   },
   {
+    "id": "panel-meal-week",
+    "area": "panel",
+    "title": "The menu for a whole week in a modal",
+    "user_visible_behavior": "\"see week ›\" in the Today header opens the seven days (columns) by meal (rows), today highlighted; ‹ › and This week move between weeks; a dish opens its recipe with a way back to the week.",
+    "depends_on": [
+      "panel-today-meals",
+      "panel-meal-detail"
+    ],
+    "status": "passing",
+    "verification": [
+      "e2e: open, 8 header cells and 5 meal rows, today highlighted, next/this week, dish → detail → back to week → close, no JS errors."
+    ],
+    "evidence": [
+      "2026-11-23: e2e 'panel-meal-week' passes (21/21 scenarios); screenshot at 1280×800 checked by eye.",
+      "2026-11-23: same feature added to the owner's own panel."
+    ],
+    "notes": "Spec: docs/specs/panel-meal-week.md. Uses planFor per day."
+  },
+  {
     "id": "panel-i18n",
     "area": "panel",
     "title": "The panel speaks English or Spanish",

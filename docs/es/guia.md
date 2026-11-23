@@ -313,6 +313,10 @@ Compruébalo con `python tools/panel.py validate-menu` y luego `deploy-app`.
 
 **Elegir semana a mano**: toca el nombre de la semana junto a «Hoy se come». La elección la comparten todas las pantallas y `/menu`; elige *Automático* para volver a las fechas. Un menú nuevo aparece el día que empieza.
 
+**La semana entera**: toca **ver semana ›** junto a «Hoy» para ver los siete días de golpe, un día por columna y una comida por fila. ‹ › pasa a otras semanas (útil para la compra), **Esta semana** vuelve, y al tocar un plato se abre su receta con un botón para volver a la semana.
+
+![El menú de toda la semana](../img/meal-week.png)
+
 ## 9. Fuera de casa (Tailscale)
 
 1. **Configuración → Aplicaciones → Instalar aplicación → Tailscale** → instala, inicia, abre su interfaz web e inicia sesión.

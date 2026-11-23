@@ -36,6 +36,7 @@
   /* ───────── Static labels ───────── */
   function renderLabels() {
     $('hToday').innerHTML = esc(T('todayMeals'));
+    $('mealWeekBtn').innerHTML = esc(T('mwOpen'));
     $('hTomorrow').innerHTML = esc(T('tomorrow'));
     $('hTomorrowHint').innerHTML = esc(T('tomorrowHint'));
     $('hWeek').innerHTML = esc(T('thisWeek'));
@@ -114,6 +115,50 @@
   }
   function closeModal() { $('modal').className = 'modal'; $('modal').innerHTML = ''; }
 
+  /* The menu for a whole week: days in columns, meals in rows; ‹ › changes week.
+     Every day comes from planFor(), so repeated weeks and the week picked by hand apply. */
+  var MW = { anchor: null };
+  function openMealWeek(anchor) {
+    MW.anchor = anchor || MW.anchor || now();
+    var first = mondayOf(MW.anchor), end = addDays(first, 6), todayK = C.dateKey(now()), heads = headMonFirst();
+    var days = [], used = [], label = '', i, j;
+    for (i = 0; i < 7; i++) {
+      var d = addDays(first, i), plan = C.planFor(MENU_DATA, d, CHOSEN);
+      var day = plan && plan.exact ? dayOf(plan) : {};
+      if (plan && plan.exact && !label) label = plan.week.title.split('·')[0].replace(/\s+$/, '');
+      days.push({ date: d, day: day });
+      for (j = 0; j < MEALS.length; j++) if (day[MEALS[j].id]) used[j] = true;
+    }
+    var head = '<th class="mw-rh"></th>', body = '';
+    for (i = 0; i < 7; i++) {
+      head += '<th class="' + (C.dateKey(days[i].date) === todayK ? 'cv-today' : '') + '"><div class="cv-dn"><span>' + esc(heads[i]) + '</span> ' + days[i].date.getDate() + '</div></th>';
+    }
+    for (j = 0; j < MEALS.length; j++) {
+      if (!used[j]) continue;
+      body += '<tr><td class="mw-rh">' + esc(MEALS[j].label) + '</td>';
+      for (i = 0; i < 7; i++) {
+        var dishes = days[i].day[MEALS[j].id], cls = C.dateKey(days[i].date) === todayK ? 'cv-today' : '';
+        var main = dishes && PEOPLE.length ? C.mainDish(dishes[PEOPLE[0].id] || '') : '';
+        if (!dishes) { body += '<td class="' + cls + '"><div class="cv-none">—</div></td>'; continue; }
+        var id = 'w' + i + '_' + j, others = '';
+        for (var p = 1; p < PEOPLE.length; p++) {
+          var o = dishes[PEOPLE[p].id] != null ? C.mainDish(dishes[PEOPLE[p].id]) : '';
+          if (o && o !== main) others += '<div class="mw-other">' + personTag(PEOPLE[p]) + esc(o) + '</div>';
+        }
+        MEAL_ROWS[id] = { meal: MEALS[j], dishes: dishes, when: T('weekdays')[days[i].date.getDay()] + ' ' + days[i].date.getDate(), week: true };
+        body += '<td class="' + cls + '" data-row="' + id + '"><div class="mw-dish">' + esc(main) + '</div>' + others + '</td>';
+      }
+      body += '</tr>';
+    }
+    if (!body) body = '<tr><td colspan="8"><div class="empty">' + esc(T('mwNone')) + '</div></td></tr>';
+    var range = first.getDate() + (first.getMonth() !== end.getMonth() ? ' ' + T('months')[first.getMonth()].slice(0, 3) : '') +
+      ' – ' + end.getDate() + ' ' + T('months')[end.getMonth()].slice(0, 3);
+    var bar = '<span class="cv-btn" data-mw="prev">‹</span><span class="cv-btn" data-mw="next">›</span>' +
+      '<span class="cv-title">' + esc(T('mwTitle', { range: range })) + (label ? ' <em>' + esc(label) + '</em>' : '') + '</span>' +
+      '<span class="cv-btn cv-today-btn" data-mw="today">' + esc(T('mwThisWeek')) + '</span>';
+    openModal('mealweek', bar, '<table class="mw-table"><tr>' + head + '</tr>' + body + '</table><div class="cv-legend">' + esc(T('mwTap')) + '</div>');
+  }
+
   function openMeal(id) {
     var row = MEAL_ROWS[id];
     if (!row) return;
@@ -126,6 +171,8 @@
     }
     body += '<div id="mdRecipe" class="md-recipe"><div class="empty">' + esc(T('recipeSearching')) + '</div></div>';
     openModal('meal', esc(row.when + ' · ' + row.meal.label), body);
+    if (row.week) $('modal').querySelector('.md-close').innerHTML = esc(T('mwBack'));
+    $('modal').setAttribute('data-from', row.week ? 'week' : '');
     var main = C.mainDish(row.dishes[PEOPLE[0].id] || '');
     xhr('GET', '/panel/recipe?q=' + encodeURIComponent(main), null, function (data) { renderRecipe(data && data.recipe); });
   }
@@ -886,6 +933,7 @@
     $('today').onclick = meals;
     $('tomorrow').onclick = meals;
     $('weekLabel').onclick = openPicker;
+    $('mealWeekBtn').onclick = function () { openMealWeek(now()); };
     $('agenda').onclick = function () { openCal('week', now()); };
     var lists = function (ev) {
       var box = this.id;
@@ -902,6 +950,13 @@
       if (mode === 'work' && back) { openWorkWeek(+back.getAttribute('data-back')); return; }
       var wday = closest(ev.target, this, function (e) { return e.getAttribute('data-wday'); });
       if (mode === 'work' && wday) { openWorkDay(WORK.week.days[+wday.getAttribute('data-wday')], WORK.week.back); return; }
+      if (mode === 'mealweek') {
+        var mw = closest(ev.target, this, function (e) { return e.getAttribute('data-mw') || e.getAttribute('data-row'); });
+        if (mw && mw.getAttribute('data-row')) { openMeal(mw.getAttribute('data-row')); return; }
+        if (mw) { var a = mw.getAttribute('data-mw'); openMealWeek(a === 'today' ? now() : addDays(MW.anchor, a === 'next' ? 7 : -7)); return; }
+      }
+      if (mode === 'meal' && this.getAttribute('data-from') === 'week' &&
+          closest(ev.target, this, function (e) { return e.className === 'md-close'; })) { openMealWeek(); return; }
       if (mode === 'cal') {
         var cv = closest(ev.target, this, function (e) { return e.getAttribute('data-cal') || e.getAttribute('data-day'); });
         if (cv) { calClick(cv); return; }

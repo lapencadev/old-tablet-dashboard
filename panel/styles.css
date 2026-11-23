@@ -435,3 +435,20 @@ html.night .wb-off .wb-col { background: repeating-linear-gradient(135deg, #1d24
 /* the coffee drawing never shrinks: if it does not fit whole it is hidden (wk-tight) */
 .wk-cafe { -webkit-flex-shrink: 0; flex-shrink: 0; }
 .card-work > div { -webkit-flex-shrink: 0; flex-shrink: 0; }
+
+/* The menu for a whole week */
+.mw-open { font-size: 13px; color: #4a5c3e; border: 1px solid #c8d4bc; border-radius: 14px; padding: 3px 10px; margin: 0 8px 0 auto; white-space: nowrap; }
+.md-mealweek { width: 94%; max-width: 1180px; height: 92%; max-height: 92%; }
+.md-mealweek .md-hd { display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; padding: 14px 18px 10px; font-family: Roboto, Arial, sans-serif; }
+.md-mealweek .md-body { display: -webkit-flex; display: flex; -webkit-flex-direction: column; flex-direction: column; padding: 0 14px 6px; overflow: auto; }
+.mw-table { -webkit-flex: 1; flex: 1; width: 100%; border-collapse: collapse; table-layout: fixed; }
+.mw-table th { height: 34px; vertical-align: bottom; text-align: left; font-weight: normal; padding: 0 6px; }
+.mw-table td { vertical-align: top; border-top: 1px solid #e8ede4; border-left: 1px solid #e8ede4; padding: 6px; overflow: hidden; }
+.mw-table .mw-rh { width: 84px; border-left: 0; font-size: 11px; color: #7a8c6e; text-transform: uppercase; letter-spacing: .5px; padding-top: 8px; }
+.mw-dish { font-size: 13.5px; line-height: 1.25; color: #1e1e18; max-height: 51px; overflow: hidden; }
+.mw-other { font-size: 12px; line-height: 1.25; color: #4a4a40; margin-top: 3px; max-height: 30px; overflow: hidden; }
+.mw-other .tag { font-size: 9px; padding: 0 4px; margin-right: 4px; vertical-align: 1px; }
+html.night .mw-open { color: #8f9c84; border-color: #2a3324; }
+html.night .mw-table td { border-color: #1d2419; }
+html.night .mw-dish { color: #8f9c84; }
+html.night .mw-other { color: #6c7864; }
